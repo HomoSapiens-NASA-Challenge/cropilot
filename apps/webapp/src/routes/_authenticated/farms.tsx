@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/farms")({
 
 function FarmsPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <h1 className="font-heading text-xl font-medium">Farms</h1>
       <FarmForm />
       <FarmList />

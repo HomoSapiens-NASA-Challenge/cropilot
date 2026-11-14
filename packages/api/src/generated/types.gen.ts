@@ -5,6 +5,80 @@ export type ClientOptions = {
 };
 
 /**
+ * DashboardField
+ */
+export type DashboardField = {
+    /**
+     * Field Id
+     */
+    field_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Place
+     */
+    place: string;
+    /**
+     * Lat
+     */
+    lat: number;
+    /**
+     * Lon
+     */
+    lon: number;
+    /**
+     * Scale Note
+     */
+    scale_note: string;
+};
+
+/**
+ * DataSource
+ */
+export type DataSource = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * What
+     */
+    what: string;
+    /**
+     * Period
+     */
+    period?: string | null;
+    /**
+     * Location
+     */
+    location?: string | null;
+};
+
+/**
+ * Decision
+ */
+export type Decision = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Decision Date
+     */
+    decision_date: string;
+};
+
+/**
  * FarmCreate
  */
 export type FarmCreate = {
@@ -33,6 +107,39 @@ export type FarmRead = {
 };
 
 /**
+ * FlagDef
+ */
+export type FlagDef = {
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Definition
+     */
+    definition: string;
+    /**
+     * Provenance
+     */
+    provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Missing Note
+     */
+    missing_note?: string | null;
+};
+
+/**
+ * FlagDefs
+ *
+ * Meaning of each per-season climate flag. The client never hardcodes it.
+ */
+export type FlagDefs = {
+    water_deficit_at_flowering: FlagDef;
+    heat_at_flowering: FlagDef;
+    excess_water: FlagDef;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -40,6 +147,241 @@ export type HttpValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * Margin
+ */
+export type Margin = {
+    /**
+     * Unit
+     */
+    unit: 'USD/ha/yr';
+    /**
+     * Basis
+     */
+    basis: 'per_year' | 'per_cycle';
+    /**
+     * Includes Rent
+     */
+    includes_rent: boolean;
+    /**
+     * Price Basis
+     */
+    price_basis: string;
+    /**
+     * Provenance
+     */
+    provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+    /**
+     * By Season
+     */
+    by_season: {
+        [key: string]: number | null;
+    };
+};
+
+/**
+ * Metric
+ *
+ * A single number with its unit and where it came from.
+ */
+export type Metric = {
+    /**
+     * Value
+     */
+    value: number | null;
+    /**
+     * Unit
+     */
+    unit: string;
+    /**
+     * Provenance
+     */
+    provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+    /**
+     * Note
+     */
+    note?: string | null;
+};
+
+/**
+ * OniWindow
+ */
+export type OniWindow = {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Label
+     */
+    label: string;
+};
+
+/**
+ * Season
+ */
+export type Season = {
+    /**
+     * Season Id
+     */
+    season_id: string;
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'nina' | 'neutral' | 'nino';
+    /**
+     * Oni
+     */
+    oni: number;
+    /**
+     * Root Zone Wetness
+     */
+    root_zone_wetness: number;
+    /**
+     * Start Soil
+     */
+    start_soil: 'dry' | 'wet';
+    /**
+     * Is Similar
+     */
+    is_similar: boolean;
+    /**
+     * Rain Oct Mar Mm
+     */
+    rain_oct_mar_mm: number | null;
+    /**
+     * Water Deficit At Flowering
+     */
+    water_deficit_at_flowering: boolean | null;
+    /**
+     * Heat At Flowering
+     */
+    heat_at_flowering: boolean | null;
+    /**
+     * Excess Water
+     */
+    excess_water: boolean | null;
+    /**
+     * Note
+     */
+    note?: string | null;
+};
+
+/**
+ * SeasonDashboard
+ */
+export type SeasonDashboard = {
+    /**
+     * Schema Version
+     */
+    schema_version: 'dashboard-v1';
+    /**
+     * Data Status
+     */
+    data_status: 'mock' | 'partial' | 'real';
+    /**
+     * Generated At
+     */
+    generated_at: string;
+    field: DashboardField;
+    decision: Decision;
+    similarity: Similarity;
+    season_start: SeasonStart;
+    flag_defs: FlagDefs;
+    /**
+     * Seasons Source Ids
+     */
+    seasons_source_ids: Array<string>;
+    /**
+     * Seasons
+     */
+    seasons: Array<Season>;
+    /**
+     * Strategies
+     */
+    strategies: Array<Strategy>;
+    /**
+     * Sources
+     */
+    sources: Array<DataSource>;
+    /**
+     * Limits
+     */
+    limits: Array<string>;
+    /**
+     * Missing Inputs
+     */
+    missing_inputs: Array<string>;
+};
+
+/**
+ * SeasonStart
+ */
+export type SeasonStart = {
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'nina' | 'neutral' | 'nino';
+    /**
+     * Enso Strength
+     */
+    enso_strength: 'weak' | 'moderate' | 'strong' | null;
+    oni: Metric;
+    oni_change?: Metric | null;
+    root_zone_wetness: Metric;
+    /**
+     * Start Soil
+     */
+    start_soil: 'dry' | 'wet' | null;
+    /**
+     * Caveats
+     */
+    caveats: Array<string>;
+};
+
+/**
+ * Similarity
+ */
+export type Similarity = {
+    oni_window: OniWindow;
+    /**
+     * Rule
+     */
+    rule: string;
+};
+
+/**
+ * Strategy
+ */
+export type Strategy = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Sequence
+     */
+    sequence: Array<string>;
+    /**
+     * Is Current
+     */
+    is_current: boolean;
+    carbon_input: Metric;
+    margin: Margin;
 };
 
 /**
@@ -132,3 +474,19 @@ export type CreateFarmResponses = {
 };
 
 export type CreateFarmResponse = CreateFarmResponses[keyof CreateFarmResponses];
+
+export type GetSeasonDashboardData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/seasons/dashboard';
+};
+
+export type GetSeasonDashboardResponses = {
+    /**
+     * Successful Response
+     */
+    200: SeasonDashboard;
+};
+
+export type GetSeasonDashboardResponse = GetSeasonDashboardResponses[keyof GetSeasonDashboardResponses];

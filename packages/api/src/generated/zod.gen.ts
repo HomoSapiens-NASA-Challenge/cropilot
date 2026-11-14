@@ -3,6 +3,38 @@
 import * as z from 'zod';
 
 /**
+ * DashboardField
+ */
+export const zDashboardField = z.object({
+    field_id: z.string(),
+    name: z.string(),
+    place: z.string(),
+    lat: z.number().gte(-90).lte(90),
+    lon: z.number().gte(-180).lte(180),
+    scale_note: z.string()
+});
+
+/**
+ * DataSource
+ */
+export const zDataSource = z.object({
+    id: z.string(),
+    name: z.string(),
+    url: z.url().min(1).max(2083).nullish(),
+    what: z.string(),
+    period: z.string().nullish(),
+    location: z.string().nullish()
+});
+
+/**
+ * Decision
+ */
+export const zDecision = z.object({
+    campaign: z.string(),
+    decision_date: z.iso.date()
+});
+
+/**
  * FarmCreate
  */
 export const zFarmCreate = z.object({
@@ -16,6 +48,165 @@ export const zFarmRead = z.object({
     id: z.uuid(),
     name: z.string(),
     created_at: z.iso.datetime()
+});
+
+/**
+ * FlagDef
+ */
+export const zFlagDef = z.object({
+    label: z.string(),
+    definition: z.string(),
+    provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    missing_note: z.string().nullish()
+});
+
+/**
+ * FlagDefs
+ *
+ * Meaning of each per-season climate flag. The client never hardcodes it.
+ */
+export const zFlagDefs = z.object({
+    water_deficit_at_flowering: zFlagDef,
+    heat_at_flowering: zFlagDef,
+    excess_water: zFlagDef
+});
+
+/**
+ * Margin
+ */
+export const zMargin = z.object({
+    unit: z.literal('USD/ha/yr'),
+    basis: z.enum(['per_year', 'per_cycle']),
+    includes_rent: z.boolean(),
+    price_basis: z.string(),
+    provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    source_ids: z.array(z.string()),
+    by_season: z.record(z.string(), z.number().nullable())
+});
+
+/**
+ * Metric
+ *
+ * A single number with its unit and where it came from.
+ */
+export const zMetric = z.object({
+    value: z.number().nullable(),
+    unit: z.string(),
+    provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    source_ids: z.array(z.string()),
+    note: z.string().nullish()
+});
+
+/**
+ * OniWindow
+ */
+export const zOniWindow = z.object({
+    code: z.string(),
+    label: z.string()
+});
+
+/**
+ * Season
+ */
+export const zSeason = z.object({
+    season_id: z.string(),
+    enso_phase: z.enum([
+        'nina',
+        'neutral',
+        'nino'
+    ]),
+    oni: z.number(),
+    root_zone_wetness: z.number().gte(0).lte(1),
+    start_soil: z.enum(['dry', 'wet']),
+    is_similar: z.boolean(),
+    rain_oct_mar_mm: z.number().gte(0).nullable(),
+    water_deficit_at_flowering: z.boolean().nullable(),
+    heat_at_flowering: z.boolean().nullable(),
+    excess_water: z.boolean().nullable(),
+    note: z.string().nullish()
+});
+
+/**
+ * SeasonStart
+ */
+export const zSeasonStart = z.object({
+    enso_phase: z.enum([
+        'nina',
+        'neutral',
+        'nino'
+    ]),
+    enso_strength: z.enum([
+        'weak',
+        'moderate',
+        'strong'
+    ]).nullable(),
+    oni: zMetric,
+    oni_change: zMetric.nullish(),
+    root_zone_wetness: zMetric,
+    start_soil: z.enum(['dry', 'wet']).nullable(),
+    caveats: z.array(z.string())
+});
+
+/**
+ * Similarity
+ */
+export const zSimilarity = z.object({
+    oni_window: zOniWindow,
+    rule: z.string()
+});
+
+/**
+ * Strategy
+ */
+export const zStrategy = z.object({
+    strategy_id: z.string(),
+    name: z.string(),
+    sequence: z.array(z.string()).min(1),
+    is_current: z.boolean(),
+    carbon_input: zMetric,
+    margin: zMargin
+});
+
+/**
+ * SeasonDashboard
+ */
+export const zSeasonDashboard = z.object({
+    schema_version: z.literal('dashboard-v1'),
+    data_status: z.enum([
+        'mock',
+        'partial',
+        'real'
+    ]),
+    generated_at: z.string(),
+    field: zDashboardField,
+    decision: zDecision,
+    similarity: zSimilarity,
+    season_start: zSeasonStart,
+    flag_defs: zFlagDefs,
+    seasons_source_ids: z.array(z.string()),
+    seasons: z.array(zSeason).min(1),
+    strategies: z.array(zStrategy).min(1),
+    sources: z.array(zDataSource),
+    limits: z.array(z.string()),
+    missing_inputs: z.array(z.string())
 });
 
 /**
@@ -56,3 +247,8 @@ export const zCreateFarmBody = zFarmCreate;
  * Successful Response
  */
 export const zCreateFarmResponse = zFarmRead;
+
+/**
+ * Successful Response
+ */
+export const zGetSeasonDashboardResponse = zSeasonDashboard;

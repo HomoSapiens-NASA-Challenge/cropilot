@@ -7,9 +7,10 @@ from fastapi.routing import APIRoute
 from app.core.db import engine
 from app.modules.farms.router import router as farms_router
 from app.modules.health.router import router as health_router
+from app.modules.seasons.router import router as seasons_router
 
 # Every module router is registered here, under the `/api` prefix.
-ROUTERS: list[APIRouter] = [health_router, farms_router]
+ROUTERS: list[APIRouter] = [health_router, farms_router, seasons_router]
 
 
 @asynccontextmanager

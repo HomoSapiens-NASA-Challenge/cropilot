@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getHealth, listFarms, type Options } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, ListFarmsData, ListFarmsResponse } from '../types.gen';
+import { createFarm, getHealth, getSeasonDashboard, listFarms, type Options } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, GetSeasonDashboardData, GetSeasonDashboardResponse, ListFarmsData, ListFarmsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -91,3 +91,21 @@ export const createFarmMutation = (options?: Partial<Options<CreateFarmData>>): 
     };
     return mutationOptions;
 };
+
+export const getSeasonDashboardQueryKey = (options?: Options<GetSeasonDashboardData>) => createQueryKey('getSeasonDashboard', options);
+
+/**
+ * Get Season Dashboard
+ */
+export const getSeasonDashboardOptions = (options?: Options<GetSeasonDashboardData>) => queryOptions<GetSeasonDashboardResponse, DefaultError, GetSeasonDashboardResponse, ReturnType<typeof getSeasonDashboardQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getSeasonDashboard({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getSeasonDashboardQueryKey(options)
+});

@@ -103,10 +103,156 @@
           }
         ]
       }
+    },
+    "/api/seasons/dashboard": {
+      "get": {
+        "tags": [
+          "seasons"
+        ],
+        "summary": "Get Season Dashboard",
+        "operationId": "get_season_dashboard",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonDashboard"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "DashboardField": {
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "title": "Field Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "place": {
+            "type": "string",
+            "title": "Place"
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          },
+          "scale_note": {
+            "type": "string",
+            "title": "Scale Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field_id",
+          "name",
+          "place",
+          "lat",
+          "lon",
+          "scale_note"
+        ],
+        "title": "DashboardField"
+      },
+      "DataSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2083,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "what": {
+            "type": "string",
+            "title": "What"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "what"
+        ],
+        "title": "DataSource"
+      },
+      "Decision": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "decision_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Decision Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "campaign",
+          "decision_date"
+        ],
+        "title": "Decision"
+      },
       "FarmCreate": {
         "properties": {
           "name": {
@@ -147,6 +293,68 @@
         ],
         "title": "FarmRead"
       },
+      "FlagDef": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "definition": {
+            "type": "string",
+            "title": "Definition"
+          },
+          "provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Provenance"
+          },
+          "missing_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "definition",
+          "provenance"
+        ],
+        "title": "FlagDef"
+      },
+      "FlagDefs": {
+        "properties": {
+          "water_deficit_at_flowering": {
+            "$ref": "#/components/schemas/FlagDef"
+          },
+          "heat_at_flowering": {
+            "$ref": "#/components/schemas/FlagDef"
+          },
+          "excess_water": {
+            "$ref": "#/components/schemas/FlagDef"
+          }
+        },
+        "type": "object",
+        "required": [
+          "water_deficit_at_flowering",
+          "heat_at_flowering",
+          "excess_water"
+        ],
+        "title": "FlagDefs",
+        "description": "Meaning of each per-season climate flag. The client never hardcodes it."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -159,6 +367,491 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Margin": {
+        "properties": {
+          "unit": {
+            "type": "string",
+            "const": "USD/ha/yr",
+            "title": "Unit"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "per_year",
+              "per_cycle"
+            ],
+            "title": "Basis"
+          },
+          "includes_rent": {
+            "type": "boolean",
+            "title": "Includes Rent"
+          },
+          "price_basis": {
+            "type": "string",
+            "title": "Price Basis"
+          },
+          "provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Provenance"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          },
+          "by_season": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "By Season"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit",
+          "basis",
+          "includes_rent",
+          "price_basis",
+          "provenance",
+          "source_ids",
+          "by_season"
+        ],
+        "title": "Margin"
+      },
+      "Metric": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Provenance"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "unit",
+          "provenance",
+          "source_ids"
+        ],
+        "title": "Metric",
+        "description": "A single number with its unit and where it came from."
+      },
+      "OniWindow": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label"
+        ],
+        "title": "OniWindow"
+      },
+      "Season": {
+        "properties": {
+          "season_id": {
+            "type": "string",
+            "title": "Season Id"
+          },
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "nina",
+              "neutral",
+              "nino"
+            ],
+            "title": "Enso Phase"
+          },
+          "oni": {
+            "type": "number",
+            "title": "Oni"
+          },
+          "root_zone_wetness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Root Zone Wetness"
+          },
+          "start_soil": {
+            "type": "string",
+            "enum": [
+              "dry",
+              "wet"
+            ],
+            "title": "Start Soil"
+          },
+          "is_similar": {
+            "type": "boolean",
+            "title": "Is Similar"
+          },
+          "rain_oct_mar_mm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Oct Mar Mm"
+          },
+          "water_deficit_at_flowering": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Deficit At Flowering"
+          },
+          "heat_at_flowering": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heat At Flowering"
+          },
+          "excess_water": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Excess Water"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "season_id",
+          "enso_phase",
+          "oni",
+          "root_zone_wetness",
+          "start_soil",
+          "is_similar",
+          "rain_oct_mar_mm",
+          "water_deficit_at_flowering",
+          "heat_at_flowering",
+          "excess_water"
+        ],
+        "title": "Season"
+      },
+      "SeasonDashboard": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "dashboard-v1",
+            "title": "Schema Version"
+          },
+          "data_status": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "partial",
+              "real"
+            ],
+            "title": "Data Status"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          },
+          "field": {
+            "$ref": "#/components/schemas/DashboardField"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "similarity": {
+            "$ref": "#/components/schemas/Similarity"
+          },
+          "season_start": {
+            "$ref": "#/components/schemas/SeasonStart"
+          },
+          "flag_defs": {
+            "$ref": "#/components/schemas/FlagDefs"
+          },
+          "seasons_source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Seasons Source Ids"
+          },
+          "seasons": {
+            "items": {
+              "$ref": "#/components/schemas/Season"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Seasons"
+          },
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/Strategy"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Strategies"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/DataSource"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "limits": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limits"
+          },
+          "missing_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Inputs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schema_version",
+          "data_status",
+          "generated_at",
+          "field",
+          "decision",
+          "similarity",
+          "season_start",
+          "flag_defs",
+          "seasons_source_ids",
+          "seasons",
+          "strategies",
+          "sources",
+          "limits",
+          "missing_inputs"
+        ],
+        "title": "SeasonDashboard"
+      },
+      "SeasonStart": {
+        "properties": {
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "nina",
+              "neutral",
+              "nino"
+            ],
+            "title": "Enso Phase"
+          },
+          "enso_strength": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "weak",
+                  "moderate",
+                  "strong"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enso Strength"
+          },
+          "oni": {
+            "$ref": "#/components/schemas/Metric"
+          },
+          "oni_change": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "root_zone_wetness": {
+            "$ref": "#/components/schemas/Metric"
+          },
+          "start_soil": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "dry",
+                  "wet"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Soil"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caveats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enso_phase",
+          "enso_strength",
+          "oni",
+          "root_zone_wetness",
+          "start_soil",
+          "caveats"
+        ],
+        "title": "SeasonStart"
+      },
+      "Similarity": {
+        "properties": {
+          "oni_window": {
+            "$ref": "#/components/schemas/OniWindow"
+          },
+          "rule": {
+            "type": "string",
+            "title": "Rule"
+          }
+        },
+        "type": "object",
+        "required": [
+          "oni_window",
+          "rule"
+        ],
+        "title": "Similarity"
+      },
+      "Strategy": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "sequence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sequence"
+          },
+          "is_current": {
+            "type": "boolean",
+            "title": "Is Current"
+          },
+          "carbon_input": {
+            "$ref": "#/components/schemas/Metric"
+          },
+          "margin": {
+            "$ref": "#/components/schemas/Margin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "name",
+          "sequence",
+          "is_current",
+          "carbon_input",
+          "margin"
+        ],
+        "title": "Strategy"
       },
       "ValidationError": {
         "properties": {

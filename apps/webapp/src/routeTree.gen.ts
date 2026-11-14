@@ -11,7 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFarmsRouteImport } from './routes/_authenticated/farms'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedDashboardEvidenceRouteImport } from './routes/_authenticated/dashboard/evidence'
+import { Route as AuthenticatedDashboardFieldRouteImport } from './routes/_authenticated/dashboard/field'
+import { Route as AuthenticatedDashboardRegionRouteImport } from './routes/_authenticated/dashboard/region'
+import { Route as AuthenticatedDashboardStrategiesRouteImport } from './routes/_authenticated/dashboard/strategies'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,32 +28,109 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedFarmsRoute = AuthenticatedFarmsRouteImport.update({
   id: '/farms',
   path: '/farms',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardEvidenceRoute =
+  AuthenticatedDashboardEvidenceRouteImport.update({
+    id: '/evidence',
+    path: '/evidence',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardFieldRoute =
+  AuthenticatedDashboardFieldRouteImport.update({
+    id: '/field',
+    path: '/field',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardRegionRoute =
+  AuthenticatedDashboardRegionRouteImport.update({
+    id: '/region',
+    path: '/region',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardStrategiesRoute =
+  AuthenticatedDashboardStrategiesRouteImport.update({
+    id: '/strategies',
+    path: '/strategies',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/farms': typeof AuthenticatedFarmsRoute
+  '/dashboard/evidence': typeof AuthenticatedDashboardEvidenceRoute
+  '/dashboard/field': typeof AuthenticatedDashboardFieldRoute
+  '/dashboard/region': typeof AuthenticatedDashboardRegionRoute
+  '/dashboard/strategies': typeof AuthenticatedDashboardStrategiesRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/farms': typeof AuthenticatedFarmsRoute
+  '/dashboard/evidence': typeof AuthenticatedDashboardEvidenceRoute
+  '/dashboard/field': typeof AuthenticatedDashboardFieldRoute
+  '/dashboard/region': typeof AuthenticatedDashboardRegionRoute
+  '/dashboard/strategies': typeof AuthenticatedDashboardStrategiesRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/farms': typeof AuthenticatedFarmsRoute
+  '/_authenticated/dashboard/evidence': typeof AuthenticatedDashboardEvidenceRoute
+  '/_authenticated/dashboard/field': typeof AuthenticatedDashboardFieldRoute
+  '/_authenticated/dashboard/region': typeof AuthenticatedDashboardRegionRoute
+  '/_authenticated/dashboard/strategies': typeof AuthenticatedDashboardStrategiesRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farms'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/farms'
+    | '/dashboard/evidence'
+    | '/dashboard/field'
+    | '/dashboard/region'
+    | '/dashboard/strategies'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farms'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/farms'
+  to:
+    | '/'
+    | '/farms'
+    | '/dashboard/evidence'
+    | '/dashboard/field'
+    | '/dashboard/region'
+    | '/dashboard/strategies'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/farms'
+    | '/_authenticated/dashboard/evidence'
+    | '/_authenticated/dashboard/field'
+    | '/_authenticated/dashboard/region'
+    | '/_authenticated/dashboard/strategies'
+    | '/_authenticated/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,6 +154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/farms': {
       id: '/_authenticated/farms'
       path: '/farms'
@@ -78,14 +168,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFarmsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/evidence': {
+      id: '/_authenticated/dashboard/evidence'
+      path: '/evidence'
+      fullPath: '/dashboard/evidence'
+      preLoaderRoute: typeof AuthenticatedDashboardEvidenceRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/field': {
+      id: '/_authenticated/dashboard/field'
+      path: '/field'
+      fullPath: '/dashboard/field'
+      preLoaderRoute: typeof AuthenticatedDashboardFieldRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/region': {
+      id: '/_authenticated/dashboard/region'
+      path: '/region'
+      fullPath: '/dashboard/region'
+      preLoaderRoute: typeof AuthenticatedDashboardRegionRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/strategies': {
+      id: '/_authenticated/dashboard/strategies'
+      path: '/strategies'
+      fullPath: '/dashboard/strategies'
+      preLoaderRoute: typeof AuthenticatedDashboardStrategiesRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
   }
 }
 
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardEvidenceRoute: typeof AuthenticatedDashboardEvidenceRoute
+  AuthenticatedDashboardFieldRoute: typeof AuthenticatedDashboardFieldRoute
+  AuthenticatedDashboardRegionRoute: typeof AuthenticatedDashboardRegionRoute
+  AuthenticatedDashboardStrategiesRoute: typeof AuthenticatedDashboardStrategiesRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardEvidenceRoute: AuthenticatedDashboardEvidenceRoute,
+    AuthenticatedDashboardFieldRoute: AuthenticatedDashboardFieldRoute,
+    AuthenticatedDashboardRegionRoute: AuthenticatedDashboardRegionRoute,
+    AuthenticatedDashboardStrategiesRoute:
+      AuthenticatedDashboardStrategiesRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedFarmsRoute: typeof AuthenticatedFarmsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedFarmsRoute: AuthenticatedFarmsRoute,
 }
 

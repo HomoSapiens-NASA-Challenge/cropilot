@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, ListFarmsData, ListFarmsResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, GetSeasonDashboardData, GetSeasonDashboardResponses, ListFarmsData, ListFarmsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -43,4 +43,13 @@ export const createFarm = <ThrowOnError extends boolean = false>(options: Option
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get Season Dashboard
+ */
+export const getSeasonDashboard = <ThrowOnError extends boolean = false>(options?: Options<GetSeasonDashboardData, ThrowOnError>): RequestResult<GetSeasonDashboardResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetSeasonDashboardResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/seasons/dashboard',
+    ...options
 });

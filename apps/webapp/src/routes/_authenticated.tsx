@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router"
 import { sessionOptions } from "@/features/auth/session"
 import { UserMenu } from "@/features/auth/user-menu"
 
@@ -14,13 +14,24 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
 })
 
+const NAV_LINK =
+  "text-muted-foreground hover:text-foreground aria-[current=page]:text-foreground"
+
 function AuthenticatedLayout() {
   const { user } = Route.useRouteContext()
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-3xl flex-col gap-8 p-6">
-      <header className="flex items-center justify-between">
-        <span className="font-heading font-medium">Cropilot</span>
+    <div className="mx-auto flex min-h-svh max-w-5xl flex-col gap-8 p-6">
+      <header className="flex items-center justify-between gap-4">
+        <nav className="flex items-center gap-4 text-sm">
+          <span className="font-heading font-medium">Cropilot</span>
+          <Link to="/dashboard" className={NAV_LINK}>
+            Dashboard
+          </Link>
+          <Link to="/farms" className={NAV_LINK}>
+            Farms
+          </Link>
+        </nav>
         <UserMenu name={user.name} />
       </header>
       <main>
