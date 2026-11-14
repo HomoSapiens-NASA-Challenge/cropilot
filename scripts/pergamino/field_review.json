@@ -1,0 +1,33 @@
+{
+  "review_version": "pergamino-demo-selection-v1",
+  "selected_source_id": "268949",
+  "expected_geometry_sha256": "125d7a9c8d826c905be0a678e478940dbc55cb7247504c92afb484a308dd8751",
+  "review_scene_id": "HLS.S30.T20HQH.2026260T135701.v2.0",
+  "review_scene_date": "2026-09-17",
+  "review_month": "2026-09",
+  "reviewer": "OpenAI Codex, visual inspection of source RGB with modeled boundary overlay",
+  "selection_reason": "Candidate 2 has the clearest visually coherent agricultural outline among the three geometry-ranked candidates. Selection used geometric interpretability, before inspecting historical crop, yield or flood outcomes. No farmer confirmation is claimed.",
+  "candidate_reviews": [
+    {
+      "source_id": "268937",
+      "decision": "not_selected",
+      "reason": "The elongated outline spans visibly distinct strips; it may join multiple management units. Retained as an unvalidated study polygon."
+    },
+    {
+      "source_id": "268949",
+      "decision": "selected_demo_footprint",
+      "reason": "A relatively simple contiguous outline with a visible external agricultural boundary at the inspected image resolution. Exact boundary accuracy remains unvalidated."
+    },
+    {
+      "source_id": "268938",
+      "decision": "not_selected",
+      "reason": "Complex outline with multiple visually distinct strips and an internal exclusion; management-unit boundaries are ambiguous."
+    }
+  ],
+  "limitations": [
+    "Visual review at 30 m is a plausibility check, not a cadastral or agronomic validation.",
+    "The 2025 modeled footprint is applied as a fixed study polygon to earlier imagery.",
+    "RGB color is not a verified crop, cover, bare-soil or management classification.",
+    "No landowner identity or actual farmer history is assigned to this case."
+  ]
+}
