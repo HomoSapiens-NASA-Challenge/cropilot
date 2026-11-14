@@ -1,0 +1,14 @@
+{
+  "name": "@cropilot/backend",
+  "private": true,
+  "scripts": {
+    "prepare": "uv sync",
+    "dev": "uv run --env-file ../../.env uvicorn app.main:app --reload",
+    "migrate": "uv run alembic upgrade head",
+    "openapi": "uv run python -m app.openapi > ../../packages/api/openapi.json",
+    "lint": "uv run ruff check && uv run ruff format --check",
+    "format": "uv run ruff check --fix && uv run ruff format",
+    "typecheck": "uv run ty check --error-on-warning",
+    "test": "uv run pytest -q"
+  }
+}

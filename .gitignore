@@ -1,0 +1,25 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Data and model weights never go to git: a script downloads or generates them.
+apps/backend/data/
+apps/backend/models/
+
+# Expo
+.expo/
+expo-env.d.ts
+apps/mobile/android/
+apps/mobile/ios/
+
+.DS_Store

@@ -1,0 +1,63 @@
+# Cropilot
+
+Decision support for agronomists: compare crop rotation strategies using NASA Earth observations together with local soil, crop and market data. Built for the NASA Space Apps Challenge 2026, _Field Shift: Adapting Farms with NASA Data_.
+
+Cropilot supports the agronomist's judgment. It never replaces it.
+
+## Run it
+
+Requires Node 24, pnpm, uv and Docker.
+
+```sh
+cp .env.example .env   # set BETTER_AUTH_SECRET and the Google OAuth client
+pnpm install
+pnpm dev               # http://localhost:5173
+```
+
+Mobile app: `cp apps/mobile/.env.example apps/mobile/.env`, then `pnpm mobile`. Google sign-in needs a URL Google accepts, so use a simulator or emulator against `localhost` (Android: `adb reverse tcp:5173 tcp:5173`), or point `EXPO_PUBLIC_API_URL` at the deployed domain.
+
+## What is inside
+
+| Path           | What                                                                                   | Stack                                                             |
+| -------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `apps/webapp`  | Web app                                                                                | Vite, React, TanStack Router, Query and Form, Tailwind, shadcn/ui |
+| `apps/mobile`  | Mobile app                                                                             | Expo, Expo Router, TanStack Query                                 |
+| `apps/backend` | API and model core                                                                     | FastAPI, SQLAlchemy, Alembic, Postgres                            |
+| `apps/auth`    | Sign-in with Google                                                                    | Better Auth                                                       |
+| `packages/api` | Typed API client shared by web and mobile, generated from the backend's OpenAPI schema | Hey API                                                           |
+
+```
+webapp (Vite)  ─┐                ┌─ /api/auth/*  → auth    (Better Auth)
+mobile (Expo)  ─┴─ one origin ───┤
+                                 └─ /api/*       → backend (FastAPI) → Postgres
+```
+
+Traefik in production and the Vite proxy in development route by path, so every client talks to a single origin. The auth service signs users in and issues short-lived access tokens; the backend verifies them against the auth service's public keys.
+
+## Commands
+
+| Command                     | What it does                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------- |
+| `pnpm dev`                  | Starts the database, runs migrations and serves backend, auth and web with reload |
+| `pnpm mobile`               | Starts Expo                                                                       |
+| `pnpm lint` · `pnpm format` | Biome and Ruff                                                                    |
+| `pnpm typecheck`            | `tsc` and `ty`                                                                    |
+| `pnpm test`                 | `pytest` and `node --test`                                                        |
+| `pnpm generate`             | Regenerates the API client after a backend change                                 |
+
+Code conventions live in [`AGENTS.md`](AGENTS.md).
+
+## Deploy
+
+One VPS, Docker Compose, Traefik with automatic TLS.
+
+1. Point the domain's DNS at the VPS and open ports 80 and 443.
+2. On the VPS, clone the repo into `~/cropilot` and create `.env` from `.env.example` with `DOMAIN`, `ACME_EMAIL` and production secrets.
+3. Add `https://<DOMAIN>/api/auth/callback/google` to the Google OAuth client's authorized redirect URIs.
+4. `docker compose -f compose.prod.yml up -d --build`
+
+To deploy on every push to `main`, set the repository variables `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_KNOWN_HOSTS` (the output of `ssh-keyscan <host>`) and the secret `DEPLOY_SSH_KEY`.
+
+## AI use
+
+- Claude Fable 5.2 (Anthropic), in Claude Code: scaffolding of this repository, including project structure, tooling and CI configuration, deployment files, the example `farms` module and these docs.
