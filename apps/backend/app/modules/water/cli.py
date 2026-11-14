@@ -1,0 +1,53 @@
+"""Install, verify and run the frozen water models without starting the application."""
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+from app.modules.water.assets import RESOURCES, ArtifactError, prepare_models, verify_installation
+from app.modules.water.service import compare_water_scenarios, predict_regional, read_json_object
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    setup = commands.add_parser("setup", help="Download verified assets and prepare Python 3.12.7")
+    setup.add_argument("--archive", type=Path, help="Use a previously downloaded release archive")
+    commands.add_parser("verify", help="Check all payload hashes, Python and pinned packages")
+    regional = commands.add_parser("regional", help="Run regional climate inference")
+    regional.add_argument("--request", type=Path, default=RESOURCES / "request.example.json")
+    water = commands.add_parser("water", help="Export the historical rotation comparison")
+    water.add_argument("--config", type=Path)
+    water.add_argument("--output-parent", type=Path)
+    args = parser.parse_args()
+    try:
+        if args.command == "setup":
+            prepare_models(args.archive)
+            result = {"status": "verified", "command": "setup"}
+        elif args.command == "verify":
+            verify_installation()
+            result = {"status": "verified", "command": "verify"}
+        elif args.command == "regional":
+            result = predict_regional(read_json_object(args.request))
+        else:
+            comparison = compare_water_scenarios(
+                read_json_object(args.config) if args.config else None,
+                output_parent=args.output_parent,
+            )
+            result = {
+                "output_directory": str(comparison.output_directory),
+                "manifest": str(comparison.output_directory / "comparison.json"),
+                "status": "research_only",
+            }
+        sys.stdout.write(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
+        return 0
+    except (ArtifactError, ValueError, OSError, subprocess.SubprocessError) as error:
+        detail = error.stderr if isinstance(error, subprocess.CalledProcessError) else str(error)
+        sys.stderr.write(f"Water models: {detail}\n")
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

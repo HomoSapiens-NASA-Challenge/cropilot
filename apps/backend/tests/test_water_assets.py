@@ -88,3 +88,14 @@ def test_linked_payload_directory_is_rejected(tmp_path: Path) -> None:
     (tmp_path / "models/runtime").symlink_to(tmp_path / "models/copied", target_is_directory=True)
     with pytest.raises(ArtifactError, match="linked"):
         verify_payload(manifest, tmp_path / "models", tmp_path / "data")
+
+
+def test_application_python_is_rejected_for_model_inference() -> None:
+    import sys
+
+    from app.core.config import WaterModelSettings
+    from app.modules.water.assets import manifest, verify_environment
+
+    settings = WaterModelSettings(water_environment=Path(sys.executable).parent.parent)
+    with pytest.raises(ArtifactError, match=r"Model Python must be 3\.12\.7"):
+        verify_environment(settings, manifest())

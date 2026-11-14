@@ -144,7 +144,9 @@ def install_archive(archive: Path, release: ArtifactManifest, models: Path, data
     verify_payload(release, models, data)
 
 
-def run_command(arguments: list[str], *, timeout: int = 180) -> subprocess.CompletedProcess[str]:
+def run_command(
+    arguments: list[str], *, timeout: int = 180, cwd: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         arguments,
         check=True,
@@ -152,6 +154,7 @@ def run_command(arguments: list[str], *, timeout: int = 180) -> subprocess.Compl
         text=True,
         env=clean_environment(),
         timeout=timeout,
+        cwd=cwd,
     )
 
 
