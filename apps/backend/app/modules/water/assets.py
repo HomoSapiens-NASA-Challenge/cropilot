@@ -3,8 +3,10 @@
 import hashlib
 import os
 import subprocess
+import sys
 import tarfile
 import tempfile
+from itertools import combinations
 from pathlib import Path, PurePosixPath
 
 from pydantic import BaseModel, Field
@@ -158,7 +160,25 @@ def run_command(
     )
 
 
-def verify_environment(settings: WaterModelSettings, release: ArtifactManifest) -> None:
+def validate_storage_paths(settings: WaterModelSettings) -> None:
+    paths = (settings.water_models_dir, settings.water_data_dir, settings.water_environment)
+    if not all(path.is_absolute() for path in paths):
+        raise ArtifactError("Model storage and environment paths must be absolute")
+    roots = tuple(path.resolve() for path in paths)
+    if any(a.is_relative_to(b) or b.is_relative_to(a) for a, b in combinations(roots, 2)):
+        raise ArtifactError(
+            "Model storage and environment paths must be separate, non-nested roots"
+        )
+    application_environments = (Path(__file__).resolve().parents[3] / ".venv", Path(sys.prefix))
+    if any(
+        root.is_relative_to(environment.resolve()) or environment.resolve().is_relative_to(root)
+        for root in roots
+        for environment in application_environments
+    ):
+        raise ArtifactError("Model paths must not overlap the application Python environment")
+
+
+def verify_python(settings: WaterModelSettings, release: ArtifactManifest) -> RuntimeEnvironment:
     executable = settings.runtime_python
     if not executable.is_file():
         raise ArtifactError("Model Python environment is missing; run the water setup command")
@@ -173,6 +193,11 @@ def verify_environment(settings: WaterModelSettings, release: ArtifactManifest) 
         raise ArtifactError(
             f"Model Python must be {release.python_version}, got {environment.python}"
         )
+    return environment
+
+
+def verify_environment(settings: WaterModelSettings, release: ArtifactManifest) -> None:
+    environment = verify_python(settings, release)
     for line in (RESOURCES / "requirements-lock.txt").read_text().splitlines():
         if line.strip() and not line.startswith("#"):
             name, version = line.split("==", 1)
@@ -187,6 +212,7 @@ class RuntimeEnvironment(BaseModel):
 
 def verify_installation() -> None:
     settings = WaterModelSettings()
+    validate_storage_paths(settings)
     release = manifest()
     verify_payload(release, settings.water_models_dir, settings.water_data_dir)
     verify_environment(settings, release)
@@ -195,6 +221,9 @@ def verify_installation() -> None:
 def prepare_models(archive: Path | None = None) -> None:
     settings = WaterModelSettings()
     release = manifest()
+    validate_storage_paths(settings)
+    if settings.runtime_python.exists():
+        verify_python(settings, release)
     with tempfile.TemporaryDirectory(prefix="cropilot-download-") as temporary:
         if archive is None:
             run_command(
@@ -217,6 +246,7 @@ def prepare_models(archive: Path | None = None) -> None:
         run_command(
             ["uv", "venv", "--python", release.python_version, str(settings.water_environment)]
         )
+    verify_python(settings, release)
     run_command(
         [
             "uv",

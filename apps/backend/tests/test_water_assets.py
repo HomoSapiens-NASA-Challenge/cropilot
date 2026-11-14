@@ -99,3 +99,74 @@ def test_application_python_is_rejected_for_model_inference() -> None:
     settings = WaterModelSettings(water_environment=Path(sys.executable).parent.parent)
     with pytest.raises(ArtifactError, match=r"Model Python must be 3\.12\.7"):
         verify_environment(settings, manifest())
+
+
+def test_setup_rejects_wrong_python_before_dependency_sync(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import subprocess
+
+    from app.modules.water import assets
+
+    archive, release = fixture_archive(tmp_path, ["models/model.txt", "data/input.txt"])
+    environment = tmp_path / "environment"
+    executable = environment / "bin/python"
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    monkeypatch.setenv("WATER_MODELS_DIR", str(tmp_path / "models"))
+    monkeypatch.setenv("WATER_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("WATER_ENVIRONMENT", str(environment))
+    monkeypatch.setattr(assets, "manifest", lambda: release)
+    commands: list[list[str]] = []
+
+    def fake_command(
+        arguments: list[str],
+        *,
+        timeout: int = 180,
+        cwd: Path | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        commands.append(arguments)
+        return subprocess.CompletedProcess(
+            arguments, 0, stdout='{"python":"3.14.0","packages":{}}', stderr=""
+        )
+
+    monkeypatch.setattr(assets, "run_command", fake_command)
+    with pytest.raises(ArtifactError, match="Model Python must"):
+        assets.prepare_models(archive)
+    assert not any(arguments[:3] == ["uv", "pip", "sync"] for arguments in commands)
+
+
+@pytest.mark.parametrize("invalid_path", ["application", "overlap", "relative"])
+def test_setup_rejects_invalid_roots_before_installation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    invalid_path: str,
+) -> None:
+    from app.core.config import WaterModelSettings
+    from app.modules.water import assets
+
+    archive, release = fixture_archive(tmp_path, ["models/model.txt", "data/input.txt"])
+    models = tmp_path / "models"
+    environment = {
+        "application": WaterModelSettings().water_models_dir.parents[1] / ".venv",
+        "overlap": models / "environment",
+        "relative": Path("relative-environment"),
+    }[invalid_path]
+    monkeypatch.setenv("WATER_MODELS_DIR", str(models))
+    monkeypatch.setenv("WATER_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("WATER_ENVIRONMENT", str(environment))
+    monkeypatch.setattr(assets, "manifest", lambda: release)
+
+    def no_command(
+        arguments: list[str],
+        *,
+        timeout: int = 180,
+        cwd: Path | None = None,
+    ) -> None:
+        pytest.fail(f"Invalid setup must not execute commands: {arguments}")
+
+    monkeypatch.setattr(assets, "run_command", no_command)
+    with pytest.raises(ArtifactError, match=r"paths|environment"):
+        assets.prepare_models(archive)
+    assert not models.exists()

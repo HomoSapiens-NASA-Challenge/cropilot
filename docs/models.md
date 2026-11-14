@@ -27,7 +27,7 @@ Files are installed outside Git:
 | `data/water-runs/comparison-*/`        | Separate results for each physical-model run                  |
 | `.venv-models/`                        | Python 3.12.7 and the complete pinned package environment     |
 
-Optional absolute path overrides are declared in `.env.example`: `WATER_MODELS_DIR`, `WATER_DATA_DIR`, `WATER_ENVIRONMENT`. Keep all three separate. Do not point `WATER_ENVIRONMENT` at the application's `.venv` or another project's environment.
+Optional absolute path overrides are declared in `.env.example`: `WATER_MODELS_DIR`, `WATER_DATA_DIR`, `WATER_ENVIRONMENT`. Keep all three separate. Setup rejects relative or overlapping paths, the application environment, and an existing interpreter with the wrong Python version before synchronizing dependencies. Do not point `WATER_ENVIRONMENT` at another project's environment.
 
 ## Run the examples
 
