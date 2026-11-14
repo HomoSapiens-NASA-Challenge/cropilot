@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "status": "research_only",
+  "provenance": "modeled",
+  "decision_date": "2024-08-31",
+  "zone_id": "pergamino",
+  "target_window": {
+    "start": "2024-12-10",
+    "end": "2025-01-20"
+  },
+  "outputs": {
+    "regime": {
+      "model": "linear_no_oni",
+      "probabilities": {
+        "dry": 0.23451259326199989,
+        "intermediate": 0.5729579070949936,
+        "wet": 0.19252949964300645
+      },
+      "train_thresholds_mm": [-180.34579620242172, -16.662472871378462]
+    },
+    "balance": {
+      "model": "hgb",
+      "value": -130.539647063569,
+      "unit": "mm"
+    },
+    "heat": {
+      "model": "hgb",
+      "value": 6.146630724128127,
+      "unit": "days"
+    }
+  },
+  "limitations": [
+    "Regional revised-history experiment, not an operational forecast.",
+    "No crop damage, flooding, field water storage or rotation recommendation is inferred."
+  ]
+}

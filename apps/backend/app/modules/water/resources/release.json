@@ -1,0 +1,188 @@
+{
+  "schema_version": "cropilot-water-release-1",
+  "repository": "HomoSapiens-NASA-Challenge/cropilot",
+  "tag": "models-water-v1",
+  "asset": "cropilot-water-models-v1.tar.gz",
+  "archive_sha256": "916e7d3226a2ec0d5fbc2cfdcc9d3ed1afb2e706c268ddb81963b892720c8ba5",
+  "python_version": "3.12.7",
+  "upstream": {
+    "regional": {
+      "repository": "HomoSapiens-NASA-Challenge/hub",
+      "commit": "ae9c545625709f8f3397ff4cd2c325fea2e6725c"
+    },
+    "water": {
+      "repository": "HomoSapiens-NASA-Challenge/simulator",
+      "commit": "36ca379879f292fef773ce2e7f7d38688f11a548"
+    }
+  },
+  "files": {
+    "data/regional/audit.json": {
+      "sha256": "ed465c212e28b3284db0407a7ae3f2ca107f5b3cdb9c02c1cfb3377579e9f289",
+      "size": 22062
+    },
+    "data/regional/oni.txt": {
+      "sha256": "118c563331335c8649cdc2677e6be7ae89d1259d901345fcddbc2857af280f7f",
+      "size": 23050
+    },
+    "data/regional/panel.csv": {
+      "sha256": "c8cbfa32113c9c5cca6abab5c60aa6f21730678b62c262cb908fcc0d3766e4af",
+      "size": 70973
+    },
+    "data/regional/power_anguil.json": {
+      "sha256": "4a6228a3febf43bd26ba1ecaad6a852b9b4a194e363d9b45b09c1b9df9fb84ff",
+      "size": 2008881
+    },
+    "data/regional/power_balcarce.json": {
+      "sha256": "90ae701e7ec5649b6f53fc0e2deb3e73f0a974832f1c6a6a5889071f589bdaba",
+      "size": 2007197
+    },
+    "data/regional/power_charata.json": {
+      "sha256": "99c43f0dc1b81f8ee8ef42f83e50bf8af34f2ae949490ef6c04c7a81167f0c41",
+      "size": 2018073
+    },
+    "data/regional/power_las_lajitas.json": {
+      "sha256": "d66035e0b4b3c8a55887a3f3b77b4ff5b975cc71e3ecc36d14714ba184d1575d",
+      "size": 2018145
+    },
+    "data/regional/power_marcos_juarez.json": {
+      "sha256": "abba63e326f45c7f9cc69d6b1caf9b30f73ec3b554fa7e7bf600791a27207ebf",
+      "size": 2012815
+    },
+    "data/regional/power_parana.json": {
+      "sha256": "e80e871ca36c65fd2a6e2bd382d5d082315a4d105ab1e309b0de590dea3b6ad1",
+      "size": 2015549
+    },
+    "data/regional/power_pergamino.json": {
+      "sha256": "28be1e00e9db23cfab59dfc7ef50c48a971c798294cfcd9223c005adfe46e191",
+      "size": 2011983
+    },
+    "data/regional/power_quimili.json": {
+      "sha256": "f3fef5edceba306a8115926bd1ff092d6e931e6e7e49da9690ac2165ded678d1",
+      "size": 2017613
+    },
+    "data/regional/power_rio_cuarto.json": {
+      "sha256": "c0c9406a1c6696da2ede4e732a0a81eb385f0ca7e3e9c651ac3f006669b371b1",
+      "size": 2011207
+    },
+    "data/regional/power_trenque_lauquen.json": {
+      "sha256": "c0a145a35821710a59ae4600f4ddf46c1c052775c69bc4c4a9b32b41910ce92d",
+      "size": 2009793
+    },
+    "data/water_cache/idecor_cad.json": {
+      "sha256": "192d7cb835574a6db1f8b5698c10944b2b1a6f8241431f60da23e9352b6edcdf",
+      "size": 472
+    },
+    "data/water_cache/idecor_cad.json.source.json": {
+      "sha256": "23e279f000f8c2298300517cd06a782a572eb69cb4f32d67953f98f835b1c847",
+      "size": 474
+    },
+    "data/water_cache/nasa_power.json": {
+      "sha256": "a0caf6c82afb94c2d1acd1045eaa2323105eb7a881df445c2893498b6faa56ca",
+      "size": 1767034
+    },
+    "data/water_cache/nasa_power.json.source.json": {
+      "sha256": "ccd68e8bde4063b6c43f9e989d289a909fc666835072b1f301ff902d9db3ea9d",
+      "size": 407
+    },
+    "models/enso-water-v1.joblib": {
+      "sha256": "0cea028f0a70cb17a82123adaec7c4569729999e8adf77edb40ef432478a44e0",
+      "size": 137873
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/enso_water/__init__.py": {
+      "sha256": "093058ce5072c0c36aa235d0456292ff53746b1252ca543485142b07f644d876",
+      "size": 79
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/enso_water/data.py": {
+      "sha256": "265010bbce71b862d643ecd21ab8cfa4356a34727365b46926cd171c84c95a0c",
+      "size": 8915
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/enso_water/experiment.py": {
+      "sha256": "207efe213aa6879c4fa6140cb05a48c8ab64688aa1eea8602b6941f0ccaa4a29",
+      "size": 10068
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/enso_water/inference.py": {
+      "sha256": "4f9b3bb396abde51b2658f7e084d5ecd776d968f8b99036916f75ba5999cf69b",
+      "size": 3285
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/enso_water/models.py": {
+      "sha256": "6056159951ef1a82db1bb4148901bc8e1e5acdd39624184c094d9e23b52de152",
+      "size": 4619
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/tests/conftest.py": {
+      "sha256": "33aefaf7de26784040993f95b48c7c80a0d88a6de527a9badf8aaa45fde868e9",
+      "size": 97
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/tests/test_data.py": {
+      "sha256": "20aa3e26a804f437950bdde58c1d5d7f8221bcee158477b3402f512c7f436b1f",
+      "size": 3705
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/tests/test_evaluation.py": {
+      "sha256": "27e42c252f4374011ce5bb0d154394019decfda55624e016196b7b68c0fa06fb",
+      "size": 781
+    },
+    "models/runtime/research/ml-investigacion/enso-lab/tests/test_models.py": {
+      "sha256": "62962d86791490f1e5824f679e9a4e36d2782814fa280acbabb22b01ad207f9d",
+      "size": 3424
+    },
+    "models/runtime/research/rl/lab/src/rl_experiment/__init__.py": {
+      "sha256": "28469ed75485330e2bb1cc16885835b7766caf3b4a6fe7ae19618cf61e253cd3",
+      "size": 69
+    },
+    "models/runtime/research/rl/lab/src/rl_experiment/eto.py": {
+      "sha256": "3dc3b96c85c99851ad5e663ff6d9cbc22f29acac8bc828acd149f0f038895dfb",
+      "size": 1701
+    },
+    "models/runtime/simulator/configs/rio-cuarto.json": {
+      "sha256": "09fd8fa0de92a9c60c3965a8ec5c19cc9b47460b84f1b8324915887f76ed5241",
+      "size": 2740
+    },
+    "models/runtime/simulator/field_water/__init__.py": {
+      "sha256": "c269a429f747b99c6538db7d7226327908bff9d05f44852b11380fcf6f8d7982",
+      "size": 99
+    },
+    "models/runtime/simulator/field_water/__main__.py": {
+      "sha256": "bed347bb2954c8aec7221115be45d3dae9b2dafd6fc54cd7fd241aea069248f7",
+      "size": 5709
+    },
+    "models/runtime/simulator/field_water/comparison.py": {
+      "sha256": "a923b72b9ae18d2255065f858f177523205633a4a43a2cb44d40e61bb29198cd",
+      "size": 13040
+    },
+    "models/runtime/simulator/field_water/engine.py": {
+      "sha256": "a67dd3e6a176a15aa3870841ea8940e1871ba810d8796a6ddbbf9c40f5c0fc5b",
+      "size": 5785
+    },
+    "models/runtime/simulator/field_water/eto.py": {
+      "sha256": "88fdd63a9298aa89e1ceb8f3f3ba88a8b534dd20663414c5f8b8405639b2500a",
+      "size": 1904
+    },
+    "models/runtime/simulator/field_water/export.py": {
+      "sha256": "9a3541c34daa53db7d66145ccef576cc3ea5c79087cabd9030a0a53096294074",
+      "size": 1327
+    },
+    "models/runtime/simulator/field_water/sources.py": {
+      "sha256": "c2dbf0308770d4eeaad7135ca4545917366f33308b519d67ab1acd928cb676dc",
+      "size": 6369
+    },
+    "models/runtime/simulator/tests/test_comparison.py": {
+      "sha256": "9e7cc3bd14aae04a95213f5fb59403da7771dc90dc80e5fc3b63185dfef27041",
+      "size": 6776
+    },
+    "models/runtime/simulator/tests/test_engine.py": {
+      "sha256": "72ee03c9adff3f3f2591135f4313a5542cb1d6f31f107c9691bcea7341de80fa",
+      "size": 2637
+    },
+    "models/runtime/simulator/tests/test_eto.py": {
+      "sha256": "edab9dc3379cb3453fd848045eb2023bc94805282a9abba062977e84ee179cac",
+      "size": 614
+    },
+    "models/runtime/simulator/tests/test_export.py": {
+      "sha256": "4a607b260ce0a4ae33b3af84ef4d517f58c7ab8f357640866b2b97b29f0a445f",
+      "size": 2040
+    },
+    "models/runtime/simulator/tests/test_sources.py": {
+      "sha256": "e84b41bffea426209bef6554ea54e3ca805ab766ceea605e026495857386653a",
+      "size": 3167
+    }
+  }
+}
