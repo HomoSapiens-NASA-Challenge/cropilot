@@ -60,6 +60,11 @@ dashboard mock values, trains a model or produces a farmer recommendation.
 & apps/backend/data/pergamino/.venv/Scripts/python.exe scripts/pergamino/bundle_manifest.py
 ```
 
+After generating the full inventory, `bundle_manifest.py --tables-only` creates
+`pergamino-tables-and-field.zip` with a separate manifest and explicit exclusions.
+It retains weather/soil/yield/ENSO tables, field summaries and small crop clips;
+the complete satellite rasters and raw provider archive remain in the full ZIP.
+
 Tests target misleading numerical behavior: crop-class changes between years,
 nodata versus valid zero, masks, denominators, soil units and unavailable future
 climate-index information. Synthetic fixtures are only for tests.
