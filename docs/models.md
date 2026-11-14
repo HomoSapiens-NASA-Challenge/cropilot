@@ -1,6 +1,8 @@
 # Frozen water models
 
-Branch `modelos` makes the existing research models callable from Cropilot's backend. It does not train new models or add screens or HTTP endpoints.
+The original `models-water-v1` release makes the existing research models callable from Cropilot's backend. That release preserves the original training and adds no screens or HTTP endpoints.
+
+The branch now also includes [newly trained regional wetness models at 7 and 14 days](moisture-models.md), distributed separately as `models-moisture-v1`.
 
 ## Install
 

@@ -49,7 +49,7 @@ Code conventions live in [`AGENTS.md`](AGENTS.md).
 
 ## Frozen research models
 
-The `modelos` branch includes the regional water/heat ML models and the physical rotation-water model, with a separate pinned Python environment. See [installation, examples, evaluation and backend integration](docs/models.md). The examples run without starting the web app or database.
+The `modelos` branch includes the regional water/heat ML models and the physical rotation-water model, with a separate pinned Python environment. See [installation, examples, evaluation and backend integration](docs/models.md). The examples run without starting the web app or database. Additional [7/14-day regional soil-wetness experiments](docs/moisture-models.md) include trained weights, temporal evaluation, uncertainty and reproducible training code.
 
 ## Deploy
 
@@ -66,4 +66,4 @@ To deploy on every push to `main`, set the repository variables `DEPLOY_HOST`, `
 
 - Claude Fable 5.2 (Anthropic), in Claude Code: scaffolding of this repository, including project structure, tooling and CI configuration, deployment files, the example `farms` module and these docs.
 
-- Codex (OpenAI): frozen model packaging, isolated Python runtime, backend service, integrity/inference tests and model integration documentation on branch `modelos`; no new frontend or retraining.
+- Codex (OpenAI): frozen model packaging, isolated Python runtime, backend service, integrity/inference tests and model integration documentation on branch `modelos`; additional regional soil-wetness training, evaluation and reproducibility tests. No new frontend.

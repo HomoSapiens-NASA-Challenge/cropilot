@@ -1,0 +1,30 @@
+{
+  "schema_version": "moisture-v1",
+  "status": "research_only",
+  "provenance": "modeled",
+  "zone_id": "pergamino",
+  "data_end": "2025-11-01",
+  "target": "regional_root_zone_relative_saturation",
+  "unit": "fraction",
+  "source_vintage": "revised_history_not_as_issued",
+  "availability": "Hindcast relative to last input date; publication latency unverified",
+  "interval_method": "90% calibration residual band; temporal coverage not guaranteed",
+  "predictions": [
+    {
+      "horizon_days": 7,
+      "target_date": "2025-11-08",
+      "model": "ridge",
+      "wetness_fraction": 0.6408191381487871,
+      "change_fraction": 0.0008191381487870908,
+      "interval90_fraction": [0.5969419338001835, 0.6846963424973908]
+    },
+    {
+      "horizon_days": 14,
+      "target_date": "2025-11-15",
+      "model": "hgb",
+      "wetness_fraction": 0.6602825837559483,
+      "change_fraction": 0.02028258375594827,
+      "interval90_fraction": [0.6069234418990366, 0.71364172561286]
+    }
+  ]
+}

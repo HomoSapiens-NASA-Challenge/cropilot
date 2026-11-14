@@ -38,6 +38,20 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
 
+  model-science:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --frozen
+      - run: uv venv --python 3.12.7 .venv-models
+      - run: uv pip sync --python .venv-models/bin/python app/modules/water/resources/requirements-lock.txt
+      - run: uv run ty check experiments --python .venv-models --python-version 3.12 --error-on-warning
+      - run: .venv-models/bin/python -m pytest experiments -q
+
   # Runs only once the repository variable DEPLOY_HOST is set. See README > Deploy.
   deploy:
     if: github.event_name == 'push' && vars.DEPLOY_HOST != ''
