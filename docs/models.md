@@ -4,6 +4,8 @@ The original `models-water-v1` release makes the existing research models callab
 
 The branch now also includes [newly trained regional wetness models at 7 and 14 days](moisture-models.md), distributed separately as `models-moisture-v1`.
 
+The [five additional water-model proposals](model-candidates.md) describe the next candidate indicators, data readiness, evaluation and implementation order. They are separate from the trained releases above.
+
 ## Install
 
 Requires `uv`, GitHub CLI (`gh`) authenticated with read access to this private repository, and internet for the first installation. No access to the original `hub` or `simulator` repositories is required to run the examples. From the repository root, after checking out `modelos`:

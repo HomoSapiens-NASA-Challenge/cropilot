@@ -51,6 +51,8 @@ Code conventions live in [`AGENTS.md`](AGENTS.md).
 
 The `modelos` branch includes the regional water/heat ML models and the physical rotation-water model, with a separate pinned Python environment. See [installation, examples, evaluation and backend integration](docs/models.md). The examples run without starting the web app or database. Additional [7/14-day regional soil-wetness experiments](docs/moisture-models.md) include trained weights, temporal evaluation, uncertainty and reproducible training code.
 
+[Five additional water-model proposals](docs/model-candidates.md) compare new indicators, available data, evaluation plans and implementation priorities. These candidates have not been implemented or trained.
+
 ## Deploy
 
 One VPS, Docker Compose, Traefik with automatic TLS.
