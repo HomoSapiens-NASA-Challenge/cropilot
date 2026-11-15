@@ -40,7 +40,7 @@ class AssistantSettings(BaseSettings):
     )
 
     openai_api_key: SecretStr | None = None
-    openai_model: str = "gpt-5.4-mini"
+    openai_model: str = "gpt-6.1-sol"
     assistant_public_enabled: bool = False
     assistant_requests_per_hour: int = Field(default=60, ge=1, le=1000)
 

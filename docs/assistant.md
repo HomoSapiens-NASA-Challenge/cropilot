@@ -49,7 +49,7 @@ three exchanges are sent for follow-ups. **New conversation** clears the local t
 
 ## Configuration and data sent to OpenAI
 
-`OPENAI_MODEL` defaults to `gpt-5.4-mini` (verified available for the local key). The backend
+`OPENAI_MODEL` defaults to `gpt-6.1-sol` (verified available for the local key). The backend
 reads `.env`, then `.env.local`, with process environment taking precedence. The production
 Compose file passes the four assistant settings to the backend only. Compose users can
 load `.env.local` with an explicit additional `--env-file`; it is not copied into the image.
@@ -82,7 +82,7 @@ missing regional water, invented/missing citations, owner checks, rejected priva
 the public endpoint, concurrency/budget release, real SDK tool round trips with a mocked
 HTTP transport, bounded tool loops and sanitized provider errors. No live calls in tests.
 
-Local live check on 2026-11-15: the browser comparison returned HTTP 200 in 5.8 seconds
+Initial live check with `gpt-5.4-mini` on 2026-11-15: the browser comparison returned HTTP 200 in 5.8 seconds
 (one observation, not a latency benchmark; a later check took 13.3 seconds),
 called `compare_rotations` and supplied ten
 source records. Checked desktop 1440×1000 and mobile 390×844, evidence expansion and
@@ -99,9 +99,13 @@ both tool evidence and the instruction, plus a regression on their presence. Thi
 failure illustrates why citations alone cannot guarantee scientific correctness; numerical
 tables remain the reference and agronomic review is still needed.
 
+The default was then changed to `gpt-6.1-sol`: a same-question API check completed in
+10.7 seconds and retained the unmet-demand terminology. This is a small manual comparison,
+not an accuracy benchmark; users can configure a different accessible model explicitly.
+
 ## Attribution
 
-OpenAI Python SDK 3.51.0, OpenAI Responses API and `gpt-5.4-mini`; Codex implementation
+OpenAI Python SDK 3.51.0, OpenAI Responses API and `gpt-6.1-sol` (`gpt-5.4-mini` also tested); Codex implementation
 and independent review; existing team evidence selectors from PR #10. Full declaration is
 in the hub's `submission.md` on `docs/contextual-assistant`. API documentation:
 https://developers.openai.com/api/docs/guides/function-calling and

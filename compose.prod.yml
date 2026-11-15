@@ -69,7 +69,7 @@ services:
       BETTER_AUTH_URL: https://${DOMAIN}
       AUTH_JWKS_URL: http://auth:3000/api/auth/jwks
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6.1-sol}
       ASSISTANT_PUBLIC_ENABLED: ${ASSISTANT_PUBLIC_ENABLED:-false}
       ASSISTANT_REQUESTS_PER_HOUR: ${ASSISTANT_REQUESTS_PER_HOUR:-60}
     volumes:
