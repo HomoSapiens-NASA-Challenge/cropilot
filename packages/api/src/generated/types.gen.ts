@@ -467,10 +467,14 @@ export type FieldMapMeta = {
      */
     farm: string;
     /**
+     * Farm Is Synthetic
+     */
+    farm_is_synthetic: true;
+    /**
      * Enso
      */
     enso: {
-        [key: string]: EnsoPhase;
+        [key: string]: unknown | EnsoPhase;
     };
     current: CurrentSeason;
     /**

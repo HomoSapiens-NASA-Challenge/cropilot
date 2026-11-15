@@ -64,7 +64,8 @@ One VPS, Docker Compose, Traefik with automatic TLS.
 1. Point the domain's DNS at the VPS and open ports 80 and 443.
 2. On the VPS, clone the repo into `~/cropilot` and create `.env` from `.env.example` with `DOMAIN`, `ACME_EMAIL` and production secrets.
 3. Add `https://<DOMAIN>/api/auth/callback/google` to the Google OAuth client's authorized redirect URIs.
-4. `docker compose -f compose.prod.yml up -d --build`
+4. Download the crop-map release into `apps/backend/data/crops` ([command](docs/crop-map.md#install-and-read)).
+5. `docker compose -f compose.prod.yml up -d --build`
 
 To deploy on every push to `main`, set the repository variables `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_KNOWN_HOSTS` (the output of `ssh-keyscan <host>`) and the secret `DEPLOY_SSH_KEY`.
 

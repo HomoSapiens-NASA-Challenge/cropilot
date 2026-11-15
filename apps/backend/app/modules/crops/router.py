@@ -1,5 +1,7 @@
 """Authenticated access to shared, public-source crop maps of two demonstration zones."""
 
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from app.core.auth import CurrentUser
@@ -7,6 +9,7 @@ from app.modules.crops import service
 from app.modules.crops.schemas import FieldMap, Zone
 
 router = APIRouter(prefix="/crops", tags=["crops"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/zones/{zone}/fields", response_model=FieldMap)
@@ -15,4 +18,6 @@ def get_crop_field_map(zone: Zone, user: CurrentUser) -> FieldMap:
     try:
         return service.get_field_map(zone)
     except service.CropMapUnavailableError as error:
+        # The client only sees a generic message; the operator needs the cause.
+        logger.exception("Crop map for %s unavailable", zone)
         raise HTTPException(503, "Crop map unavailable; contact the operator") from error

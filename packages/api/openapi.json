@@ -1058,22 +1058,31 @@
           },
           "campaigns": {
             "items": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^\\d{2}/\\d{2}$"
             },
             "type": "array",
             "title": "Campaigns"
           },
           "latest": {
             "type": "string",
+            "pattern": "^\\d{2}/\\d{2}$",
             "title": "Latest"
           },
           "farm": {
             "type": "string",
             "title": "Farm"
           },
+          "farm_is_synthetic": {
+            "type": "boolean",
+            "const": true,
+            "title": "Farm Is Synthetic"
+          },
           "enso": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/EnsoPhase"
+            "patternProperties": {
+              "^\\d{2}/\\d{2}$": {
+                "$ref": "#/components/schemas/EnsoPhase"
+              }
             },
             "type": "object",
             "title": "Enso"
@@ -1096,6 +1105,7 @@
           "campaigns",
           "latest",
           "farm",
+          "farm_is_synthetic",
           "enso",
           "current",
           "sources"

@@ -1,14 +1,16 @@
 """Per-field crop history and season status, read from a released crop-map file."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 Zone = Literal["pergamino", "parana"]
 StatusCode = Literal["ok", "watch", "alert", "check", "bare"]
 PhaseCode = Literal["nino", "nina", "neutral"]
 # NDVI by month, September to May.
 MonthlyNdvi = list[float]
+# Summer campaign, e.g. "25/26" for September 2025 to May 2026.
+Campaign = Annotated[str, StringConstraints(pattern=r"^\d{2}/\d{2}$")]
 
 
 class FiniteModel(BaseModel):
@@ -16,7 +18,7 @@ class FiniteModel(BaseModel):
 
 
 class CampaignRecord(FiniteModel):
-    campaign: str = Field(pattern=r"^\d{2}/\d{2}$")
+    campaign: Campaign
     source: Literal["INTA", "model"]
     crop_code: int | None = Field(ge=0, le=8)
     crop: str
@@ -42,6 +44,7 @@ class FieldProperties(FiniteModel):
     status_code: StatusCode
     status: str
     reason: str
+    # Latest crop, also when the status is `check` or `bare`.
     crop: str
     confidence: float | None = Field(ge=0, le=1)
     history: list[CampaignRecord] = Field(min_length=1)
@@ -66,7 +69,7 @@ class EnsoPhase(FiniteModel):
 
 
 class CurrentSeason(FiniteModel):
-    campaign: str = Field(pattern=r"^\d{2}/\d{2}$")
+    campaign: Campaign
     phase_code: PhaseCode
     phase: str
     strength: str
@@ -76,10 +79,12 @@ class CurrentSeason(FiniteModel):
 class FieldMapMeta(FiniteModel):
     zone: Zone
     lang: Literal["en"]
-    campaigns: list[str]
-    latest: str
+    campaigns: list[Campaign]
+    latest: Campaign
     farm: str
-    enso: dict[str, EnsoPhase]
+    # The demonstration farm (fields with `own`) is made up; every other value is computed.
+    farm_is_synthetic: Literal[True]
+    enso: dict[Campaign, EnsoPhase]
     current: CurrentSeason
     sources: list[str]
 

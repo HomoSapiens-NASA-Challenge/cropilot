@@ -193,10 +193,11 @@ export const zFarmRead = z.object({
 export const zFieldMapMeta = z.object({
     zone: z.enum(['pergamino', 'parana']),
     lang: z.literal('en'),
-    campaigns: z.array(z.string()),
-    latest: z.string(),
+    campaigns: z.array(z.string().regex(/^\d{2}\/\d{2}$/)),
+    latest: z.string().regex(/^\d{2}\/\d{2}$/),
     farm: z.string(),
-    enso: z.record(z.string(), zEnsoPhase),
+    farm_is_synthetic: z.literal(true),
+    enso: z.record(z.string(), z.unknown()),
     current: zCurrentSeason,
     sources: z.array(z.string())
 });

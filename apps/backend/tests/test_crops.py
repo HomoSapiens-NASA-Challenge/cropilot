@@ -52,9 +52,10 @@ def synthetic_field_map(zone: str = "pergamino", purity: float = 0.9) -> dict:
         "zone": zone,
         "lang": "en",
         "campaigns": ["24/25"],
-        "latest": "2024-25",
+        "latest": "24/25",
         "farm": "Synthetic farm",
-        "enso": {"2024-25": {"phase_code": "neutral", "phase": "Neutral", "oni": -0.43}},
+        "farm_is_synthetic": True,
+        "enso": {"24/25": {"phase_code": "neutral", "phase": "Neutral", "oni": -0.43}},
         "current": {
             "campaign": "26/27",
             "phase_code": "nino",
@@ -64,7 +65,35 @@ def synthetic_field_map(zone: str = "pergamino", purity: float = 0.9) -> dict:
         },
         "sources": ["synthetic test data"],
     }
-    return {"type": "FeatureCollection", "meta": meta, "features": [field]}
+    # A neighbour field whose crop the zone has too few of to compare: every comparison is null.
+    neighbour_record = {
+        **record,
+        "crop_code": None,
+        "crop": "No data",
+        "vigor": 0.31,
+        "zone_vigor": None,
+        "gap": None,
+        "lag": None,
+        "even": None,
+        "zone_curve": None,
+    }
+    neighbour = {
+        "type": "Feature",
+        "geometry": field["geometry"],
+        "properties": {
+            "id": "N0001",
+            "name": "Neighbour field 1",
+            "own": False,
+            "ha": 12.0,
+            "status_code": "bare",
+            "status": "No crop",
+            "reason": "The satellite sees almost no vegetation in summer: fallow or not sown.",
+            "crop": "No data",
+            "confidence": 0.71,
+            "history": [neighbour_record],
+        },
+    }
+    return {"type": "FeatureCollection", "meta": meta, "features": [field, neighbour]}
 
 
 @pytest.fixture
@@ -92,6 +121,8 @@ def test_serves_released_field_map(client: TestClient, tmp_path: Path) -> None:
     body = response.json()
     assert body["meta"]["current"]["phase_code"] == "nino"
     assert body["features"][0]["properties"]["history"][0]["gap"] == -0.023
+    assert body["features"][1]["properties"]["history"][0]["zone_vigor"] is None
+    assert body["features"][1]["properties"]["farm"] is None
 
 
 def test_unknown_zone_is_not_a_filesystem_path(client: TestClient) -> None:
@@ -99,10 +130,13 @@ def test_unknown_zone_is_not_a_filesystem_path(client: TestClient) -> None:
     assert client.get("/api/crops/zones/cordoba/fields").status_code == 422
 
 
-def test_missing_release_fails_without_disclosing_paths(client: TestClient, tmp_path: Path) -> None:
+def test_missing_release_fails_without_disclosing_paths(
+    client: TestClient, tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
     response = client.get("/api/crops/zones/parana/fields")
     assert response.status_code == 503
     assert str(tmp_path) not in response.text
+    assert "Crop map for parana unavailable" in caplog.text
 
 
 @pytest.mark.parametrize(
