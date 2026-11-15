@@ -209,11 +209,12 @@ export function NationalMap({
   return (
     <div
       className={cn(
-        "relative h-88 overflow-hidden rounded-xl border bg-secondary md:h-112",
+        "relative isolate h-88 overflow-hidden rounded-xl border bg-secondary md:h-112",
         className
       )}
     >
-      <BaseMap theme="light" center={[-62, -33]} zoom={4}>
+      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it. */}
+      <BaseMap theme="light" center={[-62, -33]} zoom={4} cooperativeGestures>
         <ZoneMarkers zones={zones} selectedZoneId={selectedZoneId} />
         <FitZones zones={zones} />
         <MapControls position="bottom-right" showZoom />

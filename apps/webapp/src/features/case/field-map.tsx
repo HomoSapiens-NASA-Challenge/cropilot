@@ -137,8 +137,14 @@ export function FieldMap({
   )
 
   return (
-    <div className="relative h-104 overflow-hidden rounded-xl border bg-secondary md:h-136">
-      <BaseMap theme="light" center={ringCenter(allPoints)} zoom={11}>
+    <div className="relative isolate h-104 overflow-hidden rounded-xl border bg-secondary md:h-136">
+      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it. */}
+      <BaseMap
+        theme="light"
+        center={ringCenter(allPoints)}
+        zoom={11}
+        cooperativeGestures
+      >
         <MapGeoJSON
           id="power-cell"
           data={cellOutline}
