@@ -37,17 +37,23 @@ function ring(polygon: number[][][]): Point[] {
     .filter((point): point is Point => point !== null)
 }
 
+/**
+ * The lots as outlines, framed on `framedLots`: the farm's lots or every lot of the zone.
+ * All outlines are drawn; the ones outside the frame are cut by the view box.
+ */
 export function FieldMap({
   field,
+  framedLots,
   onSelect,
 }: {
   field: Field
+  framedLots: Field["lots"]
   onSelect: (id: string) => void
 }) {
   const [boxWidth, setBoxWidth] = useState(0)
-  const all = field.lots
-    .filter((lot) => lot.is_demo_farm)
-    .flatMap((lot) => ring(lot.polygon))
+  const all = (framedLots.length ? framedLots : field.lots).flatMap((lot) =>
+    ring(lot.polygon)
+  )
   if (all.length === 0) return null
   const latitude = all.reduce((sum, point) => sum + point[1], 0) / all.length
   const cosine = Math.cos((latitude * Math.PI) / 180)

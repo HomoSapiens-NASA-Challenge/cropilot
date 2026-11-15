@@ -13,6 +13,17 @@ export const CROPS = {
 
 export type Crop = keyof typeof CROPS
 
+/** The crops in palette order, the order the legend lists them in. */
+export const CROP_IDS = [
+  "soybean",
+  "maize",
+  "wheat",
+  "sunflower",
+  "sorghum",
+  "fallow",
+  "other",
+] as const satisfies readonly Crop[]
+
 export function cropOf(label: string | null): Crop {
   const text = (label ?? "").toLowerCase()
   if (

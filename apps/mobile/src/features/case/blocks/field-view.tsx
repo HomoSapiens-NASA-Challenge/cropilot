@@ -1,16 +1,23 @@
-import type { CaseBundle } from "@cropilot/api"
+import type { CaseBundle, Lot } from "@cropilot/api"
 import { useRouter } from "expo-router"
 import { useState } from "react"
 import { View } from "react-native"
 import Svg, { Circle, Rect } from "react-native-svg"
 import { ListRow, ListSection } from "@/components/list-row"
+import { SegmentedControl } from "@/components/ui/segmented-control"
 import { Text } from "@/components/ui/text"
 import { NotAvailable } from "@/features/case/block-section"
 import { FieldMap } from "@/features/case/blocks/field/map"
 import { pluralize } from "@/features/case/case-format"
 import { EvidenceChip } from "@/features/case/evidence-chip"
 import { footprintHref, lotHref } from "@/features/case/routes"
-import { CROPS, cropOf, LOT_STATUS, LOT_STATUS_IDS } from "@/lib/data-colors"
+import {
+  CROP_IDS,
+  CROPS,
+  cropOf,
+  LOT_STATUS,
+  LOT_STATUS_IDS,
+} from "@/lib/data-colors"
 import { SVG_COLORS } from "@/lib/theme"
 
 export const statuses = {
@@ -23,21 +30,57 @@ export const statuses = {
 
 type Field = NonNullable<CaseBundle["field"]>
 
+const LIST_LIMIT = 30
+
+/** An outline with neither a crop nor a status is there for context only. */
+function hasLotData(lot: Lot): boolean {
+  return lot.latest_crop !== null || lot.status !== null
+}
+
+/**
+ * The lots the list shows, worst status first: the farm's lots, or every lot with data when
+ * the zone has no farm lots.
+ */
+function listedLots(field: Field) {
+  const withData = field.lots.filter(hasLotData)
+  const farmLots = withData.filter((lot) => lot.is_demo_farm)
+  const listed = farmLots.length > 0 ? farmLots : withData
+  const severity = (lot: Lot) =>
+    lot.status ? LOT_STATUS_IDS.indexOf(lot.status) : LOT_STATUS_IDS.length
+  const ordered = [...listed].sort(
+    (a, b) =>
+      severity(b) - severity(a) ||
+      a.name.localeCompare(b.name, undefined, { numeric: true })
+  )
+  return {
+    withData,
+    farmLots,
+    ordered,
+    unlistedWithData: withData.length - listed.length,
+    contextCount: field.lots.length - withData.length,
+  }
+}
+
 export function FieldInfo({ bundle }: { bundle: CaseBundle }) {
   const field = bundle.field
   if (!field) return null
-  const withData = field.lots.filter(
-    (lot) => lot.latest_crop !== null || lot.status !== null
-  )
+  const { withData, farmLots, unlistedWithData, contextCount } =
+    listedLots(field)
+  const zoneLots = withData.length - farmLots.length
+  const lead = [
+    `${pluralize(farmLots.length, "lot")} of ${field.farm_name}`,
+    zoneLots > 0 &&
+      `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`,
+    "carry a crop, a status and an NDVI curve.",
+    contextCount > 0 &&
+      `${pluralize(contextCount, "more outline")} give context.`,
+    "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
+  ]
+    .filter(Boolean)
+    .join(" ")
   return (
     <View className="gap-4">
-      <Text>
-        {pluralize(withData.length, "lot")} of {field.farm_name} carry a crop, a
-        status and an NDVI curve, and {field.lots.length - withData.length} more
-        outlines of {bundle.zone_name} give context. All come from satellite
-        imagery. Every crop says whether it comes from an INTA map or from the
-        team's model.
-      </Text>
+      <Text>{lead}</Text>
       <Text>
         {field.farm_name_is_made_up
           ? "The name is invented. The outlines, crops and NDVI are satellite estimates."
@@ -45,12 +88,20 @@ export function FieldInfo({ bundle }: { bundle: CaseBundle }) {
       </Text>
       <Text>
         Select a lot on the map or in the list to see its crops, NDVI and
-        status. These are the lots of {field.farm_name}.
+        status.
+        {farmLots.length > 0 && ` These are the lots of ${field.farm_name}.`}
       </Text>
-      {field.lots.length > withData.length && (
+      {unlistedWithData > 0 && (
         <Text>
-          {field.lots.length - withData.length} more outlines of the zone are on
-          the map for context. They carry no crop, status or NDVI.
+          {pluralize(unlistedWithData, "more field")} of the zone{" "}
+          {unlistedWithData === 1 ? "has" : "have"} the same data: select one on
+          the map.
+        </Text>
+      )}
+      {contextCount > 0 && (
+        <Text>
+          {contextCount} more outlines of the zone are on the map for context.
+          They carry no crop, status or NDVI.
         </Text>
       )}
       {field.limitations.length > 0 && (
@@ -64,10 +115,9 @@ export function FieldInfo({ bundle }: { bundle: CaseBundle }) {
 }
 
 function Legend({ field }: { field: Field }) {
-  const lots = field.lots.filter(
-    (lot) => lot.latest_crop !== null || lot.status !== null
-  )
-  const crops = [...new Set(lots.map((lot) => cropOf(lot.latest_crop)))]
+  const lots = field.lots.filter(hasLotData)
+  const onMap = new Set(lots.map((lot) => cropOf(lot.latest_crop)))
+  const crops = CROP_IDS.filter((crop) => onMap.has(crop))
   return (
     <View className="gap-1 px-4">
       <Text className="text-xs font-medium">Fill: latest crop</Text>
@@ -133,14 +183,17 @@ export function FieldView({
 }) {
   const router = useRouter()
   const [showAll, setShowAll] = useState(false)
+  const [extent, setExtent] = useState<"farm" | "zone">("farm")
   const field = bundle.field
   if (bundle.modules.field === "not_available" || !field)
     return (
       <View className="p-4">
-        <NotAvailable description="Lots and the reference footprint are mapped for Pergamino only." />
+        <NotAvailable description="Lots are mapped for Pergamino and Paraná only." />
       </View>
     )
-  const lots = field.lots.filter((lot) => lot.is_demo_farm)
+  const { withData, farmLots, ordered } = listedLots(field)
+  const canFrameZone = farmLots.length > 0 && withData.length > farmLots.length
+  const shown = ordered.slice(0, showAll ? LIST_LIMIT : 5)
   return (
     <View className="gap-3 py-4">
       <View className="flex-row items-center gap-2 px-4">
@@ -151,8 +204,24 @@ export function FieldView({
           </Text>
         )}
       </View>
+      {canFrameZone && (
+        <View className="px-4">
+          <SegmentedControl
+            value={extent}
+            onChange={setExtent}
+            options={[
+              { value: "farm", label: field.farm_name },
+              { value: "zone", label: bundle.zone_name },
+            ]}
+          />
+        </View>
+      )}
       <FieldMap
+        key={extent}
         field={field}
+        framedLots={
+          extent === "zone" || farmLots.length === 0 ? field.lots : farmLots
+        }
         onSelect={(id) => router.push(lotHref(zoneId, id))}
       />
       <Legend field={field} />
@@ -161,7 +230,7 @@ export function FieldView({
       </View>
       <View className="px-4">
         <ListSection>
-          {lots.slice(0, showAll ? lots.length : 5).map((lot) => (
+          {shown.map((lot) => (
             <ListRow
               key={lot.field_id}
               title={`${lot.name} · ${lot.latest_crop ?? "No crop"}`}
@@ -173,13 +242,22 @@ export function FieldView({
               onPress={() => router.push(lotHref(zoneId, lot.field_id))}
             />
           ))}
-          {lots.length > 5 && (
+          {ordered.length > 5 && (
             <ListRow
               title={
-                showAll ? "Show fewer lots" : `Show all ${lots.length} lots`
+                showAll
+                  ? "Show fewer lots"
+                  : ordered.length > LIST_LIMIT
+                    ? `Show ${LIST_LIMIT} of ${ordered.length} lots`
+                    : `Show all ${ordered.length} lots`
               }
               onPress={() => setShowAll(!showAll)}
             />
+          )}
+          {showAll && ordered.length > LIST_LIMIT && (
+            <Text className="py-2 text-xs text-muted-foreground">
+              Showing {shown.length} of {ordered.length} lots.
+            </Text>
           )}
           {field.reference_field && (
             <ListRow

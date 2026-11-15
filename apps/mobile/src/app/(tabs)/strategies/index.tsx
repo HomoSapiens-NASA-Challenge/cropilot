@@ -1,6 +1,7 @@
-import { Stack } from "expo-router"
-import { ScrollView } from "react-native"
+import { Stack, useRouter } from "expo-router"
+import { ScrollView, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { ListRow } from "@/components/list-row"
 import { Text } from "@/components/ui/text"
 import { StrategyCompare } from "@/features/case/blocks/strategy-compare"
 import { CaseState } from "@/features/case/case-state"
@@ -8,8 +9,10 @@ import { CaseReferencesProvider } from "@/features/case/evidence-chip"
 import { InfoButton } from "@/features/case/info-button"
 import { useCaseBundle } from "@/features/case/use-case"
 import { DEFAULT_ZONE_ID } from "@/features/case/zone"
+import { appSections } from "@/features/shell/sections"
 
 export default function Screen() {
+  const router = useRouter()
   const state = useCaseBundle(DEFAULT_ZONE_ID)
   return (
     <SafeAreaView edges={["left", "right"]} className="flex-1 bg-background">
@@ -45,6 +48,14 @@ export default function Screen() {
         ) : (
           <CaseState status={state.status} />
         )}
+        <View className="px-4 pb-4">
+          <ListRow
+            title={appSections.rotationPlanner.title}
+            subtitle={appSections.rotationPlanner.description}
+            accessibilityLabel="Open Rotation planner"
+            onPress={() => router.push(appSections.rotationPlanner.href)}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   )

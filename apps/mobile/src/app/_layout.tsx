@@ -12,6 +12,7 @@ import { Stack } from "expo-router"
 import { ThemeProvider } from "expo-router/react-navigation"
 import { StatusBar } from "expo-status-bar"
 import { headerOptions } from "@/features/shell/header-options"
+import { appSections } from "@/features/shell/sections"
 import { accessToken } from "@/lib/auth"
 import { API_URL } from "@/lib/env"
 import { NAV_THEME } from "@/lib/theme"
@@ -58,6 +59,14 @@ export default function RootLayout() {
             options={{ ...headerOptions, headerShown: true, title: "Case" }}
           />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="planner"
+            options={{
+              ...headerOptions,
+              headerShown: true,
+              title: appSections.rotationPlanner.title,
+            }}
+          />
           <Stack.Screen
             name="farms"
             options={{ ...headerOptions, title: "Farms" }}
