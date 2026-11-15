@@ -21,14 +21,23 @@ export function CampaignSection() {
               since 1981. Source: NOAA Oceanic Niño Index.
             </p>
           </div>
-          <CtaLink
-            to="/case/$zoneId"
-            params={{ zoneId: REFERENCE_CASE_ZONE_ID }}
-            variant="light"
-            withChevron
-          >
-            Open the 2026/27 case
-          </CtaLink>
+          <div className="flex flex-wrap gap-2">
+            <CtaLink
+              to="/case/$zoneId"
+              params={{ zoneId: REFERENCE_CASE_ZONE_ID }}
+              variant="light"
+              withChevron
+            >
+              Open the Pergamino case
+            </CtaLink>
+            <CtaLink
+              to="/case/$zoneId"
+              params={{ zoneId: "parana" }}
+              variant="inverse"
+            >
+              Open the Paraná case
+            </CtaLink>
+          </div>
         </div>
       </div>
     </Band>

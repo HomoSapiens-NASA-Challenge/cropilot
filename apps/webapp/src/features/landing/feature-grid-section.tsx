@@ -79,7 +79,10 @@ export function FeatureGridSection() {
           >
             <SourceTrailPreview />
           </FeatureCard>
-          <FeatureCard title="See the real lots of a zone" pageSlug="farm-map">
+          <FeatureCard
+            title="See the crop-map lots of Pergamino and Paraná"
+            pageSlug="farm-map"
+          >
             <FarmMapPreview />
           </FeatureCard>
           <FeatureCard

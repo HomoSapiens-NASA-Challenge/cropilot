@@ -39,7 +39,8 @@ export function ClosingSection({ isSignedIn }: { isSignedIn: boolean }) {
             Ready to get started?
           </h2>
           <p className="max-w-md text-xl font-light text-muted-foreground">
-            Sign in with Google and add your first farm.
+            Open the public case with no sign-in, or sign in with Google to add
+            your farm and run the rotation planner.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <AppEntryLink isSignedIn={isSignedIn} signedOutLabel="Start now" />

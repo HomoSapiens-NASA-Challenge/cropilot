@@ -1,9 +1,10 @@
-import { PencilLine } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ClosingSection } from "@/features/landing/closing-section"
 import { AppEntryLink, ArrowLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
 import { SitePreview } from "@/features/landing/previews/site-preview"
+import { Recording } from "@/features/landing/recording"
 import type {
   SiteMenu,
   SitePage,
@@ -19,7 +20,11 @@ function PageContent({ content }: { content: SitePageContent }) {
       <Band tone="tinted" className="relative isolate overflow-hidden">
         <StrandsArt className="absolute inset-0 -z-10 size-full" />
         <div className="px-4 py-16 sm:px-6 lg:py-20">
-          <SitePreview id={content.preview} className="mx-auto max-w-2xl" />
+          {content.recording ? (
+            <Recording id={content.recording} className="mx-auto max-w-2xl" />
+          ) : (
+            <SitePreview id={content.preview} className="mx-auto max-w-2xl" />
+          )}
         </div>
       </Band>
       <Band frameClassName="border-t">
@@ -60,6 +65,38 @@ function PageContent({ content }: { content: SitePageContent }) {
           </dl>
         </div>
       </Band>
+      {content.links && (
+        <Band frameClassName="border-t">
+          <div className="flex flex-col gap-8 px-4 py-16 sm:px-6">
+            <h2 className="text-sm text-muted-foreground">Where to go</h2>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {content.links.map((link) => {
+                const isExternal = link.href.startsWith("https://")
+                return (
+                  <li
+                    key={link.href}
+                    className="flex flex-col items-start gap-2 rounded-xl border p-5"
+                  >
+                    <h3 className="font-medium">{link.label}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {link.description}
+                    </p>
+                    <a
+                      href={link.href}
+                      target={isExternal ? "_blank" : undefined}
+                      rel={isExternal ? "noreferrer" : undefined}
+                      className="mt-auto inline-flex items-center gap-1 rounded-lg pt-2 text-sm font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    >
+                      Open
+                      <ChevronRight className="size-4" />
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </Band>
+      )}
       {content.sources && (
         <Band tone="inverse">
           <div className="flex flex-col gap-10 px-4 py-20 sm:px-6 lg:py-24">
@@ -101,34 +138,7 @@ function PageContent({ content }: { content: SitePageContent }) {
   )
 }
 
-/** Shown while a page of the catalog has no content yet. */
-function PagePlaceholder({ page }: { page: SitePage }) {
-  return (
-    <Band tone="tinted">
-      <div className="px-4 py-16 sm:px-6 lg:py-20">
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-xl border border-dashed bg-background/70 px-6 py-14 text-center">
-          <span className="flex size-10 items-center justify-center rounded-lg border bg-background text-primary">
-            <PencilLine className="size-5" />
-          </span>
-          <h2 className="text-2xl font-light tracking-tight">
-            {page.isRoadmap
-              ? "Not in this version"
-              : "This page is being written"}
-          </h2>
-          <p className="max-w-md text-muted-foreground">
-            {page.isRoadmap
-              ? "This is on the roadmap. Cropilot does not do it today, and this page will describe it once it ships."
-              : page.isInDevelopment
-                ? "This part of Cropilot is in development. The page will describe it once it is in the app, with its data sources."
-                : "The content of this page is on its way."}
-          </p>
-        </div>
-      </div>
-    </Band>
-  )
-}
-
-/** A page of the public site catalog, with content or as a placeholder. */
+/** A page of the public site catalog. */
 export function SitePageView({
   menu,
   column,
@@ -162,20 +172,16 @@ export function SitePageView({
           </p>
           <div className="flex max-w-3xl flex-col gap-6">
             <h1 className="text-3xl/9 font-light tracking-tight text-balance sm:text-5xl/14">
-              {page.content?.headline ?? page.title}
+              {page.content.headline}
             </h1>
             <p className="text-xl/8 font-light text-muted-foreground">
-              {page.content?.lead ?? page.summary}
+              {page.content.lead}
             </p>
           </div>
           <AppEntryLink isSignedIn={isSignedIn} signedOutLabel="Get started" />
         </div>
       </Band>
-      {page.content ? (
-        <PageContent content={page.content} />
-      ) : (
-        <PagePlaceholder page={page} />
-      )}
+      <PageContent content={page.content} />
       {relatedPages.length > 0 && (
         <Band frameClassName="border-t">
           <div className="flex flex-col gap-8 px-4 py-16 sm:px-6">

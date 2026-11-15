@@ -11,11 +11,13 @@ export function PreviewWindow({
   title,
   badge = "Illustrative",
   className,
+  bodyClassName = "p-4 sm:p-5",
   children,
 }: {
   title: string
   badge?: string
   className?: string
+  bodyClassName?: string
   children: ReactNode
 }) {
   return (
@@ -36,7 +38,7 @@ export function PreviewWindow({
           {badge}
         </Badge>
       </div>
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className={bodyClassName}>{children}</div>
     </div>
   )
 }

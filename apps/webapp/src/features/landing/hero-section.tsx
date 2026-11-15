@@ -43,6 +43,12 @@ export function HeroSection() {
             See how it works
           </CtaLink>
         </div>
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          Public cases for Pergamino and Paraná, a live rotation planner, an
+          assistant you can ask by voice, public MCP tools and a mobile
+          companion. It supports the agronomist&apos;s judgment; it does not
+          replace it.
+        </p>
       </div>
     </Band>
   )

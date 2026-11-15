@@ -8,6 +8,8 @@ import { DataSection } from "@/features/landing/data-section"
 import { FeatureGridSection } from "@/features/landing/feature-grid-section"
 import { HeroSection } from "@/features/landing/hero-section"
 import { HowItWorksSection } from "@/features/landing/how-it-works-section"
+import { PlatformSection } from "@/features/landing/platform-section"
+import { ProductTourSection } from "@/features/landing/product-tour-section"
 import { SourceStrip } from "@/features/landing/source-strip"
 import { StatsSection } from "@/features/landing/stats-section"
 
@@ -25,6 +27,8 @@ function LandingPage() {
       <HeroSection />
       <SourceStrip />
       <FeatureGridSection />
+      <ProductTourSection isSignedIn={isSignedIn} />
+      <PlatformSection />
       <CampaignSection />
       <StatsSection />
       <HowItWorksSection />

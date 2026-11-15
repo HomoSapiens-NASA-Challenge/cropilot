@@ -1,4 +1,10 @@
-import { CalendarSearch, type LucideIcon, Sprout, Tractor } from "lucide-react"
+import {
+  CalendarSearch,
+  type LucideIcon,
+  Route,
+  Sprout,
+  Tractor,
+} from "lucide-react"
 import { Band, SplitHeading } from "@/features/landing/frame"
 
 const STEPS: ReadonlyArray<{
@@ -22,7 +28,13 @@ const STEPS: ReadonlyArray<{
     icon: Sprout,
     title: "Compare rotations",
     description:
-      "How each rotation did in each of those campaigns, named and dated, side by side. No single score hides the spread.",
+      "How each rotation did in each of those campaigns, named and dated, side by side, with its water runs. No single score hides the spread.",
+  },
+  {
+    icon: Route,
+    title: "Plan the sequence",
+    description:
+      "In the rotation planner, a live run on NASA POWER weather asks whether an adaptive plan beats the best fixed rotation, replayed on held-out campaigns. The answer is computed each run, never written in advance.",
   },
 ]
 
@@ -38,7 +50,7 @@ export function HowItWorksSection() {
           that began like this one and shows what happened.
         </SplitHeading>
       </div>
-      <ol className="grid border-t md:grid-cols-3 md:divide-x">
+      <ol className="grid divide-y border-t lg:grid-cols-4 lg:divide-x lg:divide-y-0">
         {STEPS.map((step, index) => (
           <li
             key={step.title}

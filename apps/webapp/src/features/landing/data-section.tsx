@@ -1,4 +1,10 @@
-import { Droplets, FileSearch, type LucideIcon, Waves } from "lucide-react"
+import {
+  Droplets,
+  FileSearch,
+  type LucideIcon,
+  Sprout,
+  Waves,
+} from "lucide-react"
 import { CtaLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
 
@@ -21,6 +27,13 @@ const SOURCES: ReadonlyArray<{
     title: "El Niño and La Niña",
     description:
       "ENSO phase by rolling three-month season, since 1950. Cropilot uses the season already known at decision time, never the summer that followed.",
+  },
+  {
+    icon: Sprout,
+    provider: "INTA crop maps · team model",
+    title: "The crop of each lot",
+    description:
+      "Lots of Pergamino and Paraná with the crop of each campaign: INTA maps for 2020/21 to 2024/25, the team's own model for 2025/26. The farm “La Celina” is made up.",
   },
   {
     icon: FileSearch,
@@ -60,7 +73,7 @@ export function DataSection() {
           </CtaLink>
         </div>
       </div>
-      <ul className="grid gap-4 px-4 pb-20 sm:px-6 md:grid-cols-3 lg:pb-24">
+      <ul className="grid gap-4 px-4 pb-20 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:pb-24">
         {SOURCES.map((source) => (
           <li
             key={source.title}
