@@ -116,6 +116,13 @@ class EvidenceSession:
         if name == "compare_rotations":
             selection = WaterArguments.model_validate_json(arguments)
             data = evidence_service.compare_rotations(self.zone_id, **selection.model_dump())
+            data.selection_note += (
+                " Metric definitions: robustness median_mm/minimum_mm/maximum_mm and "
+                "deficit_vs_current_mm are differences from the current rotation, not absolute "
+                "water deficits. Zero difference does not mean zero deficit. Lower modeled "
+                "unmet demand does not establish water savings or lower water consumption. "
+                "Absolute deficit is crop_et_deficit_mm for each three-campaign episode."
+            )
             if data.water:
                 water = data.water
                 if not water.robustness:

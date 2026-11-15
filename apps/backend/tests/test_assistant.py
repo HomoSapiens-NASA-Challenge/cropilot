@@ -47,6 +47,7 @@ def test_exact_water_cards_match_released_values() -> None:
     assert expected
     assert len(data["water"]["episodes"]) == len(expected)
     assert "different reference" in data["selection_note"]
+    assert "Zero difference does not mean zero deficit" in data["selection_note"]
     assert evidence.cards[0].rows == [
         [r.start_year, r.strategy_id, r.crop_et_deficit_mm, r.excess_above_capacity_mm]
         for r in expected

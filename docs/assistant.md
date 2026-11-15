@@ -93,6 +93,12 @@ Private ownership is tested offline. A real Google-login-to-planner conversation
 been exercised in this local environment. Existing optional model tests skip when their
 separate datasets/environments are absent; no scientific validation is inferred from UI tests.
 
+One live answer incorrectly described the reference's zero **difference** as zero absolute
+deficit and called lower unmet demand water savings. Added explicit metric definitions to
+both tool evidence and the instruction, plus a regression on their presence. This observed
+failure illustrates why citations alone cannot guarantee scientific correctness; numerical
+tables remain the reference and agronomic review is still needed.
+
 ## Attribution
 
 OpenAI Python SDK 3.51.0, OpenAI Responses API and `gpt-5.4-mini`; Codex implementation
