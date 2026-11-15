@@ -1,11 +1,10 @@
 import { Stack } from "expo-router"
 import { headerOptions } from "@/features/shell/header-options"
 
-export default function MapLayout() {
+export default function Layout() {
   return (
-    <Stack screenOptions={headerOptions}>
+    <Stack screenOptions={{ ...headerOptions, headerBackVisible: false }}>
       <Stack.Screen name="index" options={{ title: "Map" }} />
-      <Stack.Screen name="[farmId]" options={{ title: "Farm" }} />
     </Stack>
   )
 }

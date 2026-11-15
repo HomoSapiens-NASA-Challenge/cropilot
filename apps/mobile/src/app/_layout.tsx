@@ -53,6 +53,10 @@ export default function RootLayout() {
             name="site/[sectionSlug]/[pageSlug]"
             options={{ ...headerOptions, headerShown: true, title: "" }}
           />
+          <Stack.Screen
+            name="case/[zoneId]/index"
+            options={{ ...headerOptions, headerShown: true, title: "Case" }}
+          />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="farms"

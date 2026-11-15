@@ -14,10 +14,7 @@ export function FieldCard({ field }: { field: FieldSummary }) {
       accessibilityRole="button"
       accessibilityLabel={`Open ${field.label}`}
       onPress={() => {
-        router.push({
-          pathname: "/fields/[fieldId]",
-          params: { fieldId: field.id },
-        })
+        router.push("/map")
       }}
     >
       <Card className="gap-2">
