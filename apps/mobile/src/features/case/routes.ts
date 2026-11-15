@@ -1,3 +1,5 @@
+import type { WaterSettings } from "@cropilot/api"
+
 /** Converts a campaign label to a URL-safe segment. */
 export function campaignSlug(campaign: string) {
   return campaign.replaceAll("/", "-")
@@ -31,6 +33,25 @@ export function leadersHref(zoneId: string) {
 /** Builds the water detail route. */
 export function waterHref(zoneId: string) {
   return { pathname: "/case/[zoneId]/water", params: { zoneId } } as const
+}
+/** Builds one rotation's water route, for the chosen campaign and settings. */
+export function waterStrategyHref(
+  zoneId: string,
+  strategyId: string,
+  settings: WaterSettings,
+  scenarioId: string | null
+) {
+  return {
+    pathname: "/case/[zoneId]/water/[strategyId]",
+    params: {
+      zoneId,
+      strategyId,
+      depth: String(settings.depth_m),
+      fraction: String(settings.initial_water_fraction),
+      shift: String(settings.summer_shift_days),
+      ...(scenarioId === null ? {} : { scenario: scenarioId }),
+    },
+  } as const
 }
 /** Builds a lot detail route. */
 export function lotHref(zoneId: string, lotId: string) {
