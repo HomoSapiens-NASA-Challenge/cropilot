@@ -368,7 +368,11 @@ def test_production_host_allowlist_is_derived_from_the_public_origin() -> None:
     production = transport_security("https://cropilot.example")
     assert production.enable_dns_rebinding_protection is True
     assert production.allowed_hosts == ["cropilot.example"]
-    assert production.allowed_origins == ["https://cropilot.example"]
+    assert production.allowed_origins == [
+        "https://cropilot.example",
+        "https://claude.ai",
+        "https://claude.com",
+    ]
     development = transport_security("http://localhost:5173")
     assert "127.0.0.1:*" in development.allowed_hosts
     with pytest.raises(ValueError, match="public origin"):

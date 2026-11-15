@@ -22,6 +22,8 @@ from app.modules.mcp.schemas import AnalogEvidence, FieldEvidence, RotationCompa
 MAX_RESULT_BYTES = 128 * 1024
 ZoneId = Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[a-z0-9-]+$")]
 FieldId = Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")]
+# Web MCP hosts that call this public, read-only, credential-free endpoint.
+CLIENT_ORIGINS = ("https://claude.ai", "https://claude.com")
 
 
 def transport_security(public_origin: str) -> TransportSecuritySettings:
@@ -37,7 +39,7 @@ def transport_security(public_origin: str) -> TransportSecuritySettings:
     ):
         raise ValueError("BETTER_AUTH_URL must be an HTTP(S) public origin for MCP")
     allowed_hosts = [origin.netloc]
-    allowed_origins = [f"{origin.scheme}://{origin.netloc}"]
+    allowed_origins = [f"{origin.scheme}://{origin.netloc}", *CLIENT_ORIGINS]
     if origin.hostname in {"localhost", "127.0.0.1", "::1"}:
         # Dev clients may address either Vite's proxy or the loopback backend directly.
         allowed_hosts.extend(["localhost:*", "127.0.0.1:*", "[::1]:*"])
