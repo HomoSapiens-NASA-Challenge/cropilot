@@ -1,13 +1,23 @@
-// Local adapter over the verified Pergamino handoff snapshot in assets/map-data.
+// The git-ignored Pergamino snapshot is typed here so this adapter checks without it.
 // Replace these reads with an agreed API contract later; keep field IDs as text
 // and never turn a missing value into zero.
-import comparisonJson from "../../../assets/map-data/comparison.json"
-import cropHistoryJson from "../../../assets/map-data/crop-history.json"
-import fieldsJson from "../../../assets/map-data/fields.json"
-import soilProfileJson from "../../../assets/map-data/soil-profile.json"
-import studyAreasJson from "../../../assets/map-data/study-areas.json"
-import surfaceWaterJson from "../../../assets/map-data/surface-water.json"
-import vegetationJson from "../../../assets/map-data/vegetation.json"
+import type {
+  ComparisonFile,
+  CropHistoryFile,
+  FieldsFile,
+  SoilProfileFile,
+  StudyAreasFile,
+  SurfaceWaterFile,
+  VegetationFile,
+} from "@/features/fields/map-data-types"
+
+const comparisonJson: ComparisonFile = require("../../../assets/map-data/comparison.json")
+const cropHistoryJson: CropHistoryFile = require("../../../assets/map-data/crop-history.json")
+const fieldsJson: FieldsFile = require("../../../assets/map-data/fields.json")
+const soilProfileJson: SoilProfileFile = require("../../../assets/map-data/soil-profile.json")
+const studyAreasJson: StudyAreasFile = require("../../../assets/map-data/study-areas.json")
+const surfaceWaterJson: SurfaceWaterFile = require("../../../assets/map-data/surface-water.json")
+const vegetationJson: VegetationFile = require("../../../assets/map-data/vegetation.json")
 
 export type FieldSummary = {
   id: string
