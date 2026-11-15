@@ -40,3 +40,13 @@ class WaterModelSettings(BaseSettings):
     def runtime_python(self) -> Path:
         relative = "Scripts/python.exe" if os.name == "nt" else "bin/python"
         return self.water_environment / relative
+
+
+class CropMapSettings(BaseSettings):
+    """Location of the released crop-map files; no database or authentication needed."""
+
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parents[4] / ".env", extra="ignore"
+    )
+
+    crop_map_dir: Path = Path(__file__).resolve().parents[2] / "data/crops"

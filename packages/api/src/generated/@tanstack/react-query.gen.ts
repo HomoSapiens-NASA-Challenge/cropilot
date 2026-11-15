@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
+import { createFarm, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -187,4 +187,24 @@ export const getWaterStrategyRunOptions = (options: Options<GetWaterStrategyRunD
         return data;
     },
     queryKey: getWaterStrategyRunQueryKey(options)
+});
+
+export const getCropFieldMapQueryKey = (options: Options<GetCropFieldMapData>) => createQueryKey('getCropFieldMap', options);
+
+/**
+ * Get Crop Field Map
+ *
+ * Every field of the zone with its crop per campaign and its vigor against the zone.
+ */
+export const getCropFieldMapOptions = (options: Options<GetCropFieldMapData>) => queryOptions<GetCropFieldMapResponse, GetCropFieldMapError, GetCropFieldMapResponse, ReturnType<typeof getCropFieldMapQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getCropFieldMap({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getCropFieldMapQueryKey(options)
 });

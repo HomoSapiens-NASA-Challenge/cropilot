@@ -5,6 +5,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute
 
 from app.core.db import engine
+from app.modules.crops.router import router as crops_router
 from app.modules.farms.router import router as farms_router
 from app.modules.health.router import router as health_router
 from app.modules.regions.router import router as regions_router
@@ -18,6 +19,7 @@ ROUTERS: list[APIRouter] = [
     regions_router,
     workspaces_router,
     water_router,
+    crops_router,
 ]
 
 

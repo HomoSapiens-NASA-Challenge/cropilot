@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -95,5 +95,16 @@ export const getWaterStrategies = <ThrowOnError extends boolean = false>(options
 export const getWaterStrategyRun = <ThrowOnError extends boolean = false>(options: Options<GetWaterStrategyRunData, ThrowOnError>): RequestResult<GetWaterStrategyRunResponses, GetWaterStrategyRunErrors, ThrowOnError> => (options.client ?? client).get<GetWaterStrategyRunResponses, GetWaterStrategyRunErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/water/strategies/runs/{run_id}',
+    ...options
+});
+
+/**
+ * Get Crop Field Map
+ *
+ * Every field of the zone with its crop per campaign and its vigor against the zone.
+ */
+export const getCropFieldMap = <ThrowOnError extends boolean = false>(options: Options<GetCropFieldMapData, ThrowOnError>): RequestResult<GetCropFieldMapResponses, GetCropFieldMapErrors, ThrowOnError> => (options.client ?? client).get<GetCropFieldMapResponses, GetCropFieldMapErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/crops/zones/{zone}/fields',
     ...options
 });

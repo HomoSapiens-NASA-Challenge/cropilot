@@ -283,6 +283,58 @@
           }
         }
       }
+    },
+    "/api/crops/zones/{zone}/fields": {
+      "get": {
+        "tags": [
+          "crops"
+        ],
+        "summary": "Get Crop Field Map",
+        "description": "Every field of the zone with its crop per campaign and its vigor against the zone.",
+        "operationId": "get_crop_field_map",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "pergamino",
+                "parana"
+              ],
+              "type": "string",
+              "title": "Zone"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldMap"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -308,6 +360,178 @@
           "deficit_difference"
         ],
         "title": "CalendarEffect"
+      },
+      "CampaignRecord": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "pattern": "^\\d{2}/\\d{2}$",
+            "title": "Campaign"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "INTA",
+              "model"
+            ],
+            "title": "Source"
+          },
+          "crop_code": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 8.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop Code"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "purity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Purity"
+          },
+          "curve": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "maxItems": 9,
+            "minItems": 9,
+            "title": "Curve"
+          },
+          "phase_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nino",
+                  "nina",
+                  "neutral"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase Code"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          },
+          "oni": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oni"
+          },
+          "vigor": {
+            "type": "number",
+            "title": "Vigor"
+          },
+          "zone_vigor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zone Vigor"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gap"
+          },
+          "lag": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lag"
+          },
+          "even": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Even"
+          },
+          "zone_curve": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array",
+                "maxItems": 9,
+                "minItems": 9
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zone Curve"
+          }
+        },
+        "type": "object",
+        "required": [
+          "campaign",
+          "source",
+          "crop_code",
+          "crop",
+          "purity",
+          "curve",
+          "phase_code",
+          "phase",
+          "oni",
+          "vigor",
+          "zone_vigor",
+          "gap",
+          "lag",
+          "even",
+          "zone_curve"
+        ],
+        "title": "CampaignRecord"
       },
       "CampaignWater": {
         "properties": {
@@ -336,6 +560,28 @@
           "crop_et_deficit_mm"
         ],
         "title": "CampaignWater"
+      },
+      "CropField": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Feature",
+            "title": "Type"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/PolygonGeometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/FieldProperties"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "geometry",
+          "properties"
+        ],
+        "title": "CropField"
       },
       "CropResult": {
         "properties": {
@@ -506,6 +752,45 @@
         ],
         "title": "CropStage"
       },
+      "CurrentSeason": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "pattern": "^\\d{2}/\\d{2}$",
+            "title": "Campaign"
+          },
+          "phase_code": {
+            "type": "string",
+            "enum": [
+              "nino",
+              "nina",
+              "neutral"
+            ],
+            "title": "Phase Code"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "strength": {
+            "type": "string",
+            "title": "Strength"
+          },
+          "oni": {
+            "type": "number",
+            "title": "Oni"
+          }
+        },
+        "type": "object",
+        "required": [
+          "campaign",
+          "phase_code",
+          "phase",
+          "strength",
+          "oni"
+        ],
+        "title": "CurrentSeason"
+      },
       "DailyWater": {
         "properties": {
           "date": {
@@ -662,6 +947,34 @@
         ],
         "title": "DifferenceDistribution"
       },
+      "EnsoPhase": {
+        "properties": {
+          "phase_code": {
+            "type": "string",
+            "enum": [
+              "nino",
+              "nina",
+              "neutral"
+            ],
+            "title": "Phase Code"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "oni": {
+            "type": "number",
+            "title": "Oni"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phase_code",
+          "phase",
+          "oni"
+        ],
+        "title": "EnsoPhase"
+      },
       "FarmCreate": {
         "properties": {
           "name": {
@@ -702,6 +1015,184 @@
         ],
         "title": "FarmRead"
       },
+      "FieldMap": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "FeatureCollection",
+            "title": "Type"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/FieldMapMeta"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/CropField"
+            },
+            "type": "array",
+            "title": "Features"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "meta",
+          "features"
+        ],
+        "title": "FieldMap"
+      },
+      "FieldMapMeta": {
+        "properties": {
+          "zone": {
+            "type": "string",
+            "enum": [
+              "pergamino",
+              "parana"
+            ],
+            "title": "Zone"
+          },
+          "lang": {
+            "type": "string",
+            "const": "en",
+            "title": "Lang"
+          },
+          "campaigns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Campaigns"
+          },
+          "latest": {
+            "type": "string",
+            "title": "Latest"
+          },
+          "farm": {
+            "type": "string",
+            "title": "Farm"
+          },
+          "enso": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EnsoPhase"
+            },
+            "type": "object",
+            "title": "Enso"
+          },
+          "current": {
+            "$ref": "#/components/schemas/CurrentSeason"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "zone",
+          "lang",
+          "campaigns",
+          "latest",
+          "farm",
+          "enso",
+          "current",
+          "sources"
+        ],
+        "title": "FieldMapMeta"
+      },
+      "FieldProperties": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[LN]\\d+$",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "own": {
+            "type": "boolean",
+            "title": "Own"
+          },
+          "farm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Farm"
+          },
+          "ha": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Ha"
+          },
+          "status_code": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "watch",
+              "alert",
+              "check",
+              "bare"
+            ],
+            "title": "Status Code"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignRecord"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "own",
+          "ha",
+          "status_code",
+          "status",
+          "reason",
+          "crop",
+          "confidence",
+          "history"
+        ],
+        "title": "FieldProperties"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -739,6 +1230,41 @@
           "water_end_mm"
         ],
         "title": "PairedDifference"
+      },
+      "PolygonGeometry": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Polygon",
+            "title": "Type"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "PolygonGeometry"
       },
       "Region": {
         "properties": {
