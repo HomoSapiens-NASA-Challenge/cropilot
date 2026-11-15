@@ -18,8 +18,8 @@ const METHOD_FACTS = [
     label: "first year of the NOAA Oceanic Niño Index",
   },
   {
-    value: "3+",
-    label: "rotations compared, the current one included",
+    value: "5",
+    label: "rotations compared in the Pergamino case, the current one included",
   },
 ] as const
 
