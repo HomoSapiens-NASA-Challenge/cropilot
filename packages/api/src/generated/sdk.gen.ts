@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AskCaseAssistantData, AskCaseAssistantErrors, AskCaseAssistantResponses, AskPlannerAssistantData, AskPlannerAssistantErrors, AskPlannerAssistantResponses, CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetRotationPlanData, GetRotationPlanErrors, GetRotationPlanResponses, GetRotationPlanSetupData, GetRotationPlanSetupResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses, StartRotationPlanData, StartRotationPlanErrors, StartRotationPlanResponses } from './types.gen';
+import type { AskCaseAssistantData, AskCaseAssistantErrors, AskCaseAssistantResponses, AskPlannerAssistantData, AskPlannerAssistantErrors, AskPlannerAssistantResponses, CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetRotationPlanData, GetRotationPlanErrors, GetRotationPlanResponses, GetRotationPlanSetupData, GetRotationPlanSetupResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses, StartRotationPlanData, StartRotationPlanErrors, StartRotationPlanResponses, TranscribeCaseQuestionData, TranscribeCaseQuestionErrors, TranscribeCaseQuestionResponses, TranscribePrivateQuestionData, TranscribePrivateQuestionErrors, TranscribePrivateQuestionResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -40,6 +40,35 @@ export const askCaseAssistant = <ThrowOnError extends boolean = false>(options: 
 export const askPlannerAssistant = <ThrowOnError extends boolean = false>(options: Options<AskPlannerAssistantData, ThrowOnError>): RequestResult<AskPlannerAssistantResponses, AskPlannerAssistantErrors, ThrowOnError> => (options.client ?? client).post<AskPlannerAssistantResponses, AskPlannerAssistantErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/assistant/planner-messages',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Transcribe Case Question
+ *
+ * Transcribe a short recording for user review; the shared public usage gate applies.
+ */
+export const transcribeCaseQuestion = <ThrowOnError extends boolean = false>(options: Options<TranscribeCaseQuestionData, ThrowOnError>): RequestResult<TranscribeCaseQuestionResponses, TranscribeCaseQuestionErrors, ThrowOnError> => (options.client ?? client).post<TranscribeCaseQuestionResponses, TranscribeCaseQuestionErrors, ThrowOnError>({
+    url: '/api/assistant/transcriptions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Transcribe Private Question
+ *
+ * Authenticated voice input, independent of whether anonymous demo chat is enabled.
+ */
+export const transcribePrivateQuestion = <ThrowOnError extends boolean = false>(options: Options<TranscribePrivateQuestionData, ThrowOnError>): RequestResult<TranscribePrivateQuestionResponses, TranscribePrivateQuestionErrors, ThrowOnError> => (options.client ?? client).post<TranscribePrivateQuestionResponses, TranscribePrivateQuestionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/assistant/private-transcriptions',
     ...options,
     headers: {
         'Content-Type': 'application/json',

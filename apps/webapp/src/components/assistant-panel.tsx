@@ -14,6 +14,7 @@ import {
   RotateCcw,
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { AssistantVoiceInput } from "@/components/assistant-voice-input"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -24,7 +25,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-type Turn = { question: string; response: AssistantResponse }
+type Turn = { id: string; question: string; response: AssistantResponse }
 
 function errorMessage(error: unknown): string {
   if (
@@ -95,6 +96,40 @@ function Answer({
 }) {
   return (
     <div className="space-y-4">
+      {response.speech && (
+        <div className="space-y-2 rounded-lg border p-3">
+          <p className="text-xs font-medium">
+            AI-generated voice · spoken excerpt
+          </p>
+          <audio
+            controls
+            className="w-full"
+            aria-label="Spoken answer"
+            src={`data:${response.speech.mime_type};base64,${response.speech.audio_base64}`}
+          >
+            <track
+              kind="captions"
+              label="Spoken transcript"
+              srcLang="und"
+              default
+              src={`data:text/vtt;charset=utf-8,${encodeURIComponent(`WEBVTT\n\n00:00:00.000 --> 00:01:30.000\n${response.speech.text}`)}`}
+            />
+          </audio>
+          <details className="text-xs text-muted-foreground">
+            <summary className="cursor-pointer">Spoken transcript</summary>
+            <p className="mt-2 leading-relaxed">{response.speech.text}</p>
+          </details>
+          <p className="text-xs text-muted-foreground">
+            Press Play to listen, pause or replay. The complete answer and
+            sources are below.
+          </p>
+        </div>
+      )}
+      {response.speech_error && (
+        <p role="status" className="text-xs text-muted-foreground">
+          {response.speech_error}
+        </p>
+      )}
       {response.claims.map((claim) => (
         <div key={claim.text} className="space-y-1">
           <p className="whitespace-pre-wrap leading-relaxed">{claim.text}</p>
@@ -187,6 +222,8 @@ export function AssistantPanel({
   const [turns, setTurns] = useState<Turn[]>([])
   const [question, setQuestion] = useState("")
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
+  const [voiceBusy, setVoiceBusy] = useState(false)
+  const [speak, setSpeak] = useState(false)
   const latestTurn = useRef<HTMLDivElement | null>(null)
   const publicChat = useMutation(askCaseAssistantMutation())
   const plannerChat = useMutation(askPlannerAssistantMutation())
@@ -201,7 +238,7 @@ export function AssistantPanel({
 
   async function send() {
     const text = question.trim()
-    if (!text || pending) return
+    if (!text || pending || voiceBusy) return
     publicChat.reset()
     plannerChat.reset()
     setPendingQuestion(text)
@@ -216,11 +253,14 @@ export function AssistantPanel({
       },
     ])
     try {
-      const body = { zone_id: zoneId, message: text, history }
+      const body = { zone_id: zoneId, message: text, history, speak }
       const response = runId
         ? await plannerChat.mutateAsync({ body: { ...body, run_id: runId } })
         : await publicChat.mutateAsync({ body })
-      setTurns((previous) => [...previous, { question: text, response }])
+      setTurns((previous) => [
+        ...previous.slice(-5),
+        { id: crypto.randomUUID(), question: text, response },
+      ])
       setQuestion("")
     } catch {
       // The mutation retains the server error and the draft remains editable for retry.
@@ -289,7 +329,7 @@ export function AssistantPanel({
           )}
           <div className="space-y-8">
             {turns.map((turn, index) => (
-              <article key={`${index}-${turn.question}`} className="space-y-4">
+              <article key={turn.id} className="space-y-4">
                 <div
                   ref={
                     index === turns.length - 1 && !pendingQuestion
@@ -331,6 +371,24 @@ export function AssistantPanel({
               {errorMessage(error)}
             </p>
           )}
+          <AssistantVoiceInput
+            disabled={pending}
+            privateContext={runId !== undefined}
+            onBusy={setVoiceBusy}
+            onTranscript={(text) => {
+              setQuestion(text)
+              setSpeak(true)
+            }}
+          />
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={speak}
+              disabled={pending || voiceBusy}
+              onChange={(event) => setSpeak(event.target.checked)}
+            />
+            Spoken reply (AI-generated)
+          </label>
           <label htmlFor={`assistant-question-${zoneId}`} className="sr-only">
             Your question
           </label>
@@ -339,7 +397,7 @@ export function AssistantPanel({
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             maxLength={2000}
-            disabled={pending}
+            disabled={pending || voiceBusy}
             rows={3}
             placeholder="Ask about this case…"
             className="w-full resize-none rounded-lg border bg-background p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -349,7 +407,7 @@ export function AssistantPanel({
               type="button"
               variant="ghost"
               size="sm"
-              disabled={pending || turns.length === 0}
+              disabled={pending || voiceBusy || turns.length === 0}
               onClick={() => {
                 setTurns([])
                 setQuestion("")
@@ -360,7 +418,10 @@ export function AssistantPanel({
               <RotateCcw aria-hidden data-icon="inline-start" />
               New conversation
             </Button>
-            <Button type="submit" disabled={pending || !question.trim()}>
+            <Button
+              type="submit"
+              disabled={pending || voiceBusy || !question.trim()}
+            >
               <ArrowUp aria-hidden data-icon="inline-start" />
               Send
             </Button>

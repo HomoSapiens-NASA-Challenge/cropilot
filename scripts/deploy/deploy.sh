@@ -3,7 +3,12 @@ set -euo pipefail
 
 repository=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$repository"
-compose=(docker compose -f compose.prod.yml)
+compose=(docker compose --env-file .env)
+# CI writes this ignored mode-600 file through SSH; manual deploys reuse it.
+if [[ -f .env.openai ]]; then
+  compose+=(--env-file .env.openai)
+fi
+compose+=(-f compose.prod.yml)
 
 # Docker copies source directories, including untracked migrations and application files.
 if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then

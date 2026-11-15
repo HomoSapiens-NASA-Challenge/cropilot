@@ -508,7 +508,8 @@ export const zHistoryMessage = z.object({
 export const zAssistantRequest = z.object({
     zone_id: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
     message: z.string().min(1).max(2000),
-    history: z.array(zHistoryMessage).max(8).optional()
+    history: z.array(zHistoryMessage).max(8).optional(),
+    speak: z.boolean().optional().default(false)
 });
 
 /**
@@ -690,6 +691,7 @@ export const zPlannerAssistantRequest = z.object({
     zone_id: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
     message: z.string().min(1).max(2000),
     history: z.array(zHistoryMessage).max(8).optional(),
+    speak: z.boolean().optional().default(false),
     run_id: z.string().min(1).max(80)
 });
 
@@ -884,6 +886,16 @@ export const zSourceRef = z.object({
 });
 
 /**
+ * SpeechAudio
+ */
+export const zSpeechAudio = z.object({
+    audio_base64: z.string(),
+    mime_type: z.literal('audio/wav').optional().default('audio/wav'),
+    text: z.string(),
+    model: z.string()
+});
+
+/**
  * AssistantResponse
  */
 export const zAssistantResponse = z.object({
@@ -897,7 +909,9 @@ export const zAssistantResponse = z.object({
     run_id: z.string().nullable(),
     sources: z.array(zSourceRef),
     cards: z.array(zEvidenceCard),
-    tools_used: z.array(z.string())
+    tools_used: z.array(z.string()),
+    speech: zSpeechAudio.nullish(),
+    speech_error: z.string().nullish()
 });
 
 /**
@@ -1008,6 +1022,27 @@ export const zAnalogMargins = z.object({
     analog_rank: z.int().gte(1),
     leading_strategy_id: z.string().nullable(),
     margins: z.array(zStrategyMargin)
+});
+
+/**
+ * TranscriptionRequest
+ */
+export const zTranscriptionRequest = z.object({
+    audio_base64: z.string().min(4).max(5600000),
+    mime_type: z.enum([
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg',
+        'audio/wav'
+    ])
+});
+
+/**
+ * TranscriptionResponse
+ */
+export const zTranscriptionResponse = z.object({
+    text: z.string(),
+    model: z.string()
 });
 
 /**
@@ -1377,6 +1412,20 @@ export const zAskPlannerAssistantBody = zPlannerAssistantRequest;
  * Successful Response
  */
 export const zAskPlannerAssistantResponse = zAssistantResponse;
+
+export const zTranscribeCaseQuestionBody = zTranscriptionRequest;
+
+/**
+ * Successful Response
+ */
+export const zTranscribeCaseQuestionResponse = zTranscriptionResponse;
+
+export const zTranscribePrivateQuestionBody = zTranscriptionRequest;
+
+/**
+ * Successful Response
+ */
+export const zTranscribePrivateQuestionResponse = zTranscriptionResponse;
 
 /**
  * Response Get Health

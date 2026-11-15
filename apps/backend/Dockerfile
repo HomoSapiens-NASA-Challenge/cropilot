@@ -12,6 +12,10 @@ RUN pnpm --filter @cropilot/webapp build:mcp
 
 FROM python:3.14-slim
 
+# Bounded local audio decoding before paid voice transcription.
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=astral/uv:0.13 /uv /bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \

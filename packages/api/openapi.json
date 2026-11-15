@@ -94,6 +94,95 @@
         ]
       }
     },
+    "/api/assistant/transcriptions": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Transcribe Case Question",
+        "description": "Transcribe a short recording for user review; the shared public usage gate applies.",
+        "operationId": "transcribe_case_question",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/private-transcriptions": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Transcribe Private Question",
+        "description": "Authenticated voice input, independent of whether anonymous demo chat is enabled.",
+        "operationId": "transcribe_private_question",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "tags": [
@@ -746,6 +835,11 @@
             "type": "array",
             "maxItems": 8,
             "title": "History"
+          },
+          "speak": {
+            "type": "boolean",
+            "title": "Speak",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -830,6 +924,27 @@
             },
             "type": "array",
             "title": "Tools Used"
+          },
+          "speech": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SpeechAudio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "speech_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speech Error"
           }
         },
         "additionalProperties": false,
@@ -3405,6 +3520,11 @@
             "maxItems": 8,
             "title": "History"
           },
+          "speak": {
+            "type": "boolean",
+            "title": "Speak",
+            "default": false
+          },
           "run_id": {
             "type": "string",
             "maxLength": 80,
@@ -4323,6 +4443,36 @@
         "title": "SourceRef",
         "description": "One dataset, paper or person behind a number: what, who, when and where."
       },
+      "SpeechAudio": {
+        "properties": {
+          "audio_base64": {
+            "type": "string",
+            "title": "Audio Base64"
+          },
+          "mime_type": {
+            "type": "string",
+            "const": "audio/wav",
+            "title": "Mime Type",
+            "default": "audio/wav"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "audio_base64",
+          "text",
+          "model"
+        ],
+        "title": "SpeechAudio"
+      },
       "SplitReplay": {
         "properties": {
           "first_year": {
@@ -4736,6 +4886,52 @@
           "gross_margin_after_rent_usd_ha"
         ],
         "title": "StrategyMargin"
+      },
+      "TranscriptionRequest": {
+        "properties": {
+          "audio_base64": {
+            "type": "string",
+            "maxLength": 5600000,
+            "minLength": 4,
+            "title": "Audio Base64"
+          },
+          "mime_type": {
+            "type": "string",
+            "enum": [
+              "audio/webm",
+              "audio/mp4",
+              "audio/ogg",
+              "audio/wav"
+            ],
+            "title": "Mime Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "audio_base64",
+          "mime_type"
+        ],
+        "title": "TranscriptionRequest"
+      },
+      "TranscriptionResponse": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "model"
+        ],
+        "title": "TranscriptionResponse"
       },
       "UnavailableStrategy": {
         "properties": {
