@@ -1,15 +1,24 @@
-import type {
-  CampaignPoint,
-  Compare,
-  PairedCounts,
-  Strategy,
-  WaterBlock,
+import {
+  type CampaignPoint,
+  type Compare,
+  changeWaterStartingPoint,
+  defaultWaterSettings,
+  findWaterEpisode,
+  hasWaterRuns,
+  matchesWaterSettings,
+  type PairedCounts,
+  type Strategy,
+  type WaterBlock,
+  type WaterEpisode,
+  type WaterSettings,
+  waterAnalogCampaigns,
 } from "@cropilot/api"
 import { useState } from "react"
 import { SegmentedControl } from "@/components/segmented-control"
 import { NotComputedRow } from "@/features/case/block-frame"
 import {
   campaignName,
+  formatDate,
   formatMm,
   formatShare,
   formatSigned,
@@ -24,27 +33,6 @@ import { EvidenceChip } from "@/features/case/evidence-chip"
 import { Term } from "@/features/case/glossary-term"
 
 const WATER_HORIZON = "Three continuous campaigns from June of the start year"
-
-type WaterSettings = {
-  depthM: number
-  initialWaterFraction: number
-  summerShiftDays: number
-}
-
-function matchesSettings(
-  entry: {
-    depth_m: number
-    initial_water_fraction: number
-    summer_shift_days: number
-  },
-  settings: WaterSettings
-): boolean {
-  return (
-    entry.depth_m === settings.depthM &&
-    entry.initial_water_fraction === settings.initialWaterFraction &&
-    entry.summer_shift_days === settings.summerShiftDays
-  )
-}
 
 function shiftLabel(days: number): string {
   return days === 0
@@ -108,18 +96,72 @@ function CountsBar({ counts }: { counts: PairedCounts }) {
   )
 }
 
+function EpisodeDetail({ episode }: { episode: WaterEpisode }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border p-3">
+      <p className="text-sm font-medium">
+        Three campaigns from June {episode.start_year}
+      </p>
+      <p className="text-sm tabular-nums">
+        {formatShare(episode.crop_demand_unmet_fraction)} of crop water unmet ·{" "}
+        {formatMm(episode.crop_et_deficit_mm)}
+      </p>
+      <p className="text-xs text-muted-foreground tabular-nums">
+        Modeled crop demand: {formatMm(episode.crop_et_potential_mm)}. Water at
+        episode end: {formatMm(episode.water_end_mm)}.
+      </p>
+      <details>
+        <summary className="w-fit cursor-pointer rounded-lg text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
+          Crops and sowing dates
+        </summary>
+        <div className="mt-2 flex flex-col gap-3">
+          {episode.crops.map((crop) => (
+            <div
+              key={`${crop.crop}-${crop.sowing_date}`}
+              className="flex flex-col gap-1 border-t pt-2 text-xs"
+            >
+              <p className="font-medium">
+                {crop.crop} · {campaignName(crop.campaign_year)}
+              </p>
+              <p>Sown {formatDate(crop.sowing_date)}</p>
+              <p>
+                Water at sowing: {formatMm(crop.water_at_sowing_mm)} · unmet
+                crop water: {formatMm(crop.crop_et_deficit_mm)}
+              </p>
+              <p>
+                Mid-season stress: {crop.mid_season_stress_days} days · with
+                maximum temperature above 35°C:{" "}
+                {crop.coincident_stress_heat_days} days
+              </p>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            Generic crop stages and the 35°C heat screen are research
+            assumptions, not observed flowering or validated crop damage.
+          </p>
+          <p className="break-all text-xs text-muted-foreground">
+            Released run: {episode.run_id}
+          </p>
+        </div>
+      </details>
+    </div>
+  )
+}
+
 function WaterCell({
   strategy,
   water,
   settings,
   analogRankByScenario,
   domain,
+  scenarioId,
 }: {
   strategy: Strategy
   water: WaterBlock
   settings: WaterSettings
   analogRankByScenario: ReadonlyMap<string, number | null>
   domain: [number, number] | null
+  scenarioId: string | null
 }) {
   if (strategy.water_strategy_id === null) {
     return (
@@ -135,7 +177,7 @@ function WaterCell({
       (episode) =>
         episode.strategy_id === strategy.strategy_id &&
         episode.scenario_id !== null &&
-        matchesSettings(episode, settings)
+        matchesWaterSettings(episode, settings)
     )
     .sort((a, b) => a.start_year - b.start_year)
   const dots: StripDot[] = analogs.map((episode) => {
@@ -147,13 +189,17 @@ function WaterCell({
     }
   })
 
-  const isShifted = settings.summerShiftDays !== 0
+  const selectedEpisode = findWaterEpisode(
+    water,
+    strategy.strategy_id,
+    scenarioId,
+    settings
+  )
+  const isShifted = settings.summer_shift_days !== 0
   const counts = (isShifted ? water.calendar_effects : water.robustness).find(
     (entry) =>
       entry.strategy_id === strategy.strategy_id &&
-      entry.depth_m === settings.depthM &&
-      entry.initial_water_fraction === settings.initialWaterFraction &&
-      entry.summer_shift_days === settings.summerShiftDays
+      matchesWaterSettings(entry, settings)
   )
 
   return (
@@ -161,6 +207,13 @@ function WaterCell({
       {strategy.water_match === "closest" && (
         <p className="rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
           Closest match: same crops, a different phase of the cycle.
+        </p>
+      )}
+      {selectedEpisode ? (
+        <EpisodeDetail episode={selectedEpisode} />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          No released water run for the selected campaign and settings.
         </p>
       )}
       <div className="flex flex-col gap-1">
@@ -216,24 +269,28 @@ export function WaterRow({
   water: WaterBlock
   campaigns: ReadonlyArray<CampaignPoint>
 }) {
-  const [depthM, setDepthM] = useState(water.default_depth_m)
-  const [initialWaterFraction, setInitialWaterFraction] = useState(
-    water.default_initial_water_fraction
+  const [settings, setSettings] = useState(() => defaultWaterSettings(water))
+  const [dateNotice, setDateNotice] = useState<string | null>(null)
+  const analogCampaigns = waterAnalogCampaigns(campaigns)
+  const [scenarioId, setScenarioId] = useState(
+    analogCampaigns[0]?.scenario_id ?? null
   )
-  const [summerShiftDays, setSummerShiftDays] = useState(0)
-  const settings: WaterSettings = {
-    depthM,
-    initialWaterFraction,
-    summerShiftDays,
+  const changeStartingPoint = (
+    change: Partial<Pick<WaterSettings, "depth_m" | "initial_water_fraction">>
+  ) => {
+    const next = changeWaterStartingPoint(water, settings, change)
+    setDateNotice(
+      next.summer_shift_days !== settings.summer_shift_days
+        ? "Sowing date changed to Default date because no shifted run exists for this starting point."
+        : null
+    )
+    setSettings(next)
   }
 
   const fractions = [
     ...new Set(water.episodes.map((episode) => episode.initial_water_fraction)),
   ].sort((a, b) => a - b)
   const shifts = [...water.summer_shift_days].sort((a, b) => a - b)
-  const hasRuns = (candidate: WaterSettings) =>
-    water.episodes.some((episode) => matchesSettings(episode, candidate))
-
   const analogRankByScenario = new Map(
     campaigns.map((campaign) => [campaign.scenario_id, campaign.analog_rank])
   )
@@ -242,7 +299,8 @@ export function WaterRow({
     ...water.episodes
       .filter(
         (episode) =>
-          episode.scenario_id !== null && matchesSettings(episode, settings)
+          episode.scenario_id !== null &&
+          matchesWaterSettings(episode, settings)
       )
       .map((episode) => episode.crop_demand_unmet_fraction),
   ])
@@ -281,16 +339,13 @@ export function WaterRow({
             </span>
             <SegmentedControl
               label="Soil depth and water capacity"
-              value={String(depthM)}
+              value={String(settings.depth_m)}
               options={depths.map(([depth, capacity]) => ({
                 value: String(depth),
                 label: `${depth} m · ${Math.round(capacity)} mm`,
               }))}
               onChange={(next) => {
-                const depth = Number(next)
-                setDepthM(depth)
-                if (!hasRuns({ ...settings, depthM: depth }))
-                  setSummerShiftDays(0)
+                changeStartingPoint({ depth_m: Number(next) })
               }}
             />
           </div>
@@ -300,17 +355,13 @@ export function WaterRow({
             </span>
             <SegmentedControl
               label="Initial soil water"
-              value={String(initialWaterFraction)}
+              value={String(settings.initial_water_fraction)}
               options={fractions.map((fraction) => ({
                 value: String(fraction),
                 label: formatShare(fraction),
               }))}
               onChange={(next) => {
-                const fraction = Number(next)
-                setInitialWaterFraction(fraction)
-                if (!hasRuns({ ...settings, initialWaterFraction: fraction })) {
-                  setSummerShiftDays(0)
-                }
+                changeStartingPoint({ initial_water_fraction: Number(next) })
               }}
             />
           </div>
@@ -320,14 +371,48 @@ export function WaterRow({
             </span>
             <SegmentedControl
               label="Summer sowing shift"
-              value={String(summerShiftDays)}
+              value={String(settings.summer_shift_days)}
               options={shifts.map((days) => ({
                 value: String(days),
                 label: shiftLabel(days),
-                disabled: !hasRuns({ ...settings, summerShiftDays: days }),
+                disabled: !hasWaterRuns(water, {
+                  ...settings,
+                  summer_shift_days: days,
+                }),
               }))}
-              onChange={(next) => setSummerShiftDays(Number(next))}
+              onChange={(next) => {
+                setSettings({ ...settings, summer_shift_days: Number(next) })
+                setDateNotice(null)
+              }}
             />
+          </div>
+          {dateNotice && (
+            <p
+              role="status"
+              className="text-sm text-muted-foreground sm:col-span-2 lg:col-span-3"
+            >
+              {dateNotice}
+            </p>
+          )}
+          <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-3">
+            <span className="text-xs font-medium">
+              Historical start campaign
+            </span>
+            <SegmentedControl
+              label="Historical start campaign"
+              value={scenarioId ?? ""}
+              options={analogCampaigns.map((campaign) => ({
+                value: campaign.scenario_id,
+                label: `${campaign.campaign}${hasWaterRuns(water, settings, campaign.scenario_id) ? "" : " · no run"}`,
+              }))}
+              onChange={setScenarioId}
+            />
+            <p className="text-xs text-muted-foreground">
+              Selected campaign details replay three continuous campaigns. The
+              strips show all available analogs; the counts use all released
+              episodes. Historical scenarios, not forecasts or agronomic
+              recommendations.
+            </p>
           </div>
         </div>
       }
@@ -341,6 +426,7 @@ export function WaterRow({
               settings={settings}
               analogRankByScenario={analogRankByScenario}
               domain={domain}
+              scenarioId={scenarioId}
             />
           </StrategyCell>
         ))}

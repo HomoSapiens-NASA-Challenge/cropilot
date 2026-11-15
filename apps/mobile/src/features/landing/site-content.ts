@@ -1,15 +1,18 @@
 import {
+  Banknote,
   CalendarClock,
   CalendarSearch,
   Database,
-  FileSearch,
+  Droplets,
   Grid2x2,
   Layers,
   type LucideIcon,
   MapPinned,
   MousePointerClick,
   Rows3,
+  Scale,
   Sprout,
+  Tag,
   TrendingUpDown,
   UserCheck,
 } from "lucide-react-native"
@@ -19,7 +22,7 @@ export type PreviewId =
   | "rotation-comparison"
   | "source-trail"
   | "farm-map"
-  | "assistant"
+  | "limits"
 
 export type SitePageContent = {
   headline: string
@@ -48,6 +51,8 @@ export type SitePage = {
   summary: string
   /** The part of the product this page describes is not wired yet. */
   isInDevelopment?: boolean
+  /** Planned, and not in this version. It wears the roadmap wording. */
+  isRoadmap?: boolean
   /** Absent while the page is still a placeholder. */
   content?: SitePageContent
 }
@@ -77,6 +82,43 @@ const NOAA_ONI_SOURCE = {
   location: "Niño 3.4 region of the equatorial Pacific",
 } as const
 
+const INTA_CROP_MAP_SOURCE = {
+  dataset: "INTA · National Map of Crops",
+  period: "Summer maps up to the 2024/25 campaign",
+  location: "Argentina, read at the lots of the zone",
+} as const
+
+const NASA_HLS_SOURCE = {
+  dataset: "NASA HLS · Harmonized Landsat Sentinel-2 imagery",
+  period: "Monthly NDVI curves and the 2025/26 crop estimate",
+  location: "Lots and reference footprint of the zone",
+} as const
+
+const WATER_RUNS_SOURCE = {
+  dataset: "Team water-balance runs, released as research output",
+  period: "Episodes of three campaigns, start years 1984 to 2022",
+  location: "Footprint 268949, Pergamino",
+} as const
+
+const SOILGRIDS_SOURCE = {
+  dataset: "ISRIC · SoilGrids, soil water capacity by depth",
+  period: "Static soil profile",
+  location: "Footprint 268949, Pergamino",
+} as const
+
+const MAGYP_SOURCE = {
+  dataset: "MAGyP · department yields, areas and the regional margin formula",
+  period: "Campaigns 1969/70 to 2024/25 for Pergamino",
+  location: "Department of the zone",
+} as const
+
+const RL_RESULT_SOURCE = {
+  dataset:
+    "Team tabular rotation MDP: exact dynamic programming, Q-learning and fixed rotations",
+  period: "Historical campaigns of each zone",
+  location: "The 10 reference zones of Argentina",
+} as const
+
 export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
   {
     sectionSlug: "features",
@@ -90,7 +132,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             pageSlug: "years-like-this",
             title: "Years like this",
             summary: "Campaigns that started like this one",
-            isInDevelopment: true,
             content: {
               headline: "Find the campaigns that started like this one.",
               lead: "Cropilot matches the current campaign to past ones with two signals already known when the decision is made: the El Niño phase and the water in the soil. Then it shows what happened next, campaign by campaign.",
@@ -142,7 +183,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             pageSlug: "rotation-strategies",
             title: "Rotation strategies",
             summary: "Three or more rotations, side by side",
-            isInDevelopment: true,
             content: {
               headline:
                 "Compare rotations side by side, the current one included.",
@@ -237,9 +277,9 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
                       "A value that was assumed is marked as assumed in the interface.",
                   },
                   {
-                    title: "Synthetic data is labelled",
+                    title: "Made-up names are labelled",
                     description:
-                      "Demo farms and seed cases say they are synthetic wherever they appear.",
+                      "The farm name in the demo is invented, and the app says so wherever it appears.",
                   },
                   {
                     title: "No invented numbers",
@@ -254,8 +294,8 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "assistant",
             title: "Assistant",
-            summary: "Answers that cite their source",
-            isInDevelopment: true,
+            summary: "Roadmap: not in this version.",
+            isRoadmap: true,
           },
         ],
       },
@@ -270,52 +310,56 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "farm-map",
             title: "Farm map",
-            summary: "Lots, crops and the NASA grid cell",
+            summary: "Real lots, crops and the NASA grid cell",
             content: {
-              headline: "See every farm on the map, lot by lot.",
-              lead: "Open a farm to see its lots, the crop on each one and the rotation it runs. Each farm also names the NASA POWER grid cell it falls in, so the scale of the data is never a surprise.",
+              headline: "See the real lots of a zone, one by one.",
+              lead: "Lots are outlined from satellite imagery. Select one to see the crop of every campaign, its NDVI against the zone and the reason for its status. Each crop says whether it comes from an INTA map or from the team's classifier.",
               preview: "farm-map",
               highlights: [
                 {
                   icon: MousePointerClick,
-                  title: "Hover a lot",
+                  title: "Select a lot",
                   description:
-                    "Each lot shows its crop and its area without leaving the map.",
+                    "Its crop per campaign, its NDVI from September to May against the zone, its vigor gap, its purity and the reason for its status.",
+                },
+                {
+                  icon: Tag,
+                  title: "Two crop sources, labelled",
+                  description:
+                    "Past campaigns come from the INTA crop maps. The latest campaign comes from the team's crop classifier, trained on NASA HLS imagery. Every crop carries its source.",
                 },
                 {
                   icon: Grid2x2,
                   title: "The grid cell, stated",
                   description:
-                    "Each farm names the NASA POWER cell it falls in, its size and the farms that share it.",
-                },
-                {
-                  icon: FileSearch,
-                  title: "Straight to the source",
-                  description:
-                    "Each farm links to the raw daily series of its cell in the NASA POWER API.",
+                    "The map can outline the NASA POWER cell of the zone, about 55 × 57 km. One climate value covers every lot inside it.",
                 },
               ],
               details: {
-                title: "What the map shows today",
+                title: "What the map shows",
                 rows: [
                   {
-                    title: "Synthetic demo farms",
+                    title: "Satellite-estimated lots",
                     description:
-                      "The farms on the map today are made up to show the viewer, and are labelled as such. They are not real parcels.",
+                      "Outlines and crops are estimates from imagery. They are not a surveyed boundary or a record of what the producer sowed.",
                   },
                   {
-                    title: "Areas from the boundaries",
+                    title: "A made-up farm name",
                     description:
-                      "Lot and farm areas are computed from the drawn boundaries.",
+                      "The demo farm carries an invented name, and the app says so next to it. Its numbers are estimates from real imagery.",
                   },
                   {
-                    title: "One cell, many farms",
+                    title: "The reference footprint",
                     description:
-                      "Farms inside the same NASA POWER cell read the same soil water series.",
+                      "One footprint is highlighted: the field the water runs were made for. Its INTA crop history, monthly NDVI and soil capacity sit beside the map.",
                   },
                 ],
               },
-              sources: [NASA_POWER_SOURCE],
+              sources: [
+                INTA_CROP_MAP_SOURCE,
+                NASA_HLS_SOURCE,
+                NASA_POWER_SOURCE,
+              ],
             },
           },
         ],
@@ -332,20 +376,156 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "water-balance",
             title: "Water balance",
-            summary: "Field water by rotation",
-            isInDevelopment: true,
+            summary: "Unmet crop water by rotation",
+            content: {
+              headline: "Water for one field footprint, run day by day.",
+              lead: "On a reference footprint in Pergamino, Cropilot replays released daily water-balance runs for each rotation and shows how much crop water went unmet in the years like this one.",
+              preview: "rotation-comparison",
+              highlights: [
+                {
+                  icon: Layers,
+                  title: "A starting point you can change",
+                  description:
+                    "Soil depth of 0.6 or 1.0 m, and initial water of 25, 50 or 75% of capacity. The strips and counts follow your choice.",
+                },
+                {
+                  icon: CalendarClock,
+                  title: "A sowing date you can shift",
+                  description:
+                    "Summer crops sown up to 14 days earlier or later, against the default date.",
+                },
+                {
+                  icon: Droplets,
+                  title: "Excess is not flooding",
+                  description:
+                    "The runs report water above the soil capacity. No model of the team computes waterlogging, so Cropilot never calls it flooding.",
+                },
+              ],
+              details: {
+                title: "What the runs cover",
+                rows: [
+                  {
+                    title: "1,170 released runs",
+                    description:
+                      "Footprint 268949 in Pergamino, three rotations, and 39 three-campaign episodes with start years from 1984 to 2022.",
+                  },
+                  {
+                    title: "One footprint, not every field",
+                    description:
+                      "The footprint is a 38 ha outline picked in the imagery. It is not validated with a farmer.",
+                  },
+                  {
+                    title: "Three rotations have water",
+                    description:
+                      "Continuous soybean and cover crop plus soybean have no water run. The comparison shows them as not computed.",
+                  },
+                ],
+              },
+              sources: [WATER_RUNS_SOURCE, SOILGRIDS_SOURCE],
+            },
           },
           {
             pageSlug: "market",
             title: "Market and profit",
-            summary: "Profit and market by rotation",
-            isInDevelopment: true,
+            summary: "Margin by rotation in each analog campaign",
+            content: {
+              headline: "Margins in the campaigns that started like this one.",
+              lead: "For each analog campaign, Cropilot shows the gross margin of every rotation, with and without land rent, and which one led. The order changes from campaign to campaign.",
+              preview: "rotation-comparison",
+              highlights: [
+                {
+                  icon: Database,
+                  title: "Observed yields first",
+                  description:
+                    "Department yields from MAGyP, as the anomaly against trend. Where a campaign has none, a NASA POWER climate model fills in and is drawn hollow.",
+                },
+                {
+                  icon: Banknote,
+                  title: "A published formula",
+                  description:
+                    "The MAGyP regional gross-margin formula, which reproduces the published margins within 1 USD/ha. Rent is a toggle.",
+                },
+                {
+                  icon: UserCheck,
+                  title: "No winner",
+                  description:
+                    "Where two rotations swap places between campaigns, the page says so. The call stays with the agronomist.",
+                },
+              ],
+              details: {
+                title: "What stands behind the numbers",
+                rows: [
+                  {
+                    title: "Rent",
+                    description:
+                      "After-rent margins use 648 USD/ha, the rent of the Núcleo Norte area.",
+                  },
+                  {
+                    title: "Prices",
+                    description:
+                      "A3 futures prices today, with historical ratios between the delivery and the sowing price.",
+                  },
+                  {
+                    title: "Scale",
+                    description:
+                      "Department yields and a regional formula: the margin describes the department, not one field.",
+                  },
+                ],
+              },
+              sources: [MAGYP_SOURCE, NASA_POWER_SOURCE],
+            },
           },
           {
             pageSlug: "rotation-planner",
             title: "Rotation planner",
-            summary: "Builds and orders rotation strategies",
-            isInDevelopment: true,
+            summary: "Tested, and it did not beat a fixed rotation",
+            content: {
+              headline:
+                "The planner we tested did not beat the best fixed rotation.",
+              lead: "We trained reinforcement-learning agents to pick a rotation campaign by campaign. They matched exact dynamic programming, and they did not beat the best fixed rotation in any of the 10 zones: -3 USD/ha/year, 95% CI -8 to +3. So this version compares rotations and recommends none.",
+              preview: "limits",
+              highlights: [
+                {
+                  icon: Scale,
+                  title: "Matched the exact answer",
+                  description:
+                    "Q-learning agreed with exact dynamic programming in 85 to 100% of states.",
+                },
+                {
+                  icon: TrendingUpDown,
+                  title: "No zone passed",
+                  description:
+                    "0 of 10 zones passed any criterion. No signal known at decision time was enough.",
+                },
+                {
+                  icon: Sprout,
+                  title: "One choice that did matter",
+                  description:
+                    "In Balcarce, wheat with second soybean beat continuous soybean by +55 USD/ha at today's prices (95% CI +8 to +105).",
+                },
+              ],
+              details: {
+                title: "What it means for Cropilot",
+                rows: [
+                  {
+                    title: "No recommendation engine",
+                    description:
+                      "Cropilot shows each rotation in the campaigns that started like this one and leaves the choice to the agronomist and the producer.",
+                  },
+                  {
+                    title: "A small ceiling",
+                    description:
+                      "An oracle that knew every campaign in advance would gain +40 USD/ha/year (95% CI +33 to +47), about 10% of the margin. No signal known at decision time captures it.",
+                  },
+                  {
+                    title: "A negative result, reported",
+                    description:
+                      "Saying what did not work is part of the method, and it is why the app stays a comparison.",
+                  },
+                ],
+              },
+              sources: [RL_RESULT_SOURCE],
+            },
           },
           {
             pageSlug: "imagery",
@@ -367,8 +547,8 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "mcp-tools",
             title: "MCP tools",
-            summary: "The models, open to AI clients",
-            isInDevelopment: true,
+            summary: "The models, open to AI clients. Not in this version.",
+            isRoadmap: true,
           },
         ],
       },

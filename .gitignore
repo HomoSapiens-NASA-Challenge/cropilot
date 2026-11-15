@@ -28,5 +28,8 @@ apps/mobile/ios/
 
 .DS_Store
 
+# Self-contained MCP Apps view, built by Vite and packaged in the backend image.
+apps/backend/app/modules/mcp/ui/
+
 # Frozen models use their original Python version, separately from the API.
 apps/backend/.venv-models/

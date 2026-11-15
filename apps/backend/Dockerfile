@@ -1,4 +1,15 @@
 # Build context: the repository root.
+FROM node:24-slim AS mcp-view
+RUN corepack enable
+WORKDIR /repo
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/webapp/package.json apps/webapp/
+COPY packages/api/package.json packages/api/
+RUN pnpm install --frozen-lockfile --ignore-scripts --filter @cropilot/webapp...
+COPY apps/webapp apps/webapp
+COPY packages/api packages/api
+RUN pnpm --filter @cropilot/webapp build:mcp
+
 FROM python:3.14-slim
 
 COPY --from=astral/uv:0.13 /uv /bin/uv
@@ -13,6 +24,7 @@ COPY apps/backend/vendor vendor
 RUN uv sync --locked --no-dev
 
 COPY apps/backend/app app
+COPY --from=mcp-view /repo/apps/backend/app/modules/mcp/ui app/modules/mcp/ui
 COPY apps/backend/migrations migrations
 
 USER nobody

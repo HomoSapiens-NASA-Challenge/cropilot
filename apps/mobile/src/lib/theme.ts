@@ -30,4 +30,12 @@ export const SVG_COLORS = {
   maize: "hsl(40.8 100% 46.5%)",
   soybean: "hsl(154.8 64.9% 38%)",
   wheatSoybean: "hsl(15.9 67.5% 54.1%)",
+  sunflower: "hsl(265 39.6% 58.4%)",
+  sorghum: "hsl(18.9 34% 40.4%)",
+  fallow: "hsl(212.7 26.8% 83.9%)",
+  otherCrop: "hsl(215 20.2% 65.1%)",
+  lotOk: "hsl(214.1 58.7% 12.4%)",
+  lotWatch: "hsl(35.5 71% 42%)",
+  lotAlert: "hsl(5.6 63.4% 46.1%)",
+  lotCheck: "hsl(215.4 17.6% 43.3%)",
 } as const

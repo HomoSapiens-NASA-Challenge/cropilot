@@ -53,7 +53,7 @@ export function FarmMapPreview({ className }: { className?: string }) {
           <PlaceholderLine className="h-2.5 w-16" />
           <PlaceholderLine className="w-24" />
           <Text className="text-[0.65rem] text-muted-foreground">
-            Synthetic demo data
+            Illustrative shapes, not real lots
           </Text>
         </View>
       </View>

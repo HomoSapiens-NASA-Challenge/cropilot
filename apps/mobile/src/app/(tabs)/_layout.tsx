@@ -1,10 +1,5 @@
 import { Tabs } from "expo-router/tabs"
-import {
-  CalendarSearch,
-  LayoutDashboard,
-  Map as MapIcon,
-  Satellite,
-} from "lucide-react-native"
+import { appSections } from "@/features/shell/sections"
 import { NAV_THEME, SVG_COLORS } from "@/lib/theme"
 
 export default function TabsLayout() {
@@ -26,7 +21,25 @@ export default function TabsLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <LayoutDashboard color={color} size={22} />
+            <appSections.overview.icon color={color} size={22} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="years"
+        options={{
+          title: "Years",
+          tabBarIcon: ({ color }) => (
+            <appSections.analogYears.icon color={color} size={22} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="strategies"
+        options={{
+          title: "Strategies",
+          tabBarIcon: ({ color }) => (
+            <appSections.strategies.icon color={color} size={22} />
           ),
         }}
       />
@@ -34,21 +47,9 @@ export default function TabsLayout() {
         name="map"
         options={{
           title: "Map",
-          tabBarIcon: ({ color }) => <MapIcon color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="fields"
-        options={{
-          title: "Fields",
-          tabBarIcon: ({ color }) => <Satellite color={color} size={22} />,
-        }}
-      />
-      <Tabs.Screen
-        name="analysis"
-        options={{
-          title: "Analysis",
-          tabBarIcon: ({ color }) => <CalendarSearch color={color} size={22} />,
+          tabBarIcon: ({ color }) => (
+            <appSections.farmMap.icon color={color} size={22} />
+          ),
         }}
       />
     </Tabs>
