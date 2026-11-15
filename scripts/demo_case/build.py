@@ -43,6 +43,7 @@ from app.modules.cases.schemas import (
     Compare,
     Decision,
     FieldBlock,
+    Limit,
     Lot,
     ReferenceField,
     Strategy,
@@ -121,6 +122,17 @@ def reference_limitation(reference: ReferenceField, lots: list[Lot], farm: str) 
 
 # Zones with a released crop map; a missing file for one of them stops the build.
 CROP_MAP_ZONES = ("pergamino", "parana")
+# Agreement with INTA of the served model, leave one campaign out (docs/crop-map.md): where,
+# mean agreement, maize F1, soybean F1.
+CROP_MAP_SKILL = {
+    "pergamino": ("Pergamino", 0.862, 0.68, 0.89),
+    "parana": ("Paraná, with the model trained on Pergamino", 0.801, 0.62, 0.80),
+}
+
+
+def crop_map_limit(zone_id: str, field: FieldBlock | None) -> Limit | None:
+    """The crop-map limit of a zone with a field view; none without one."""
+    return text.crop_map_limit(*CROP_MAP_SKILL[zone_id]) if field is not None else None
 
 
 def region_by_id() -> dict[str, Region]:
@@ -388,7 +400,7 @@ def build_bundle(
             ),
         ),
         water=pergamino.water if pergamino else None,
-        not_computed=text.not_computed(has_water, has_water),
+        not_computed=text.not_computed(has_water, field is not None),
     )
     limits = text.limits(
         oni_now=current.oni_jas,
@@ -398,7 +410,7 @@ def build_bundle(
         yield_values=2 * len(points),
         yield_skill=yield_skill,
         has_water=has_water,
-        has_reference_field=has_water,
+        crop_map=crop_map_limit(zone_id, field),
     )
     field_block = field
     cited = cited_source_ids(years_like_this, compare, field_block, limits)
@@ -516,14 +528,30 @@ def refresh_field(out: Path) -> None:
         bundle = CaseBundle.model_validate_json(path.read_text(encoding="utf-8"))
         reference = bundle.field.reference_field if bundle.field else None
         field = field_block(zone_id, reference)
+        # The crop-map limit and the field-yield reason follow the field view.
+        limits = [limit for limit in bundle.limits if limit.title != text.CROP_MAP_LIMIT_TITLE]
+        if (limit := crop_map_limit(zone_id, field)) is not None:
+            limits.append(limit)
+        compare = bundle.compare.model_copy(
+            update={
+                "not_computed": [
+                    item.model_copy(update={"reason": text.field_yield_reason(field is not None)})
+                    if item.metric == "Field-level yield"
+                    else item
+                    for item in bundle.compare.not_computed
+                ]
+            }
+        )
         bundle = bundle.model_copy(
             update={
                 "field": field,
                 "modules": bundle.modules.model_copy(
                     update={"field": "available" if field else "not_available"}
                 ),
+                "compare": compare,
+                "limits": limits,
                 "sources": sources.select(
-                    cited_source_ids(bundle.years_like_this, bundle.compare, field, bundle.limits)
+                    cited_source_ids(bundle.years_like_this, compare, field, limits)
                 ),
             }
         )

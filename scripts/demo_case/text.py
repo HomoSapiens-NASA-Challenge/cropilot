@@ -416,21 +416,27 @@ def risk_note(rows: list[RiskRow]) -> str:
     )
 
 
-def not_computed(has_water: bool, has_reference_field: bool) -> list[NotComputed]:
+def field_yield_reason(has_field_view: bool) -> str:
+    """Why field-level yield is not computed; mentions the field view where the case has one."""
+    text = (
+        "Yields are department anomalies (MAGyP, or a NASA POWER model where MAGyP has none), not "
+        "field measurements."
+    )
+    if has_field_view:
+        text += (
+            " The field view shows satellite greenness, which has not been checked against yields."
+        )
+    return text
+
+
+def not_computed(has_water: bool, has_field_view: bool) -> list[NotComputed]:
     flooding = (
         "No team model computes it. The 'excess above capacity' of the water scenarios is outflow "
         "the soil profile could not hold, not flooding or waterlogging."
         if has_water
         else "No team model computes it for this zone."
     )
-    field_yield = (
-        "Yields are department anomalies (MAGyP, or a NASA POWER model where MAGyP has none), not "
-        "field measurements. The field view shows satellite greenness, which has not been checked "
-        "against yields."
-        if has_reference_field
-        else "Yields are department anomalies (MAGyP, or a NASA POWER model where MAGyP has none), "
-        "not field measurements."
-    )
+    field_yield = field_yield_reason(has_field_view)
     return [
         NotComputed(metric="Waterlogging and flooding", reason=flooding),
         NotComputed(
@@ -509,7 +515,7 @@ def limits(
     yield_values: int,
     yield_skill: dict[str, float],
     has_water: bool,
-    has_reference_field: bool,
+    crop_map: Limit | None,
 ) -> list[Limit]:
     out = [
         Limit(
@@ -621,22 +627,27 @@ def limits(
                 source_ids=["team_water_scenarios"],
             )
         )
-    if has_reference_field:
-        out.append(
-            Limit(
-                title="The crop map is not field truth",
-                text=(
-                    "The crop classifier agrees with INTA's national map 0.86 on average in "
-                    "Pergamino (leave one campaign out; maize F1 0.68, soybean 0.89). That is "
-                    "agreement with another satellite product, and INTA's own map is about 0.89 "
-                    "accurate against field data. Field outlines are satellite estimates, "
-                    "unvalidated in Argentina, and vigor compares a field with its neighbours: it "
-                    "is not a yield."
-                ),
-                source_ids=["team_crop_map", "inta_crop_map", "ftw"],
-            )
-        )
+    if crop_map is not None:
+        out.append(crop_map)
     return out
+
+
+CROP_MAP_LIMIT_TITLE = "The crop map is not field truth"
+
+
+def crop_map_limit(where: str, agreement: float, maize_f1: float, soybean_f1: float) -> Limit:
+    """The crop map's agreement with INTA in one zone (`where`, e.g. "Pergamino")."""
+    return Limit(
+        title=CROP_MAP_LIMIT_TITLE,
+        text=(
+            f"The crop classifier agrees with INTA's national map {agreement:.2f} on average in "
+            f"{where} (leave one campaign out; maize F1 {maize_f1:.2f}, soybean {soybean_f1:.2f}). "
+            "That is agreement with another satellite product, and INTA's own map is about 0.89 "
+            "accurate against field data. Field outlines are satellite estimates, unvalidated in "
+            "Argentina, and vigor compares a field with its neighbours: it is not a yield."
+        ),
+        source_ids=["team_crop_map", "inta_crop_map", "ftw"],
+    )
 
 
 # Glossary --------------------------------------------------------------------------------------

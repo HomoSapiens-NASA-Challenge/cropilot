@@ -46,12 +46,15 @@ export function FieldMapBlock({
   const zoneLots = lotsWithData.length - farmLots
   const contextOnly = field.lots.length - lotsWithData.length
   const lead = [
-    `${pluralize(farmLots, "lot")} of ${field.farm_name}`,
+    farmLots > 0 && `${pluralize(farmLots, "lot")} of ${field.farm_name}`,
     zoneLots > 0 &&
-      `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`,
-    "carry a crop, a status and an NDVI curve.",
+      (farmLots > 0
+        ? `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`
+        : `${pluralize(zoneLots, "field")} of ${bundle.zone_name}`),
+    farmLots + zoneLots === 1 ? "carries" : "carry",
+    "a crop, a status and an NDVI curve.",
     contextOnly > 0 &&
-      `${pluralize(contextOnly, "more outline")} give context.`,
+      `${pluralize(contextOnly, "more outline")} ${contextOnly === 1 ? "gives" : "give"} context.`,
     "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
   ]
     .filter(Boolean)

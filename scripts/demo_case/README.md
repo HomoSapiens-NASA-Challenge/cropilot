@@ -48,8 +48,8 @@ gh release download crop-map-v1 --repo HomoSapiens-NASA-Challenge/cropilot \
 
    To rebuild only the field blocks from a new crop map, without the hub data, use
    `--refresh-field` instead of `--hub-data`. It reads the committed bundles, replaces their field
-   block (and the module flag and source list that follow it) and rewrites the index; everything else
-   stays byte for byte.
+   block (and what follows it: the module flag, the crop-map limit, the field-yield reason and the
+   source list) and rewrites the index; everything else stays byte for byte.
 
    ```bash
    PYTHONPATH=. uv run python ../../scripts/demo_case/build.py --refresh-field --out app/modules/cases/resources
@@ -125,7 +125,8 @@ settlement date. Each bundle lists only the `SourceRef`s it cites: 23 in Pergami
   "La Celina" lots first (`is_demo_farm`), then the rest of the zone, all with a crop, status and NDVI
   curve. The history holds the INTA campaigns 2020/21 to 2024/25; the latest campaign, 2025/26, is the
   model's (the build stops otherwise). The case's `status_reason` is written only from the numeric
-  fields (gap against the zone, evenness, purity, month of the NDVI peak), never copied from the file.
+  fields (gap against the zone, evenness, purity, the file's lag of the NDVI peak against the zone),
+  never copied from the file. The crop-map limit carries each zone's agreement with INTA.
   The reference footprint 268949 exists only in Pergamino and comes from the Pergamino package, whose
   mapped sequence is checked (maize 2021/22, soybean 2022/23, soybean 2023/24) before the
   current-rotation sentence is written.

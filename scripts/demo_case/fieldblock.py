@@ -22,19 +22,6 @@ NDVI_MONTHS = [f"2025-{month:02d}" for month in range(9, 13)] + [
 ]
 # Crop codes of the crop map that name a summer crop (fallow and non-agricultural do not).
 RECOGNIZED_CROPS = {0, 1, 2, 3, 6, 7, 8}
-# Months of the summer window (November to April) inside the September-to-May curves.
-SUMMER = slice(2, 8)
-MONTH_NAMES = [
-    "September",
-    "October",
-    "November",
-    "December",
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-]
 
 # Labels of the INTA national crop map found at the reference footprint (all maps).
 INTA_LABEL = {
@@ -82,10 +69,10 @@ def status_reason(lot: FieldProperties, latest: CampaignRecord) -> str:
         )
     if lot.status_code == "bare":
         return (
-            f"The satellite sees almost no vegetation in summer (peak NDVI {peak:.2f}): fallow or "
-            "unsown."
+            f"The crop map finds no summer crop here (peak NDVI {peak:.2f}): fallow, unsown or not "
+            "farmland."
         )
-    if latest.gap is None or latest.even is None or latest.zone_curve is None:
+    if latest.gap is None or latest.even is None or latest.lag is None:
         raise ValueError(f"Lot {lot.id} has status {lot.status_code} but no zone comparison")
     noun = _noun(latest.crop)
     if abs(latest.gap) < 0.01:
@@ -95,13 +82,13 @@ def status_reason(lot: FieldProperties, latest: CampaignRecord) -> str:
         text = f"Peak summer greenness {_pct(latest.gap)} {side} that of {noun} fields in the zone."
     if latest.even < 0.8:
         text += f" Only {round(latest.even * 100)}% of the lot grows evenly: there are weak areas."
-    curve, zone = latest.curve[SUMMER], latest.zone_curve[SUMMER]
-    lag = curve.index(max(curve)) - zone.index(max(zone))
+    # The crop map's own lag, computed before rounding; re-deriving it from the rounded curves
+    # breaks ties differently.
+    lag = latest.lag
     if lag != 0:
-        month = MONTH_NAMES[2 + curve.index(max(curve))]
         months = "one month" if abs(lag) == 1 else f"{abs(lag)} months"
         when = "later" if lag > 0 else "earlier"
-        text += f" It peaked in {month}, {months} {when} than the zone"
+        text += f" Its greenness peaked {months} {when} than that of the zone's {noun} fields"
         text += ": possible late sowing." if lag > 0 else "."
     if latest.purity < 0.7:
         text += (
@@ -193,16 +180,15 @@ def _center(polygon: list[list[list[float]]]) -> tuple[float, float]:
 
 
 def lot_of_reference(reference: ReferenceField, lots: list[Lot]) -> Lot | None:
-    """The lot whose outline is the reference footprint, if the crop map has it."""
+    """The lot whose outline is the reference footprint (the nearest match), if the map has it."""
     x, y = _center(reference.polygon)
+    matches = []
     for lot in lots:
         lx, ly = _center(lot.polygon)
-        if (
-            math.hypot(lx - x, ly - y) < SAME_CENTER_DEG
-            and abs(lot.area_ha / reference.area_ha - 1) < SAME_AREA
-        ):
-            return lot
-    return None
+        distance = math.hypot(lx - x, ly - y)
+        if distance < SAME_CENTER_DEG and abs(lot.area_ha / reference.area_ha - 1) < SAME_AREA:
+            matches.append((distance, lot.field_id, lot))
+    return min(matches)[2] if matches else None
 
 
 def _majority(rows: list[dict[str, str]]) -> dict[str, str]:

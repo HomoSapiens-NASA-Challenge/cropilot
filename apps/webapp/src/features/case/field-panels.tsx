@@ -268,6 +268,15 @@ export function LotPanel({
   )
 }
 
+/** List order of the statuses: the ones that need attention first, `ok` last. */
+const LIST_ORDER: ReadonlyArray<NonNullable<Lot["status"]>> = [
+  "alert",
+  "watch",
+  "check",
+  "bare",
+  "ok",
+]
+
 /**
  * The farm's lots that carry data as a list, worst status first. When the zone has no
  * farm lots, every lot with data is listed instead.
@@ -282,13 +291,13 @@ export function LotList({
   onSelect: (fieldId: string) => void
 }) {
   const severity = (lot: Lot) =>
-    lot.status ? LOT_STATUS_IDS.indexOf(lot.status) : LOT_STATUS_IDS.length
+    lot.status ? LIST_ORDER.indexOf(lot.status) : LIST_ORDER.length
   const withData = lots.filter(hasLotData)
   const farmLots = withData.filter((lot) => lot.is_demo_farm)
   const listed = farmLots.length > 0 ? farmLots : withData
   const ordered = [...listed].sort(
     (a, b) =>
-      severity(b) - severity(a) ||
+      severity(a) - severity(b) ||
       a.name.localeCompare(b.name, undefined, { numeric: true })
   )
   const shown = ordered.slice(0, LIST_LIMIT)

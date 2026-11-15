@@ -460,10 +460,15 @@ def test_status_reason_is_written_from_the_numbers() -> None:
     assert "second-crop soybean fields" in second
 
 
-def test_late_peak_is_flagged_only_from_the_curves() -> None:
-    late = [*CURVE[:4], 0.6, 0.9, *CURVE[6:]]  # peaks in February, a month after the zone
-    text = reason(curve=late, gap=0.02, status_code="ok")
-    assert "February, one month later than the zone: possible late sowing." in text
+def test_peak_lag_comes_from_the_crop_map_not_from_the_rounded_curves() -> None:
+    # The rounded curves peak in the same month (a tie); the file's lag, computed before
+    # rounding, says one month later.
+    text = reason(lag=1, gap=0.02, status_code="ok")
+    assert "one month later than that of the zone's maize fields: possible late sowing." in text
+    early = reason(lag=-2, gap=0.02, status_code="ok")
+    assert early.endswith("2 months earlier than that of the zone's maize fields.")
+    late_curve = [*CURVE[:4], 0.6, 0.9, *CURVE[6:]]  # peaks in February, a month after the zone
+    assert "peaked" not in reason(curve=late_curve, lag=0, gap=0.02, status_code="ok")
 
 
 def test_check_and_bare_lots_name_no_purity_and_say_why() -> None:
@@ -477,7 +482,7 @@ def test_check_and_bare_lots_name_no_purity_and_say_why() -> None:
     few = lot(status_code="check", crop_code=2, crop="Sunflower", **no_zone)
     assert "Too few sunflower fields" in (few.status_reason or "")
     bare = lot(status_code="bare", crop_code=4, crop="Fallow", vigor=0.25, **no_zone)
-    assert "almost no vegetation" in (bare.status_reason or "")
+    assert "no summer crop here (peak NDVI 0.25)" in (bare.status_reason or "")
     assert bare.latest_crop == "Fallow"
 
 
@@ -542,7 +547,11 @@ def test_reference_footprint_is_matched_to_its_lot_by_center_and_area() -> None:
         note="synthetic",
     )
     same = lot(field_id="N0088")  # same square, 26.9 ha: within 5%
-    assert fieldblock.lot_of_reference(reference, [lot(), same]) is not None
+    shifted = [[[x + 0.0003, y] for x, y in ring] for ring in SQUARE]  # about 28 m away
+    near = lot().model_copy(update={"polygon": shifted})
+    match = fieldblock.lot_of_reference(reference, [near, same])
+    assert match is not None
+    assert match.field_id == "N0088"  # the nearest, not the first
     # Many extra vertices along one edge move a vertex mean but not the area centroid.
     edge = [[-60.59, -33.90 + 0.01 * k / 20] for k in range(1, 20)]
     ring = SQUARE[0]
@@ -552,3 +561,20 @@ def test_reference_footprint_is_matched_to_its_lot_by_center_and_area() -> None:
     far = same.model_copy(update={"polygon": moved})
     smaller = same.model_copy(update={"area_ha": 20.0})
     assert fieldblock.lot_of_reference(reference, [far, smaller]) is None
+
+
+def test_crop_map_limit_follows_the_field_view_with_each_zone_figures() -> None:
+    import build
+    import text
+
+    assert build.crop_map_limit("pergamino", None) is None
+    some_field = object()  # only its presence matters
+    pergamino = build.crop_map_limit("pergamino", some_field)
+    parana = build.crop_map_limit("parana", some_field)
+    assert pergamino is not None
+    assert parana is not None
+    assert "0.86 on average in Pergamino (leave one campaign out; maize F1 0.68" in pergamino.text
+    assert "0.80 on average in Paraná, with the model trained on Pergamino" in parana.text
+    assert "soybean 0.80" in parana.text
+    assert "greenness" in text.field_yield_reason(has_field_view=True)
+    assert "greenness" not in text.field_yield_reason(has_field_view=False)
