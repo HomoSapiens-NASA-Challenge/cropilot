@@ -19,6 +19,12 @@ const router = createRouter({
   defaultPreloadStaleTime: 0,
   // A new page opens at the top; going back restores where the reader was.
   scrollRestoration: true,
+  // Links to a section glide to it, unless the reader asked for reduced motion.
+  defaultHashScrollIntoView: window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches
+    ? true
+    : { behavior: "smooth" },
 })
 
 declare module "@tanstack/react-router" {
