@@ -38,7 +38,7 @@ export function SiteFooter({ isSignedIn }: { isSignedIn: boolean }) {
           ))}
         </div>
         <div className="flex flex-col gap-6 border-t border-dashed px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col items-start gap-3">
             <BrandMark />
             <p className="max-w-xl text-sm text-muted-foreground">
               Built for the NASA Space Apps Challenge 2026 · Field Shift:
