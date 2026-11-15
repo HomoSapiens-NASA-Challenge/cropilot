@@ -5,6 +5,7 @@ import { AppEntryLink, ArrowLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
 import { SitePreview } from "@/features/landing/previews/site-preview"
 import { Recording } from "@/features/landing/recording"
+import { Screenshot } from "@/features/landing/screenshot"
 import type {
   SiteMenu,
   SitePage,
@@ -14,19 +15,34 @@ import { StrandsArt } from "@/features/landing/strands-art"
 
 type SiteMenuColumn = SiteMenu["columns"][number]
 
+function PageVisual({ content }: { content: SitePageContent }) {
+  const className = "mx-auto max-w-2xl"
+  if (content.recording) {
+    return <Recording id={content.recording} className={className} />
+  }
+  if (content.screenshot) {
+    return <Screenshot id={content.screenshot} className={className} />
+  }
+  if (content.preview) {
+    return <SitePreview id={content.preview} className={className} />
+  }
+  return null
+}
+
 function PageContent({ content }: { content: SitePageContent }) {
+  const hasVisual = Boolean(
+    content.recording ?? content.screenshot ?? content.preview
+  )
   return (
     <>
-      <Band tone="tinted" className="relative isolate overflow-hidden">
-        <StrandsArt className="absolute inset-0 -z-10 size-full" />
-        <div className="px-4 py-16 sm:px-6 lg:py-20">
-          {content.recording ? (
-            <Recording id={content.recording} className="mx-auto max-w-2xl" />
-          ) : (
-            <SitePreview id={content.preview} className="mx-auto max-w-2xl" />
-          )}
-        </div>
-      </Band>
+      {hasVisual && (
+        <Band tone="tinted" className="relative isolate overflow-hidden">
+          <StrandsArt className="absolute inset-0 -z-10 size-full" />
+          <div className="px-4 py-16 sm:px-6 lg:py-20">
+            <PageVisual content={content} />
+          </div>
+        </Band>
+      )}
       <Band frameClassName="border-t">
         <ul className="grid md:grid-cols-3 md:divide-x">
           {content.highlights.map((highlight) => (

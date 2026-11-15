@@ -39,6 +39,7 @@ import {
   Waves,
 } from "lucide-react"
 import type { RecordingId } from "@/features/landing/recording"
+import type { ScreenshotId } from "@/features/landing/screenshot"
 
 export type PreviewId =
   | "analog-years"
@@ -46,13 +47,17 @@ export type PreviewId =
   | "source-trail"
   | "farm-map"
   | "limits"
+  | "mcp-tools"
 
 export type SitePageContent = {
   headline: string
   lead: string
-  preview: PreviewId
-  /** A screen recording of the real app, shown instead of the drawn preview. */
+  /** A drawn preview. Pages without any visual leave all three unset. */
+  preview?: PreviewId
+  /** A screen recording of the real app; wins over the other two. */
   recording?: RecordingId
+  /** A still capture of the real app; wins over the drawn preview. */
+  screenshot?: ScreenshotId
   highlights: ReadonlyArray<{
     icon: LucideIcon
     title: string
@@ -306,7 +311,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Every number names its source.",
               lead: "Each indicator in Cropilot carries the dataset it came from, the period it covers and the place it describes. Assumed and missing values are labelled as such.",
-              preview: "source-trail",
+              screenshot: "source-popover",
               highlights: [
                 {
                   icon: Database,
@@ -358,7 +363,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               headline:
                 "Ask about the evidence, and get answers with their sources.",
               lead: "Ask Cropilot explains what the case and the planner already show. Type a question or record one. Every answer comes with sources, and its tables come from the app's own data, not from the language model.",
-              preview: "source-trail",
               highlights: [
                 {
                   icon: MessageSquare,
@@ -429,7 +433,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Keep the farms you advise in one place.",
               lead: "Signed in, you list the farms you advise by name. Today a farm is a saved name: the evidence in Cropilot describes the region and the demo field, not yet each farm you add.",
-              preview: "farm-map",
+              screenshot: "parana-field",
               highlights: [
                 {
                   icon: Tractor,
@@ -547,7 +551,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What Cropilot knows about soil and climate today.",
               lead: "Cropilot uses NASA POWER soil wetness and the El Niño phase to find similar campaigns, and SoilGrids to size the water a soil can hold. Soil carbon, nitrogen and a climate-risk score by rotation are not in this version.",
-              preview: "source-trail",
+              screenshot: "compare-not-computed",
               highlights: [
                 {
                   icon: Droplets,
@@ -603,7 +607,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Water for one field footprint, run day by day.",
               lead: "On a reference footprint in Pergamino, Cropilot replays released daily water-balance runs for each rotation and shows how much crop water went unmet in the years like this one.",
-              preview: "rotation-comparison",
+              screenshot: "compare-water",
               highlights: [
                 {
                   icon: Layers,
@@ -654,7 +658,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Margins in the campaigns that started like this one.",
               lead: "For each analog campaign, Cropilot shows the gross margin of every rotation, with and without land rent, and which one led. The order changes from campaign to campaign.",
-              preview: "rotation-comparison",
+              screenshot: "compare-cards",
               highlights: [
                 {
                   icon: Database,
@@ -773,7 +777,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What Cropilot reads from satellite images.",
               lead: "Cropilot turns NASA HLS imagery into a crop for every field and every summer, and into a vigor curve that compares each field with its neighbours. The team's models read the imagery offline. Opening a page never runs a satellite model.",
-              preview: "farm-map",
+              screenshot: "field-footprint",
               highlights: [
                 {
                   icon: Satellite,
@@ -835,7 +839,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What is not here yet.",
               lead: "This version ships what the pages of this site describe. This page names what is still missing, so nobody has to find it out during a demo.",
-              preview: "limits",
               highlights: [
                 {
                   icon: Waves,
@@ -895,7 +898,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Open the evidence to any AI client.",
               lead: "Cropilot runs a public, read-only MCP server at /api/mcp. An AI client can list the cases, find analog years, compare rotations and read the evidence of a field, with sources, units and missing values kept.",
-              preview: "source-trail",
+              preview: "mcp-tools",
               highlights: [
                 {
                   icon: Plug,
@@ -973,7 +976,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Built for the agronomist who makes the call.",
               lead: "The brief speaks to producers, and the person who knows the field is the agronomist who advises them. Cropilot gives that advisor real campaigns, sourced numbers and the questions to check on the ground.",
-              preview: "rotation-comparison",
+              screenshot: "compare-answers",
               highlights: [
                 {
                   icon: UserCheck,
@@ -1029,7 +1032,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               headline:
                 "One view the producer and the advisor can read together.",
               lead: "Cropilot is made for the advisor, and its screens are written so the producer can follow. Both see the same campaigns, the same numbers and the same stated limits.",
-              preview: "rotation-comparison",
+              screenshot: "case-hero",
               highlights: [
                 {
                   icon: Handshake,
@@ -1089,7 +1092,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Campaigns that start under El Niño.",
               lead: "The 2026/27 campaign starts under a strong El Niño: the July to September ONI of 2026 is +2.16, the highest since 1981. Cropilot finds the real campaigns that started in the same phase and shows what happened to each rotation.",
-              preview: "analog-years",
+              screenshot: "case-start",
               highlights: [
                 {
                   icon: CalendarSearch,
@@ -1140,7 +1143,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Campaigns that start under La Niña.",
               lead: "On average La Niña is the phase that costs in the team's research. Cropilot lists the real campaigns that started that way, each with its name and date, instead of an average of them.",
-              preview: "analog-years",
+              screenshot: "campaign-notes",
               highlights: [
                 {
                   icon: TrendingUpDown,
@@ -1191,7 +1194,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Campaigns that start in a neutral phase.",
               lead: "Neutral campaigns are matched with the same two signals: an ONI between -0.5 and +0.5, and the water in the soil at the start. Neutral does not mean average. 2008/09 started neutral with dry soil and was one of the worst years.",
-              preview: "analog-years",
+              screenshot: "campaign-notes",
               highlights: [
                 {
                   icon: CalendarSearch,
@@ -1247,7 +1250,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Compare rotations by what they leave on the soil.",
               lead: "Cropilot does not give a soil health score. It shows what the simulator can measure, days of bare soil and rain falling on bare soil, and the cited reasoning of each strategy with what is missing.",
-              preview: "rotation-comparison",
+              screenshot: "compare-answers",
               highlights: [
                 {
                   icon: Layers,
@@ -1299,7 +1302,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               headline:
                 "See how each rotation held up in campaigns that started alike.",
               lead: "Resilience here is something you can read: how each rotation did in each of the analog campaigns, the worst one included, instead of one average.",
-              preview: "rotation-comparison",
+              screenshot: "compare-worst",
               highlights: [
                 {
                   icon: TrendingUpDown,
@@ -1351,7 +1354,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               headline:
                 "Compare rotations by the water they leave in the soil.",
               lead: "In the Pergamino water runs, each rotation is replayed over three campaigns with the soil water carried over day by day. Cropilot shows the crop water that went unmet, the water at sowing and the water at the end.",
-              preview: "rotation-comparison",
+              screenshot: "compare-water",
               highlights: [
                 {
                   icon: Droplets,
@@ -1408,7 +1411,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Built for Argentine farms.",
               lead: "Cropilot reads Argentine sources next to NASA's: the INTA crop maps, MAGyP yields and margins, and ten reference departments. The demo case is Pergamino in Buenos Aires, and Paraná in Entre Ríos has a field map.",
-              preview: "farm-map",
+              screenshot: "campaign-map",
               highlights: [
                 {
                   icon: MapPinned,
@@ -1471,7 +1474,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "NASA POWER, the soil water signal.",
               lead: "Cropilot reads root-zone soil wetness from NASA POWER to know how much water was in the soil when each campaign began.",
-              preview: "source-trail",
+              screenshot: "source-popover",
               highlights: [
                 {
                   icon: Layers,
@@ -1522,7 +1525,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "NOAA Oceanic Niño Index, the El Niño signal.",
               lead: "Cropilot reads the ONI to know whether a campaign started under El Niño, La Niña or neutral conditions. It is the first of the two signals that define a year like this one.",
-              preview: "source-trail",
+              screenshot: "campaign-map",
               highlights: [
                 {
                   icon: CalendarSearch,
@@ -1573,7 +1576,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Every dataset Cropilot reads.",
               lead: "NASA data sits at the centre of the reasoning, next to Argentine and open sources. Each one is listed with its period and place, and with its license where the team's register states one.",
-              preview: "source-trail",
+              screenshot: "method-sources",
               highlights: [
                 {
                   icon: Satellite,
@@ -1641,7 +1644,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "How a year like this one is found.",
               lead: "Cropilot matches the current campaign to past ones with two signals: the El Niño phase from the NOAA ONI, and the root-zone soil water at the end of August from NASA POWER. The matches are real campaigns, shown one by one.",
-              preview: "analog-years",
+              screenshot: "years-scatter",
               highlights: [
                 {
                   icon: CalendarSearch,
@@ -1692,7 +1695,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Only what is known when the choice is made.",
               lead: "A year is matched with what a decision-maker could know at the time: the phase and the soil water at the decision, never the El Niño of the summer that followed.",
-              preview: "analog-years",
+              screenshot: "years-table",
               highlights: [
                 {
                   icon: CalendarClock,
@@ -1743,7 +1746,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What the data can and cannot say about a field.",
               lead: "Cropilot works with regional data, satellite estimates and simulated scenarios. This page lists what that means for any number you read, so the agronomist can weigh it against what they know about the field.",
-              preview: "limits",
+              screenshot: "method-limits",
               highlights: [
                 {
                   icon: Grid2x2,
@@ -1821,7 +1824,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What Cropilot does not do.",
               lead: "Cropilot does not forecast the weather, does not reduce a field to one score and does not replace the agronomist. It shows real past campaigns and says where its evidence ends.",
-              preview: "limits",
+              screenshot: "years-limit",
               highlights: [
                 {
                   icon: CloudRain,
@@ -1888,7 +1891,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "From the public case to your first planner run.",
               lead: "You can read a full case with no account. Sign in with Google to pick your region, run the rotation planner and ask Cropilot about a result.",
-              preview: "analog-years",
+              screenshot: "case-hero",
               highlights: [
                 {
                   icon: Compass,
@@ -1955,7 +1958,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "The terms Cropilot uses, in plain language.",
               lead: "No remote-sensing background is needed. These are the words you will meet in the app, in the order you will meet them.",
-              preview: "source-trail",
+              screenshot: "method-glossary",
               highlights: [
                 {
                   icon: CloudRain,
@@ -2050,7 +2053,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "What agronomists ask first.",
               lead: "Short answers, with the pages that hold the detail.",
-              preview: "limits",
               highlights: [
                 {
                   icon: CloudRain,
@@ -2120,7 +2122,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "The people behind Cropilot.",
               lead: "Cropilot is built by a team for the NASA Space Apps Challenge 2026. These are the research areas each person leads in the team's working agreement.",
-              preview: "source-trail",
               highlights: [
                 {
                   icon: Layers,
@@ -2186,7 +2187,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Field Shift: Adapting Farms with NASA Data.",
               lead: "The challenge asks for a decision-support tool that uses NASA Earth observations with local soil, crop and producer information to explore rotation strategies that strengthen soil health and adapt farms to changing conditions. Cropilot is our answer, for Argentina.",
-              preview: "rotation-comparison",
+              screenshot: "campaign-map",
               highlights: [
                 {
                   icon: Flag,
@@ -2248,7 +2249,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "Where AI was used, and where it was not.",
               lead: "AI tools helped to build Cropilot, and one runs inside it. The team chose the problem, the zones and the approach. The full register is in the team's submission file; this is the short version.",
-              preview: "limits",
               highlights: [
                 {
                   icon: Code,
@@ -2313,8 +2313,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             summary: "Reach the people behind Cropilot.",
             content: {
               headline: "Reach the people behind Cropilot.",
-              lead: "The team works in the open under one GitHub organization. That is the way to reach us, and where the code and the research live.",
-              preview: "source-trail",
+              lead: "The team works under one GitHub organization. That is the way to reach us, and where the code and the research live.",
               highlights: [
                 {
                   icon: Mail,
@@ -2375,7 +2374,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             content: {
               headline: "The code behind Cropilot.",
               lead: "Three repositories hold the product, the simulator and the research. Every dataset, library and AI tool they use is listed in the team's register.",
-              preview: "source-trail",
               highlights: [
                 {
                   icon: Code,
