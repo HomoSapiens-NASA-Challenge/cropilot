@@ -76,6 +76,7 @@
     0 50px 100px -20px oklch(0.3 0.06 262 / 0.2),
     0 30px 60px -30px oklch(0 0 0 / 0.25);
   --animate-strand-drift: strand-drift 14s ease-in-out infinite alternate;
+  --animate-marquee: marquee 40s linear infinite;
 
   @keyframes strand-drift {
     0% {
@@ -83,6 +84,12 @@
     }
     100% {
       transform: translate3d(-1.5%, 1.5%, 0);
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translate3d(-100%, 0, 0);
     }
   }
 }
