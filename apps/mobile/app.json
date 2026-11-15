@@ -27,7 +27,13 @@
         }
       ],
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Cropilot records a spoken question for the assistant only while you are recording."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

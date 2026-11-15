@@ -27,6 +27,7 @@ function errorMessage(error: unknown): string {
 export function useAssistant(zoneId: string) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [question, setQuestion] = useState("")
+  const [speak, setSpeak] = useState(false)
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
   const nextTurnId = useRef(0)
   const chat = useMutation(askCaseAssistantMutation())
@@ -49,7 +50,7 @@ export function useAssistant(zoneId: string) {
     ])
     try {
       const response = await chat.mutateAsync({
-        body: { zone_id: zoneId, message: text, history },
+        body: { zone_id: zoneId, message: text, history, speak },
       })
       const id = nextTurnId.current++
       setTurns((previous) => [
@@ -75,6 +76,8 @@ export function useAssistant(zoneId: string) {
     turns,
     question,
     setQuestion,
+    speak,
+    setSpeak,
     pendingQuestion,
     pending,
     error: chat.error ? errorMessage(chat.error) : null,

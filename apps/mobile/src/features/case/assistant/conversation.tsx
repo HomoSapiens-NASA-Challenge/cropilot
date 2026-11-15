@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text"
 import { Answer } from "@/features/case/assistant/answer"
 import { QuestionSuggestions } from "@/features/case/assistant/question-suggestions"
 import type { Turn } from "@/features/case/assistant/use-assistant"
+import type { SpokenAnswers } from "@/features/case/assistant/use-spoken-answers"
 import { SVG_COLORS } from "@/lib/theme"
 
 const suggestions = [
@@ -19,6 +20,8 @@ export function Conversation({
   turns,
   pendingQuestion,
   pending,
+  voiceBusy,
+  spokenAnswers,
   onQuestion,
   onEvidence,
   onSources,
@@ -26,6 +29,8 @@ export function Conversation({
   turns: Turn[]
   pendingQuestion: string | null
   pending: boolean
+  voiceBusy: boolean
+  spokenAnswers: SpokenAnswers
   onQuestion: (question: string) => void
   onEvidence: (card: EvidenceCard) => void
   onSources: (response: AssistantResponse) => void
@@ -67,7 +72,7 @@ export function Conversation({
             </Text>
             <QuestionSuggestions
               questions={suggestions}
-              disabled={pending}
+              disabled={pending || voiceBusy}
               onQuestion={onQuestion}
             />
           </View>
@@ -79,7 +84,11 @@ export function Conversation({
             </Text>
             <Answer
               response={turn.response}
-              pending={pending}
+              pending={pending || voiceBusy}
+              turnId={turn.id}
+              spokenAnswers={spokenAnswers}
+              voiceBusy={voiceBusy}
+              onToggleSpeech={() => void spokenAnswers.toggle(turn)}
               onQuestion={onQuestion}
               onEvidence={onEvidence}
               onSources={onSources}
