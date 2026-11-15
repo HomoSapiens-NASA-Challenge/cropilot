@@ -6,8 +6,10 @@ Run it with the backend environment, so it imports the contract and the water lo
         --hub-data /path/to/hub/data --out app/modules/cases/resources
 
 Inputs (all under --hub-data, see README.md): `market_runs/<Zone>_2026.json` for the ten zones,
-`raw/magyp.csv` (MAGyP estimates), `pergamino/` (the Pergamino package) and
-`crop-map-prototype/fields.geojson`; the water scenarios are read from the backend data directory.
+`raw/magyp.csv` (MAGyP estimates) and `pergamino/` (the Pergamino package); the water scenarios and
+the crop map by field (`crop-map-v1`) are read from the backend data directory.
+`--refresh-field` rebuilds only the field blocks of the committed bundles from the crop map, with no
+hub data.
 Every output is built as a contract object and serialized from it, so nothing invalid is written.
 """
 
@@ -31,6 +33,7 @@ from common import (
     ZONE_IDS,
 )
 
+from app.core.config import CropMapSettings
 from app.modules.cases.schemas import (
     AnalogMargins,
     BlockMeta,
@@ -40,6 +43,8 @@ from app.modules.cases.schemas import (
     Compare,
     Decision,
     FieldBlock,
+    Lot,
+    ReferenceField,
     Strategy,
     WaterBlock,
     YearsLikeThis,
@@ -70,10 +75,10 @@ LOTS_META = BlockMeta(
     unit="NDVI (no unit)",
     source_ids=["nasa_hls", "inta_crop_map", "ftw", "team_crop_map"],
     note=(
-        "The 2025/26 crop and the status come from the team's crop classifier on NASA HLS; the "
-        "2020/21 to 2024/25 history is INTA's national crop map. Vigor compares a lot with the "
-        "zone's fields of the same crop. Eighteen lots belong to a made-up farm; the other "
-        "outlines of the zone carry no data."
+        "The 2025/26 crop and the status come from the team's crop classifier on NASA HLS "
+        "(release crop-map-v1); the 2020/21 to 2024/25 history is INTA's national crop map. Vigor "
+        "compares a lot with the zone's fields of the same crop. Eighteen lots belong to a "
+        "made-up farm; every other field of the zone carries the same data."
     ),
 )
 REFERENCE_META = BlockMeta(
@@ -92,15 +97,30 @@ FIELD_LIMITATIONS = [
     "are unvalidated in Argentina.",
     "The farm 'La Celina' is made up: the lot names and the farm are invented, the numbers are "
     "real measurements of real outlines.",
-    "Only the 18 lots of the made-up farm carry a crop, status and NDVI curve; the other outlines "
-    "of the zone are shown for context.",
+    "The crop of a second crop (soybean or maize after a winter cereal) comes from INTA's winter "
+    "map in past campaigns and from the classifier in 2025/26.",
     "The 2025/26 crop is a model estimate until INTA publishes its map; earlier campaigns use "
     "INTA's map directly.",
     "Vigor compares a lot with the zone's fields of the same crop under the same weather. It is "
     "not a yield estimate and has not been checked against yields.",
-    "The reference footprint is not one of the lots: it is the 38 ha outline the water scenarios "
-    "ran on, with no farmer attached.",
 ]
+
+
+def reference_limitation(reference: ReferenceField, lots: list[Lot], farm: str) -> str:
+    """Says what the reference footprint is, and which lot of the map it is, if any."""
+    text = (
+        f"The reference footprint is the {reference.area_ha:.0f} ha outline the water scenarios "
+        "ran on, with no farmer attached."
+    )
+    lot = field_module.lot_of_reference(reference, lots)
+    if lot is None:
+        return f"{text} It is not one of the lots."
+    where = f"one of the lots of {farm}" if lot.is_demo_farm else f"outside {farm}"
+    return f"{text} On the map it is {lot.name}, {where}."
+
+
+# Zones with a released crop map; a missing file for one of them stops the build.
+CROP_MAP_ZONES = ("pergamino", "parana")
 
 
 def region_by_id() -> dict[str, Region]:
@@ -151,17 +171,30 @@ class PergaminoInputs:
         )
         if sequence != ["Maize", "Soybean", "Soybean"]:
             raise ValueError(f"The mapped rotation changed: {sequence}; update the current note")
-        lots, _ = field_module.read_lots(hub_data / "crop-map-prototype" / "fields.geojson")
-        self.field = FieldBlock(
-            farm_name="La Celina",
-            farm_name_is_made_up=True,
-            ndvi_months=field_module.NDVI_MONTHS,
-            lots=lots,
-            lots_meta=LOTS_META,
-            reference_field=reference,
-            reference_meta=REFERENCE_META,
-            limitations=FIELD_LIMITATIONS,
-        )
+        self.reference = reference
+
+
+def field_block(zone_id: str, reference: ReferenceField | None) -> FieldBlock | None:
+    """The zone's lots from the released crop map, plus the reference footprint where it exists."""
+    if zone_id not in CROP_MAP_ZONES:
+        return None
+    path = CropMapSettings().crop_map_dir / f"lots_{zone_id}_en.geojson"
+    if not path.exists():
+        raise FileNotFoundError(f"{path} is missing: install the crop-map-v1 release first")
+    lots, field_map = field_module.read_lots(path)
+    if not field_map.meta.farm_is_synthetic:
+        raise ValueError("The crop map no longer flags its demonstration farm as made up")
+    return FieldBlock(
+        farm_name=field_map.meta.farm,
+        farm_name_is_made_up=True,
+        ndvi_months=field_module.NDVI_MONTHS,
+        lots=lots,
+        lots_meta=LOTS_META,
+        reference_field=reference,
+        reference_meta=REFERENCE_META if reference else None,
+        limitations=FIELD_LIMITATIONS
+        + ([reference_limitation(reference, lots, field_map.meta.farm)] if reference else []),
+    )
 
 
 # One zone ----------------------------------------------------------------------------------
@@ -249,6 +282,7 @@ def build_bundle(
     region: Region,
     hub_data: Path,
     pergamino: PergaminoInputs | None,
+    field: FieldBlock | None,
     generated_utc: str,
 ) -> CaseBundle:
     has_water = pergamino is not None
@@ -284,7 +318,7 @@ def build_bundle(
         years_like_this="available",
         margins="available",
         water="available" if has_water else "not_available",
-        field="available" if has_water else "not_available",
+        field="available" if field is not None else "not_available",
     )
     years_like_this = YearsLikeThis(
         current=current,
@@ -366,15 +400,8 @@ def build_bundle(
         has_water=has_water,
         has_reference_field=has_water,
     )
-    field_block = pergamino.field if pergamino else None
-    cited = referenced_source_ids(
-        [
-            years_like_this.model_dump(),
-            compare.model_dump(),
-            field_block.model_dump() if field_block else None,
-            [limit.model_dump() for limit in limits],
-        ]
-    )
+    field_block = field
+    cited = cited_source_ids(years_like_this, compare, field_block, limits)
     return CaseBundle(
         schema_version="case-v1",
         zone_id=zone_id,
@@ -398,6 +425,19 @@ def build_bundle(
         limits=limits,
         glossary=text.GLOSSARY,
         sources=sources.select(cited),
+    )
+
+
+def cited_source_ids(
+    years_like_this: YearsLikeThis, compare: Compare, field: FieldBlock | None, limits: list
+) -> set[str]:
+    return referenced_source_ids(
+        [
+            years_like_this.model_dump(),
+            compare.model_dump(),
+            field.model_dump() if field else None,
+            [limit.model_dump() for limit in limits],
+        ]
     )
 
 
@@ -467,14 +507,52 @@ def write(path: Path, model: CaseBundle | CaseIndex) -> None:
     path.write_text(payload + "\n", encoding="utf-8")
 
 
+def refresh_field(out: Path) -> None:
+    """Rebuild only the field blocks (and the module flags, sources and index that follow them)
+    of the committed bundles from the installed crop map. Everything else is kept byte for byte."""
+    bundles = []
+    for zone_id in ZONE_IDS.values():
+        path = out / f"{zone_id}.json"
+        bundle = CaseBundle.model_validate_json(path.read_text(encoding="utf-8"))
+        reference = bundle.field.reference_field if bundle.field else None
+        field = field_block(zone_id, reference)
+        bundle = bundle.model_copy(
+            update={
+                "field": field,
+                "modules": bundle.modules.model_copy(
+                    update={"field": "available" if field else "not_available"}
+                ),
+                "sources": sources.select(
+                    cited_source_ids(bundle.years_like_this, bundle.compare, field, bundle.limits)
+                ),
+            }
+        )
+        write(path, bundle)
+        bundles.append(bundle)
+        size_kb = path.stat().st_size / 1024
+        lots = len(field.lots) if field else 0
+        sys.stdout.write(f"{zone_id}: {size_kb:.0f} KB, {lots} lots\n")
+    write(out / "index.json", build_index(bundles, region_by_id()))
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--hub-data", type=Path, required=True)
+    parser.add_argument("--hub-data", type=Path)
     parser.add_argument("--out", type=Path, default=Path(RESOURCE_DIR))
     parser.add_argument(
         "--generated-utc", help="default: the latest `generated_utc` of the market runs"
     )
+    parser.add_argument(
+        "--refresh-field",
+        action="store_true",
+        help="rebuild only the field blocks of the bundles in --out from the installed crop map",
+    )
     args = parser.parse_args(argv)
+    if args.refresh_field:
+        refresh_field(args.out)
+        return 0
+    if args.hub_data is None:
+        parser.error("--hub-data is required unless --refresh-field is given")
 
     regions = region_by_id()
     runs = read_runs(args.hub_data)
@@ -494,6 +572,7 @@ def main(argv: list[str]) -> int:
             regions[zone_id],
             args.hub_data,
             pergamino if zone_id == PERGAMINO else None,
+            field_block(zone_id, pergamino.reference if zone_id == PERGAMINO else None),
             generated_utc,
         )
         write(args.out / f"{zone_id}.json", bundle)

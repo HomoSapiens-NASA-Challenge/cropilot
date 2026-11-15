@@ -38,7 +38,8 @@ The 18 fields marked `own` form a made-up demonstration farm, "La Celina", and `
 | **Pergamino, Pergamino** | **Blend (served)** | 0.867 | 0.877 | 0.773           | 0.911 | 0.879 | **0.862** | 0.68     | 0.89       |
 | Paraná, Paraná           | LightGBM           | 0.769 | 0.778 | 0.558           | 0.742 | 0.812 | 0.732     | 0.57     | 0.73       |
 | Paraná, both zones       | LightGBM           | 0.807 | 0.793 | 0.608           | 0.787 | 0.835 | 0.766     | 0.64     | 0.78       |
-| **Paraná, Pergamino**    | **LightGBM**       | 0.835 | 0.775 | 0.687           | 0.816 | 0.840 | **0.791** | 0.60     | 0.80       |
+| Paraná, Pergamino        | LightGBM           | 0.835 | 0.775 | 0.687           | 0.816 | 0.840 | 0.791     | 0.60     | 0.80       |
+| **Paraná, Pergamino**    | **Blend (served)** | 0.842 | 0.793 | 0.682           | 0.831 | 0.857 | **0.801** | 0.62     | 0.80       |
 
 Agreement with INTA, leave-one-campaign-out, every labeled pixel of the 20 × 20 km zone.
 

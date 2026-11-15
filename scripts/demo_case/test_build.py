@@ -5,7 +5,8 @@ Run with the backend environment from `apps/backend`:
 Every fixture below is SYNTHETIC: small inline data that mimics the shape of the real inputs.
 """
 
-import math
+import json
+from pathlib import Path
 from typing import Any
 
 import fieldblock
@@ -15,6 +16,8 @@ import unharvested
 import water
 from common import BUNDLE_STRATEGY, MARKET_ROTATION, STRATEGY_IDS
 
+from app.modules.cases.schemas import Lot, ReferenceField
+from app.modules.crops.schemas import CropField
 from app.modules.water.schemas import CropResult, WaterRunSummary
 
 # Synthetic market run -------------------------------------------------------------------------
@@ -361,117 +364,191 @@ SQUARE = [
     [[-60.60, -33.90], [-60.59, -33.90], [-60.59, -33.89], [-60.60, -33.89], [-60.60, -33.90]]
 ]
 CURVE = [0.3, 0.4, 0.5, 0.7, 0.9, 0.8, 0.6, 0.4, 0.3]  # peaks in January (index 4)
+PAST = [("20/21", 1, "Soybean"), ("21/22", 0, "Maize"), ("22/23", 7, "Second soybean")]
 
 
-def synthetic_own_feature(**overrides: object) -> dict[str, Any]:
-    props = {
-        "id": "L05",
-        "own": True,
-        "name": "Lote 5",
-        "farm": "La Celina",
-        "ha": 26.9,
+def synthetic_record(
+    campaign: str, crop_code: int | None, crop: str, **overrides: object
+) -> dict[str, Any]:
+    record = {
+        "campaign": campaign,
+        "source": "INTA",
+        "crop_code": crop_code,
+        "crop": crop,
+        "purity": 0.95,
         "curve": CURVE,
-        "history": ["Soja", "Maíz", "Soja", "Soja", "Maíz"],  # newest first, as in the prototype
-        "purity": 0.99,
-        "crop": "Maíz",
-        "status": "Atención",
-        "reason": "Vigor 7 % por debajo de los lotes de maíz de la zona.",
-        "vigor": 0.8,
+        "phase_code": "nina",
+        "phase": "La Niña",
+        "oni": -0.9,
+        "vigor": 0.85,
+        "zone_vigor": 0.9,
         "gap": -0.07,
+        "lag": 0,
         "even": 0.9,
-        "zone": CURVE,
+        "zone_curve": CURVE,
     }
-    return {"geometry": {"coordinates": SQUARE}, "properties": props | overrides}
+    return record | overrides
 
 
-HISTORY = ["2020/21", "2021/22", "2022/23", "2023/24", "2024/25"]
+def synthetic_field(
+    field_id: str = "L05", status_code: str = "watch", **latest: object
+) -> dict[str, Any]:
+    """One SYNTHETIC crop-map field: three INTA campaigns and a modeled 25/26 of maize."""
+    history = [synthetic_record(*row) for row in PAST]
+    history.append(synthetic_record("25/26", 0, "Maize", source="model") | latest)
+    return {
+        "type": "Feature",
+        "geometry": {"type": "Polygon", "coordinates": SQUARE},
+        "properties": {
+            "id": field_id,
+            "name": "Lot 5",
+            "own": field_id.startswith("L"),
+            "farm": "La Celina",
+            "ha": 26.9,
+            "status_code": status_code,
+            "status": status_code.title(),
+            "reason": "Spanish or English text that the case never reuses.",
+            "crop": history[-1]["crop"],
+            "confidence": 0.8,
+            "history": history,
+        },
+    }
 
 
-def test_lot_crop_status_and_name_are_translated() -> None:
-    lot = fieldblock.own_lot(synthetic_own_feature(), HISTORY)
-    assert (lot.name, lot.latest_crop, lot.status) == ("Lot 5", "Maize", "watch")
-    assert lot.latest_crop_source == "model"
-    assert lot.is_demo_farm
-    # History is oldest first and the prototype list is newest first.
-    assert [(h.campaign, h.crop) for h in lot.history] == [
-        ("2020/21", "Maize"),
-        ("2021/22", "Soybean"),
-        ("2022/23", "Soybean"),
-        ("2023/24", "Maize"),
-        ("2024/25", "Soybean"),
+def lot(**kwargs: object) -> Lot:
+    return fieldblock.lot_from_crop_map(CropField.model_validate(synthetic_field(**kwargs)))
+
+
+def reason(**kwargs: object) -> str:
+    field = CropField.model_validate(synthetic_field(**kwargs))
+    return fieldblock.status_reason(field.properties, field.properties.history[-1])
+
+
+def test_lot_keeps_past_campaigns_as_history_and_the_model_as_latest() -> None:
+    own = lot()
+    assert (own.name, own.latest_crop, own.status) == ("Lot 5", "Maize", "watch")
+    assert (own.latest_campaign, own.latest_crop_source) == ("2025/26", "model")
+    assert own.is_demo_farm
+    assert [(h.campaign, h.crop, h.source) for h in own.history] == [
+        ("2020/21", "Soybean", "INTA"),
+        ("2021/22", "Maize", "INTA"),
+        ("2022/23", "Second soybean", "INTA"),
     ]
-    assert all(h.source == "INTA" for h in lot.history)
+    assert own.vigor_gap == -0.07
+    assert own.zone_ndvi_curve == CURVE
+    neighbour = lot(field_id="N0088")
+    assert (neighbour.name, neighbour.is_demo_farm) == ("Field N0088", False)
 
 
-@pytest.mark.parametrize(
-    ("spanish", "english"),
-    [
-        ("Bien", "ok"),
-        ("Atención", "watch"),
-        ("Alerta", "alert"),
-        ("A verificar", "check"),
-        ("Sin cultivo", "bare"),
-    ],
-)
-def test_every_prototype_status_has_a_contract_status(spanish: str, english: str) -> None:
-    assert fieldblock.PROTOTYPE_STATUS[spanish] == english
+def test_a_latest_campaign_that_is_not_the_modeled_2025_26_stops_the_build() -> None:
+    with pytest.raises(ValueError, match="2025/26"):
+        lot(source="INTA")
+    with pytest.raises(ValueError, match="2025/26"):
+        lot(campaign="24/25")
 
 
-def test_unverified_lot_has_no_crop_and_status_check() -> None:
-    feature = synthetic_own_feature(
-        crop="A verificar",
-        status="A verificar",
-        gap=None,
-        even=None,
-        zone=None,
-        vigor=0.73,
-        reason="El modelo no lo reconoce como maíz, soja, girasol ni sorgo.",
-    )
-    lot = fieldblock.own_lot(feature, HISTORY)
-    assert lot.latest_crop is None
-    assert lot.status == "check"
-    assert lot.crop_purity is None  # the purity belonged to a class that is not named
-    assert lot.zone_ndvi_curve == [None] * 9
-    assert "peak NDVI 0.73" in (lot.status_reason or "")
-
-
-def test_status_reason_is_english_and_written_from_the_numbers_not_the_spanish_text() -> None:
-    spanish = "Vigor 7 % por debajo de los lotes de maíz de la zona."
-    reason = fieldblock.status_reason(synthetic_own_feature(reason=spanish)["properties"])
-    assert reason is not None
-    assert reason != spanish
-    assert "7% below" in reason
-    assert "maize fields" in reason
-    assert "por debajo" not in reason
-    assert "Vigor" not in reason
-    uneven = fieldblock.status_reason(synthetic_own_feature(even=0.6, purity=0.5)["properties"])
-    assert uneven is not None
+def test_status_reason_is_written_from_the_numbers() -> None:
+    text = reason()
+    assert text.startswith("Peak summer greenness 7% below that of maize fields in the zone.")
+    assert "Spanish" not in text
+    assert "above" in reason(status_code="ok", gap=0.04)
+    assert "equal to" in reason(status_code="ok", gap=0.004)
+    uneven = reason(even=0.6, purity=0.5)
     assert "Only 60% of the lot grows evenly" in uneven
-    assert "only 50% of the lot" in uneven
+    assert "The model sees maize in only 50% of the lot" in uneven
+    second = reason(crop_code=7, crop="Second soybean")
+    assert "second-crop soybean fields" in second
 
 
 def test_late_peak_is_flagged_only_from_the_curves() -> None:
     late = [*CURVE[:4], 0.6, 0.9, *CURVE[6:]]  # peaks in February, a month after the zone
-    reason = fieldblock.status_reason(synthetic_own_feature(curve=late, gap=0.02)["properties"])
-    assert "February, one month later than the zone: possible late sowing" in reason
+    text = reason(curve=late, gap=0.02, status_code="ok")
+    assert "February, one month later than the zone: possible late sowing." in text
 
 
-def test_unknown_labels_stop_or_are_marked_never_passed_off_as_crops() -> None:
-    with pytest.raises(KeyError):
-        fieldblock.translate_prototype_crop("Lino")
+def test_check_and_bare_lots_name_no_purity_and_say_why() -> None:
+    no_zone = {"zone_vigor": None, "gap": None, "lag": None, "even": None, "zone_curve": None}
+    unrecognized = lot(status_code="check", crop_code=5, crop="Non-agricultural", **no_zone)
+    assert unrecognized.status == "check"
+    assert unrecognized.crop_purity is None  # the purity belongs to a class that is not a crop
+    assert unrecognized.zone_ndvi_curve == [None] * 9
+    assert "does not recognize a summer crop" in (unrecognized.status_reason or "")
+    assert "peak NDVI 0.85" in (unrecognized.status_reason or "")
+    few = lot(status_code="check", crop_code=2, crop="Sunflower", **no_zone)
+    assert "Too few sunflower fields" in (few.status_reason or "")
+    bare = lot(status_code="bare", crop_code=4, crop="Fallow", vigor=0.25, **no_zone)
+    assert "almost no vegetation" in (bare.status_reason or "")
+    assert bare.latest_crop == "Fallow"
+
+
+def test_a_compared_status_without_a_zone_comparison_stops_the_build() -> None:
+    with pytest.raises(ValueError, match="no zone comparison"):
+        reason(status_code="ok", gap=None)
+
+
+def test_unclassified_campaign_has_no_crop() -> None:
+    assert lot(crop_code=None, crop="No data", status_code="check", gap=None).latest_crop is None
+
+
+def synthetic_map(features: list[dict[str, Any]], latest: str = "25/26") -> dict[str, Any]:
+    return {
+        "type": "FeatureCollection",
+        "meta": {
+            "zone": "pergamino",
+            "lang": "en",
+            "campaigns": ["20/21", "21/22", "22/23", latest],
+            "latest": latest,
+            "farm": "La Celina",
+            "farm_is_synthetic": True,
+            "enso": {},
+            "current": {
+                "campaign": "26/27",
+                "phase_code": "nino",
+                "phase": "El Niño",
+                "strength": "strong",
+                "oni": 2.16,
+            },
+            "sources": ["NASA HLS"],
+        },
+        "features": features,
+    }
+
+
+def test_read_lots_puts_the_farm_first_and_checks_the_campaign(tmp_path: Path) -> None:
+    path = tmp_path / "lots_pergamino_en.geojson"
+    features = [synthetic_field("N0002"), synthetic_field("L10"), synthetic_field("L02")]
+    path.write_text(json.dumps(synthetic_map(features)), encoding="utf-8")
+    lots, field_map = fieldblock.read_lots(path)
+    assert [lot.field_id for lot in lots] == ["L02", "L10", "N0002"]
+    assert field_map.meta.farm == "La Celina"
+    path.write_text(json.dumps(synthetic_map(features, latest="24/25")), encoding="utf-8")
+    with pytest.raises(ValueError, match="campaign"):
+        fieldblock.read_lots(path)
+
+
+def test_unknown_inta_labels_are_marked_never_passed_off_as_crops() -> None:
     assert fieldblock.translate_inta_label("Maiz") == "Maize"
     assert fieldblock.translate_inta_label("Algo nuevo") == "Algo nuevo (INTA label)"
-    assert fieldblock.translate_prototype_crop("Sin dato") is None
 
 
-def test_context_lot_has_only_an_area_and_nulls() -> None:
-    feature = {"geometry": {"coordinates": SQUARE}, "properties": {"id": "N001", "own": False}}
-    lot = fieldblock.context_lot(feature)
-    assert not lot.is_demo_farm
-    assert lot.latest_crop is None
-    assert lot.status is None
-    assert lot.history == []
-    assert lot.ndvi_curve == [None] * 9
-    # 0.01 deg x 0.01 deg at 33.9 S is about 102.5 ha.
-    assert lot.area_ha == pytest.approx(102.5, rel=0.01)
-    assert math.isclose(fieldblock.polygon_area_ha(SQUARE), lot.area_ha, rel_tol=0.001)
+def test_reference_footprint_is_matched_to_its_lot_by_center_and_area() -> None:
+    reference = ReferenceField(
+        field_id="268949",
+        area_ha=27.5,
+        polygon=SQUARE,
+        crop_history=[],
+        ndvi=[],
+        soil_capacity=[],
+        note="synthetic",
+    )
+    same = lot(field_id="N0088")  # same square, 26.9 ha: within 5%
+    assert fieldblock.lot_of_reference(reference, [lot(), same]) is not None
+    # Many extra vertices along one edge move a vertex mean but not the area centroid.
+    edge = [[-60.59, -33.90 + 0.01 * k / 20] for k in range(1, 20)]
+    ring = SQUARE[0]
+    dense = same.model_copy(update={"polygon": [[*ring[:2], *edge, *ring[2:]]]})
+    assert fieldblock.lot_of_reference(reference, [dense]) is not None
+    moved = [[[x + 0.01, y] for x, y in ring] for ring in SQUARE]
+    far = same.model_copy(update={"polygon": moved})
+    smaller = same.model_copy(update={"area_ha": 20.0})
+    assert fieldblock.lot_of_reference(reference, [far, smaller]) is None

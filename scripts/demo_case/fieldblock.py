@@ -1,4 +1,4 @@
-"""The field block of the Pergamino case: crop-map lots (prototype) and the reference footprint."""
+"""The field block of a case: crop-map lots (`crop-map-v1`) and Pergamino's reference footprint."""
 
 import csv
 import json
@@ -14,12 +14,14 @@ from app.modules.cases.schemas import (
     ReferenceField,
     SoilCapacity,
 )
+from app.modules.crops.schemas import CampaignRecord, CropField, FieldMap, FieldProperties
 
 LATEST_CAMPAIGN = "2025/26"
 NDVI_MONTHS = [f"2025-{month:02d}" for month in range(9, 13)] + [
     f"2026-{month:02d}" for month in range(1, 6)
 ]
-EARTH_RADIUS_M = 6_371_008.8
+# Crop codes of the crop map that name a summer crop (fallow and non-agricultural do not).
+RECOGNIZED_CROPS = {0, 1, 2, 3, 6, 7, 8}
 # Months of the summer window (November to April) inside the September-to-May curves.
 SUMMER = slice(2, 8)
 MONTH_NAMES = [
@@ -34,26 +36,6 @@ MONTH_NAMES = [
     "May",
 ]
 
-# Prototype crop labels (Spanish) and the INTA history labels of the prototype.
-PROTOTYPE_CROP = {
-    "Maíz": "Maize",
-    "Soja": "Soybean",
-    "Soja de 2da": "Second soybean",
-    "Girasol": "Sunflower",
-    "Sorgo": "Sorghum",
-    "Barbecho": "Fallow",
-    "No agrícola": "Non-agricultural",
-    "Otro cultivo": "Other crop",
-}
-# Labels that mean "no crop to name" rather than a crop.
-NO_CROP = {"A verificar", "Sin cultivo", "Sin dato"}
-PROTOTYPE_STATUS = {
-    "Bien": "ok",
-    "Atención": "watch",
-    "Alerta": "alert",
-    "A verificar": "check",
-    "Sin cultivo": "bare",
-}
 # Labels of the INTA national crop map found at the reference footprint (all maps).
 INTA_LABEL = {
     "Maiz": "Maize",
@@ -69,79 +51,51 @@ INTA_LABEL = {
 }
 
 
-def translate_prototype_crop(label: str) -> str | None:
-    """Spanish prototype label -> English crop; null when the lot has no nameable crop."""
-    if label in NO_CROP:
-        return None
-    return PROTOTYPE_CROP[label]
-
-
 def translate_inta_label(label: str) -> str:
     """INTA label -> English; an unknown label is kept and marked, never mistaken for a crop."""
     return INTA_LABEL.get(label, f"{label} (INTA label)")
-
-
-def polygon_area_ha(rings: list[list[list[float]]]) -> float:
-    """Area of a small WGS84 polygon in hectares, on a local equirectangular projection.
-
-    Exact enough for field-sized polygons (error well under 1%); the outer ring minus the holes.
-    """
-    lat0 = math.radians(sum(point[1] for point in rings[0]) / len(rings[0]))
-
-    def ring_area(ring: list[list[float]]) -> float:
-        xy = [
-            (
-                EARTH_RADIUS_M * math.radians(lon) * math.cos(lat0),
-                EARTH_RADIUS_M * math.radians(lat),
-            )
-            for lon, lat in ring
-        ]
-        edges = zip(xy, xy[1:] + xy[:1], strict=True)
-        twice = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in edges)
-        return abs(twice) / 2
-
-    area_m2 = ring_area(rings[0]) - sum(ring_area(hole) for hole in rings[1:])
-    return area_m2 / 10_000
 
 
 def _pct(value: float) -> str:
     return f"{round(abs(value) * 100)}%"
 
 
-def status_reason(props: dict[str, Any]) -> str | None:
-    """English reason for the status of an own lot, written only from its numeric fields.
+def _noun(crop: str) -> str:
+    """'Second soybean' -> 'second-crop soybean', 'Maize' -> 'maize'."""
+    if crop.startswith("Second "):
+        return f"second-crop {crop.removeprefix('Second ').lower()}"
+    return crop[0].lower() + crop[1:]
 
-    The Spanish `reason` of the prototype is never translated or copied.
-    """
-    status = PROTOTYPE_STATUS.get(props.get("status") or "")
-    if status is None:
-        return None
-    peak = props["vigor"]
-    if status == "check":
+
+def status_reason(lot: FieldProperties, latest: CampaignRecord) -> str:
+    """English reason for the lot's status, written from its numeric fields only."""
+    peak = latest.vigor
+    if lot.status_code == "check" and latest.gap is None and latest.crop_code in RECOGNIZED_CROPS:
         return (
-            "The classifier does not recognize maize, soybean, sunflower or sorghum here, but the "
-            f"satellite sees green vegetation in summer (peak NDVI {peak:.2f}). Check it in the "
-            "field."
+            f"Too few {_noun(latest.crop)} fields in the zone to compare with "
+            f"(peak NDVI {peak:.2f})."
         )
-    if status == "bare":
+    if lot.status_code == "check":
+        return (
+            "The classifier does not recognize a summer crop here, but the satellite sees green "
+            f"vegetation in summer (peak NDVI {peak:.2f}). Check it in the field."
+        )
+    if lot.status_code == "bare":
         return (
             f"The satellite sees almost no vegetation in summer (peak NDVI {peak:.2f}): fallow or "
             "unsown."
         )
-    crop = translate_prototype_crop(props["crop"])
-    if crop is None:
-        raise ValueError(f"Lot {props['id']} has status {status} but no crop")
-    noun = (crop[0].lower() + crop[1:]) if crop != "Second soybean" else "second-crop soybean"
-    gap = props["gap"]
-    if abs(gap) < 0.01:
+    if latest.gap is None or latest.even is None or latest.zone_curve is None:
+        raise ValueError(f"Lot {lot.id} has status {lot.status_code} but no zone comparison")
+    noun = _noun(latest.crop)
+    if abs(latest.gap) < 0.01:
         text = f"Peak summer greenness equal to that of {noun} fields in the zone."
     else:
-        side = "above" if gap >= 0 else "below"
-        text = f"Peak summer greenness {_pct(gap)} {side} that of {noun} fields in the zone."
-    if props["even"] < 0.8:
-        even = round(props["even"] * 100)
-        text += f" Only {even}% of the lot grows evenly: there are weak areas."
-    curve, zone = props["curve"][SUMMER], props["zone"][SUMMER]
+        side = "above" if latest.gap >= 0 else "below"
+        text = f"Peak summer greenness {_pct(latest.gap)} {side} that of {noun} fields in the zone."
+    if latest.even < 0.8:
+        text += f" Only {round(latest.even * 100)}% of the lot grows evenly: there are weak areas."
+    curve, zone = latest.curve[SUMMER], latest.zone_curve[SUMMER]
     lag = curve.index(max(curve)) - zone.index(max(zone))
     if lag != 0:
         month = MONTH_NAMES[2 + curve.index(max(curve))]
@@ -149,92 +103,106 @@ def status_reason(props: dict[str, Any]) -> str | None:
         when = "later" if lag > 0 else "earlier"
         text += f" It peaked in {month}, {months} {when} than the zone"
         text += ": possible late sowing." if lag > 0 else "."
-    if props["purity"] < 0.7:
-        seen = "soybean" if crop == "Second soybean" else noun
+    if latest.purity < 0.7:
         text += (
-            f" The model sees {seen} in only {round(props['purity'] * 100)}% of the lot: it may "
+            f" The model sees {noun} in only {round(latest.purity * 100)}% of the lot: it may "
             "hold two crops."
         )
     return text
 
 
-def own_lot(feature: dict[str, Any], history_labels: list[str]) -> Lot:
-    """A lot of the made-up demonstration farm, with its attributes."""
-    props = feature["properties"]
-    status = PROTOTYPE_STATUS.get(props["status"])
-    crop = translate_prototype_crop(props["crop"])
-    recognized = status in ("ok", "watch", "alert")
-    history = [
-        LotCampaign(campaign=campaign, crop=translate_prototype_crop(label), source="INTA")
-        for campaign, label in zip(history_labels, reversed(props["history"]), strict=True)
-    ]
+def long_campaign(campaign: str) -> str:
+    """Crop-map campaign '25/26' -> case campaign '2025/26'."""
+    return f"20{campaign}"
+
+
+def crop_name(record: CampaignRecord) -> str | None:
+    """The crop of a campaign; null when the classifier or INTA named no class."""
+    return None if record.crop_code is None else record.crop
+
+
+def lot_from_crop_map(feature: CropField) -> Lot:
+    """One field of the released crop map (`crop-map-v1`) as a case lot."""
+    props = feature.properties
+    *past, latest = props.history
+    if long_campaign(latest.campaign) != LATEST_CAMPAIGN or latest.source != "model":
+        raise ValueError(
+            f"Lot {props.id}: the latest campaign is not the modeled {LATEST_CAMPAIGN}"
+        )
+    recognized = props.status_code in ("ok", "watch", "alert")
+    number = int(props.id[1:])
     return Lot(
-        field_id=props["id"],
-        name=props["name"].replace("Lote", "Lot"),
-        area_ha=props["ha"],
-        is_demo_farm=True,
-        polygon=feature["geometry"]["coordinates"],
+        field_id=props.id,
+        name=f"Lot {number}" if props.own else f"Field {props.id}",
+        area_ha=props.ha,
+        is_demo_farm=props.own,
+        polygon=[[list(point) for point in ring] for ring in feature.geometry.coordinates],
         latest_campaign=LATEST_CAMPAIGN,
-        latest_crop=crop,
+        latest_crop=crop_name(latest),
         latest_crop_source="model",
-        status=status,
-        status_reason=status_reason(props),
-        crop_purity=props["purity"] if recognized else None,
-        vigor_ndvi=props["vigor"],
-        vigor_gap=props["gap"],
-        evenness=props["even"],
-        history=history,
-        ndvi_curve=props["curve"],
-        zone_ndvi_curve=props["zone"] if props["zone"] is not None else [None] * len(NDVI_MONTHS),
+        status=props.status_code,
+        status_reason=status_reason(props, latest),
+        crop_purity=latest.purity if recognized else None,
+        vigor_ndvi=latest.vigor,
+        vigor_gap=latest.gap,
+        evenness=latest.even,
+        history=[
+            LotCampaign(
+                campaign=long_campaign(record.campaign),
+                crop=crop_name(record),
+                source=record.source,
+            )
+            for record in past
+        ],
+        ndvi_curve=list(latest.curve),
+        zone_ndvi_curve=(
+            list(latest.zone_curve) if latest.zone_curve is not None else [None] * len(NDVI_MONTHS)
+        ),
     )
 
 
-def context_lot(feature: dict[str, Any]) -> Lot:
-    """An outline of the 20 x 20 km zone that carries no attributes (only the area is computed)."""
-    props = feature["properties"]
-    rings = feature["geometry"]["coordinates"]
-    return Lot(
-        field_id=props["id"],
-        name=f"Field {props['id']}",
-        area_ha=round(polygon_area_ha(rings), 1),
-        is_demo_farm=False,
-        polygon=rings,
-        latest_campaign=LATEST_CAMPAIGN,
-        latest_crop=None,
-        latest_crop_source="model",
-        status=None,
-        status_reason=None,
-        crop_purity=None,
-        vigor_ndvi=None,
-        vigor_gap=None,
-        evenness=None,
-        history=[],
-        ndvi_curve=[None] * len(NDVI_MONTHS),
-        zone_ndvi_curve=[None] * len(NDVI_MONTHS),
+def read_lots(path: Path) -> tuple[list[Lot], FieldMap]:
+    """Every field of one zone's crop map: the made-up farm first, then the rest of the zone."""
+    field_map = FieldMap.model_validate_json(path.read_bytes())
+    if long_campaign(field_map.meta.latest) != LATEST_CAMPAIGN:
+        raise ValueError(f"Unexpected crop-map campaign: {field_map.meta.latest}")
+    features = sorted(
+        field_map.features, key=lambda feature: (not feature.properties.own, feature.properties.id)
     )
-
-
-def history_campaigns(meta: dict[str, Any]) -> list[str]:
-    """Prototype history labels ('24/25', newest first) -> campaigns oldest first ('2020/21')."""
-    return [f"20{label[:2]}/{label[3:]}" for label in reversed(meta["history"])]
-
-
-def read_lots(path: Path) -> tuple[list[Lot], dict[str, Any]]:
-    """All lots of the prototype crop map: the made-up farm, then the outlines without data."""
-    collection = json.loads(path.read_text(encoding="utf-8"))
-    meta = collection["meta"]
-    if meta["campaign"] != LATEST_CAMPAIGN:
-        raise ValueError(f"Unexpected prototype campaign: {meta['campaign']}")
-    campaigns = history_campaigns(meta)
-    features = collection["features"]
-    own = [feature for feature in features if feature["properties"]["own"]]
-    others = [feature for feature in features if not feature["properties"]["own"]]
-    lots = [own_lot(feature, campaigns) for feature in own]
-    lots += [context_lot(feature) for feature in others]
-    return lots, meta
+    return [lot_from_crop_map(feature) for feature in features], field_map
 
 
 # Reference footprint -------------------------------------------------------------------------
+
+# Two outlines are the same field when their centroids are within about 50 m and their areas
+# within 5%.
+SAME_CENTER_DEG = 0.0005
+SAME_AREA = 0.05
+
+
+def _center(polygon: list[list[list[float]]]) -> tuple[float, float]:
+    """Area centroid of the outer ring (shoelace), in degrees; independent of vertex density."""
+    ring = polygon[0]
+    area = cx = cy = 0.0
+    for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1], strict=True):
+        cross = x0 * y1 - x1 * y0
+        area += cross
+        cx += (x0 + x1) * cross
+        cy += (y0 + y1) * cross
+    return cx / (3 * area), cy / (3 * area)
+
+
+def lot_of_reference(reference: ReferenceField, lots: list[Lot]) -> Lot | None:
+    """The lot whose outline is the reference footprint, if the crop map has it."""
+    x, y = _center(reference.polygon)
+    for lot in lots:
+        lx, ly = _center(lot.polygon)
+        if (
+            math.hypot(lx - x, ly - y) < SAME_CENTER_DEG
+            and abs(lot.area_ha / reference.area_ha - 1) < SAME_AREA
+        ):
+            return lot
+    return None
 
 
 def _majority(rows: list[dict[str, str]]) -> dict[str, str]:
