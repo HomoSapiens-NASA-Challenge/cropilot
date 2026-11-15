@@ -400,6 +400,28 @@
           }
         }
       }
+    },
+    "/api/voice/session": {
+      "post": {
+        "tags": [
+          "voice"
+        ],
+        "summary": "Create Voice Session",
+        "description": "A short-lived token to open one voice conversation with the case assistant.",
+        "operationId": "create_voice_session",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSession"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3384,6 +3406,20 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VoiceSession": {
+        "properties": {
+          "conversation_token": {
+            "type": "string",
+            "title": "Conversation Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conversation_token"
+        ],
+        "title": "VoiceSession",
+        "description": "What the app needs to open one voice conversation with the assistant."
       },
       "WaterBlock": {
         "properties": {

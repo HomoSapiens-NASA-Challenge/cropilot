@@ -1679,6 +1679,18 @@ export type ValidationError = {
 };
 
 /**
+ * VoiceSession
+ *
+ * What the app needs to open one voice conversation with the assistant.
+ */
+export type VoiceSession = {
+    /**
+     * Conversation Token
+     */
+    conversation_token: string;
+};
+
+/**
  * WaterBlock
  */
 export type WaterBlock = {
@@ -2307,3 +2319,19 @@ export type GetCaseResponses = {
 };
 
 export type GetCaseResponse = GetCaseResponses[keyof GetCaseResponses];
+
+export type CreateVoiceSessionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/voice/session';
+};
+
+export type CreateVoiceSessionResponses = {
+    /**
+     * Successful Response
+     */
+    200: VoiceSession;
+};
+
+export type CreateVoiceSessionResponse = CreateVoiceSessionResponses[keyof CreateVoiceSessionResponses];

@@ -13,6 +13,8 @@ import { ThemeProvider } from "expo-router/react-navigation"
 import { StatusBar } from "expo-status-bar"
 import { headerOptions } from "@/features/shell/header-options"
 import { appSections } from "@/features/shell/sections"
+import { VoiceAssistant } from "@/features/voice/voice-assistant"
+import { VoiceProvider } from "@/features/voice/voice-provider"
 import { accessToken } from "@/lib/auth"
 import { API_URL } from "@/lib/env"
 import { NAV_THEME } from "@/lib/theme"
@@ -42,36 +44,39 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={NAV_THEME}>
-        <StatusBar style="dark" />
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="tour"
-            options={{ ...headerOptions, headerShown: true, title: "" }}
-          />
-          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="site/[sectionSlug]/[pageSlug]"
-            options={{ ...headerOptions, headerShown: true, title: "" }}
-          />
-          <Stack.Screen
-            name="case/[zoneId]/index"
-            options={{ ...headerOptions, headerShown: true, title: "Case" }}
-          />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="planner"
-            options={{
-              ...headerOptions,
-              headerShown: true,
-              title: appSections.rotationPlanner.title,
-            }}
-          />
-          <Stack.Screen
-            name="farms"
-            options={{ ...headerOptions, title: "Farms" }}
-          />
-        </Stack>
+        <VoiceProvider>
+          <StatusBar style="dark" />
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="tour"
+              options={{ ...headerOptions, headerShown: true, title: "" }}
+            />
+            <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="site/[sectionSlug]/[pageSlug]"
+              options={{ ...headerOptions, headerShown: true, title: "" }}
+            />
+            <Stack.Screen
+              name="case/[zoneId]/index"
+              options={{ ...headerOptions, headerShown: true, title: "Case" }}
+            />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="planner"
+              options={{
+                ...headerOptions,
+                headerShown: true,
+                title: appSections.rotationPlanner.title,
+              }}
+            />
+            <Stack.Screen
+              name="farms"
+              options={{ ...headerOptions, title: "Farms" }}
+            />
+          </Stack>
+          <VoiceAssistant />
+        </VoiceProvider>
         <PortalHost />
       </ThemeProvider>
     </QueryClientProvider>

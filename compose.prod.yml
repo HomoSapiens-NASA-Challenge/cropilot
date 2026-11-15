@@ -68,6 +68,8 @@ services:
       DATABASE_URL: *database-url
       BETTER_AUTH_URL: https://${DOMAIN}
       AUTH_JWKS_URL: http://auth:3000/api/auth/jwks
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ELEVENLABS_AGENT_ID: ${ELEVENLABS_AGENT_ID:-}
     volumes:
       # Released crop-map files (docs/crop-map.md); missing files only make that endpoint 503.
       - ./apps/backend/data/crops:/app/data/crops:ro

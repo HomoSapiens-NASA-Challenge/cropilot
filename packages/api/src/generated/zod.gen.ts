@@ -710,6 +710,15 @@ export const zHttpValidationError = z.object({
 });
 
 /**
+ * VoiceSession
+ *
+ * What the app needs to open one voice conversation with the assistant.
+ */
+export const zVoiceSession = z.object({
+    conversation_token: z.string()
+});
+
+/**
  * WaterCrop
  */
 export const zWaterCrop = z.object({
@@ -1023,3 +1032,8 @@ export const zGetCasePath = z.object({
  * Successful Response
  */
 export const zGetCaseResponse = zCaseBundle;
+
+/**
+ * Successful Response
+ */
+export const zCreateVoiceSessionResponse = zVoiceSession;

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, CreateVoiceSessionData, CreateVoiceSessionResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -122,3 +122,10 @@ export const getCaseIndex = <ThrowOnError extends boolean = false>(options?: Opt
  * Years like this, the strategy comparison and the field view for one zone.
  */
 export const getCase = <ThrowOnError extends boolean = false>(options: Options<GetCaseData, ThrowOnError>): RequestResult<GetCaseResponses, GetCaseErrors, ThrowOnError> => (options.client ?? client).get<GetCaseResponses, GetCaseErrors, ThrowOnError>({ url: '/api/cases/{zone_id}', ...options });
+
+/**
+ * Create Voice Session
+ *
+ * A short-lived token to open one voice conversation with the case assistant.
+ */
+export const createVoiceSession = <ThrowOnError extends boolean = false>(options?: Options<CreateVoiceSessionData, ThrowOnError>): RequestResult<CreateVoiceSessionResponses, unknown, ThrowOnError> => (options?.client ?? client).post<CreateVoiceSessionResponses, unknown, ThrowOnError>({ url: '/api/voice/session', ...options });

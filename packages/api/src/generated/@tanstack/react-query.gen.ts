@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
+import { createFarm, createVoiceSession, getCase, getCaseIndex, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, CreateVoiceSessionData, CreateVoiceSessionResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -248,3 +248,22 @@ export const getCaseOptions = (options: Options<GetCaseData>) => queryOptions<Ge
     },
     queryKey: getCaseQueryKey(options)
 });
+
+/**
+ * Create Voice Session
+ *
+ * A short-lived token to open one voice conversation with the case assistant.
+ */
+export const createVoiceSessionMutation = (options?: Partial<Options<CreateVoiceSessionData>>): UseMutationOptions<CreateVoiceSessionResponse, DefaultError, Options<CreateVoiceSessionData>> => {
+    const mutationOptions: UseMutationOptions<CreateVoiceSessionResponse, DefaultError, Options<CreateVoiceSessionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createVoiceSession({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
