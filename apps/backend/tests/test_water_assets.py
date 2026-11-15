@@ -1,5 +1,6 @@
 import hashlib
 import io
+import os
 import tarfile
 from pathlib import Path
 
@@ -111,7 +112,7 @@ def test_setup_rejects_wrong_python_before_dependency_sync(
 
     archive, release = fixture_archive(tmp_path, ["models/model.txt", "data/input.txt"])
     environment = tmp_path / "environment"
-    executable = environment / "bin/python"
+    executable = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     executable.parent.mkdir(parents=True)
     executable.touch()
     monkeypatch.setenv("WATER_MODELS_DIR", str(tmp_path / "models"))

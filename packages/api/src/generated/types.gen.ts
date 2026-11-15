@@ -57,6 +57,88 @@ export type AnalogMethod = {
 };
 
 /**
+ * AnswerClaim
+ */
+export type AnswerClaim = {
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+};
+
+/**
+ * AssistantRequest
+ */
+export type AssistantRequest = {
+    /**
+     * Zone Id
+     */
+    zone_id: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * History
+     */
+    history?: Array<HistoryMessage>;
+};
+
+/**
+ * AssistantResponse
+ */
+export type AssistantResponse = {
+    /**
+     * Claims
+     */
+    claims: Array<AnswerClaim>;
+    /**
+     * Limitations
+     */
+    limitations: Array<string>;
+    /**
+     * Suggested Questions
+     */
+    suggested_questions: Array<string>;
+    /**
+     * Zone Id
+     */
+    zone_id: string;
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Generated Utc
+     */
+    generated_utc: string;
+    /**
+     * Model
+     */
+    model: string;
+    /**
+     * Run Id
+     */
+    run_id: string | null;
+    /**
+     * Sources
+     */
+    sources: Array<SourceRef>;
+    /**
+     * Cards
+     */
+    cards: Array<EvidenceCard>;
+    /**
+     * Tools Used
+     */
+    tools_used: Array<string>;
+};
+
+/**
  * BlockMeta
  *
  * Provenance shared by every number of one block or column.
@@ -951,6 +1033,40 @@ export type EnsoTransition = {
 };
 
 /**
+ * EvidenceCard
+ */
+export type EvidenceCard = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Columns
+     */
+    columns: Array<string>;
+    /**
+     * Rows
+     */
+    rows: Array<Array<string | number | number | null>>;
+    /**
+     * Provenance
+     */
+    provenance: string;
+    /**
+     * Scale
+     */
+    scale: string;
+    /**
+     * Note
+     */
+    note: string;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+};
+
+/**
  * FarmCreate
  */
 export type FarmCreate = {
@@ -1176,6 +1292,20 @@ export type HeldOutComparison = {
      * Lower Tail Margin Difference Usd Ha
      */
     lower_tail_margin_difference_usd_ha: number;
+};
+
+/**
+ * HistoryMessage
+ */
+export type HistoryMessage = {
+    /**
+     * Role
+     */
+    role: 'user' | 'assistant';
+    /**
+     * Content
+     */
+    content: string;
 };
 
 /**
@@ -1432,6 +1562,28 @@ export type PairedDifference = {
      * Water End Mm
      */
     water_end_mm: number;
+};
+
+/**
+ * PlannerAssistantRequest
+ */
+export type PlannerAssistantRequest = {
+    /**
+     * Zone Id
+     */
+    zone_id: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * History
+     */
+    history?: Array<HistoryMessage>;
+    /**
+     * Run Id
+     */
+    run_id: string;
 };
 
 /**
@@ -2648,6 +2800,56 @@ export type ZoneCard = {
     analogs: Array<string>;
     modules: CaseModules;
 };
+
+export type AskCaseAssistantData = {
+    body: AssistantRequest;
+    path?: never;
+    query?: never;
+    url: '/api/assistant/messages';
+};
+
+export type AskCaseAssistantErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AskCaseAssistantError = AskCaseAssistantErrors[keyof AskCaseAssistantErrors];
+
+export type AskCaseAssistantResponses = {
+    /**
+     * Successful Response
+     */
+    200: AssistantResponse;
+};
+
+export type AskCaseAssistantResponse = AskCaseAssistantResponses[keyof AskCaseAssistantResponses];
+
+export type AskPlannerAssistantData = {
+    body: PlannerAssistantRequest;
+    path?: never;
+    query?: never;
+    url: '/api/assistant/planner-messages';
+};
+
+export type AskPlannerAssistantErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AskPlannerAssistantError = AskPlannerAssistantErrors[keyof AskPlannerAssistantErrors];
+
+export type AskPlannerAssistantResponses = {
+    /**
+     * Successful Response
+     */
+    200: AssistantResponse;
+};
+
+export type AskPlannerAssistantResponse = AskPlannerAssistantResponses[keyof AskPlannerAssistantResponses];
 
 export type GetHealthData = {
     body?: never;

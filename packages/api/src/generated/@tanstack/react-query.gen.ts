@@ -3,8 +3,46 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getRotationPlan, getRotationPlanSetup, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace, startRotationPlan } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetRotationPlanData, GetRotationPlanError, GetRotationPlanResponse, GetRotationPlanSetupData, GetRotationPlanSetupResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse, StartRotationPlanData, StartRotationPlanError, StartRotationPlanResponse } from '../types.gen';
+import { askCaseAssistant, askPlannerAssistant, createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getRotationPlan, getRotationPlanSetup, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace, startRotationPlan } from '../sdk.gen';
+import type { AskCaseAssistantData, AskCaseAssistantError, AskCaseAssistantResponse, AskPlannerAssistantData, AskPlannerAssistantError, AskPlannerAssistantResponse, CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetRotationPlanData, GetRotationPlanError, GetRotationPlanResponse, GetRotationPlanSetupData, GetRotationPlanSetupResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse, StartRotationPlanData, StartRotationPlanError, StartRotationPlanResponse } from '../types.gen';
+
+/**
+ * Ask Case Assistant
+ *
+ * Opt-in, rate-limited public demonstration using only released case evidence.
+ */
+export const askCaseAssistantMutation = (options?: Partial<Options<AskCaseAssistantData>>): UseMutationOptions<AskCaseAssistantResponse, AskCaseAssistantError, Options<AskCaseAssistantData>> => {
+    const mutationOptions: UseMutationOptions<AskCaseAssistantResponse, AskCaseAssistantError, Options<AskCaseAssistantData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await askCaseAssistant({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Ask Planner Assistant
+ *
+ * Explain only a run owned by the authenticated caller; never start or modify a run.
+ */
+export const askPlannerAssistantMutation = (options?: Partial<Options<AskPlannerAssistantData>>): UseMutationOptions<AskPlannerAssistantResponse, AskPlannerAssistantError, Options<AskPlannerAssistantData>> => {
+    const mutationOptions: UseMutationOptions<AskPlannerAssistantResponse, AskPlannerAssistantError, Options<AskPlannerAssistantData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await askPlannerAssistant({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {

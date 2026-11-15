@@ -14,6 +14,14 @@ export const zAnalogMethod = z.object({
 });
 
 /**
+ * AnswerClaim
+ */
+export const zAnswerClaim = z.object({
+    text: z.string().min(1).max(1800),
+    source_ids: z.array(z.string()).min(1).max(8)
+});
+
+/**
  * BlockMeta
  *
  * Provenance shared by every number of one block or column.
@@ -407,6 +415,24 @@ export const zEnsoTransition = z.object({
 });
 
 /**
+ * EvidenceCard
+ */
+export const zEvidenceCard = z.object({
+    title: z.string(),
+    columns: z.array(z.string()),
+    rows: z.array(z.array(z.union([
+        z.string(),
+        z.number(),
+        z.int(),
+        z.null()
+    ]))),
+    provenance: z.string(),
+    scale: z.string(),
+    note: z.string(),
+    source_ids: z.array(z.string())
+});
+
+/**
  * FarmCreate
  */
 export const zFarmCreate = z.object({
@@ -466,6 +492,23 @@ export const zFieldProperties = z.object({
 export const zGlossaryTerm = z.object({
     term: z.string(),
     definition: z.string()
+});
+
+/**
+ * HistoryMessage
+ */
+export const zHistoryMessage = z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string().min(1).max(6000)
+});
+
+/**
+ * AssistantRequest
+ */
+export const zAssistantRequest = z.object({
+    zone_id: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
+    message: z.string().min(1).max(2000),
+    history: z.array(zHistoryMessage).max(8).optional()
 });
 
 /**
@@ -638,6 +681,16 @@ export const zPairedDifference = z.object({
     reference_run_id: z.string().regex(/^[a-f0-9]{20}$/),
     crop_et_deficit_mm: z.number(),
     water_end_mm: z.number()
+});
+
+/**
+ * PlannerAssistantRequest
+ */
+export const zPlannerAssistantRequest = z.object({
+    zone_id: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
+    message: z.string().min(1).max(2000),
+    history: z.array(zHistoryMessage).max(8).optional(),
+    run_id: z.string().min(1).max(80)
 });
 
 /**
@@ -828,6 +881,23 @@ export const zSourceRef = z.object({
         'agronomist_input'
     ]),
     license: z.string().nullable()
+});
+
+/**
+ * AssistantResponse
+ */
+export const zAssistantResponse = z.object({
+    claims: z.array(zAnswerClaim).min(1).max(6),
+    limitations: z.array(z.string()).max(5),
+    suggested_questions: z.array(z.string()).max(3),
+    zone_id: z.string(),
+    campaign: z.string(),
+    generated_utc: z.string(),
+    model: z.string(),
+    run_id: z.string().nullable(),
+    sources: z.array(zSourceRef),
+    cards: z.array(zEvidenceCard),
+    tools_used: z.array(z.string())
 });
 
 /**
@@ -1293,6 +1363,20 @@ export const zCaseIndex = z.object({
     meta: zBlockMeta,
     sources: z.array(zSourceRef).min(1)
 });
+
+export const zAskCaseAssistantBody = zAssistantRequest;
+
+/**
+ * Successful Response
+ */
+export const zAskCaseAssistantResponse = zAssistantResponse;
+
+export const zAskPlannerAssistantBody = zPlannerAssistantRequest;
+
+/**
+ * Successful Response
+ */
+export const zAskPlannerAssistantResponse = zAssistantResponse;
 
 /**
  * Response Get Health

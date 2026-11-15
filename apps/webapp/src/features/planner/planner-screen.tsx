@@ -1,6 +1,7 @@
 import type { PriorityWeights, Region, RotationPlanSetup } from "@cropilot/api"
 import { RotateCcw } from "lucide-react"
 import { useState } from "react"
+import { AssistantPanel } from "@/components/assistant-panel"
 import { Button } from "@/components/ui/button"
 import { Notice } from "@/features/planner/planner-notice"
 import {
@@ -69,6 +70,16 @@ export function PlannerScreen({
 
   return (
     <div className="flex flex-col gap-10">
+      {shown && (
+        <div className="flex justify-end">
+          <AssistantPanel
+            key={`${region.id}-${shown.run.run_id}`}
+            zoneId={region.id}
+            zoneName={region.name}
+            runId={shown.run.run_id}
+          />
+        </div>
+      )}
       {hasStarted && !isEditing ? (
         <SetupBar
           region={region}
