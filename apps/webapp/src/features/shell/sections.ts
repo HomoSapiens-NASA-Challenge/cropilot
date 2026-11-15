@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   type LucideIcon,
   MapIcon,
-  MessagesSquare,
   Sprout,
   Tractor,
 } from "lucide-react"
@@ -20,7 +19,8 @@ type AppSectionDefinition = {
 export const appSections = {
   overview: {
     title: "Overview",
-    description: "Your workspace at a glance.",
+    description:
+      "How the 2026/27 campaign starts in your region and across Argentina.",
     to: "/overview",
     icon: LayoutDashboard,
     isAvailable: true,
@@ -36,7 +36,7 @@ export const appSections = {
   farmMap: {
     title: "Farm map",
     description:
-      "Demo farms on the map. Hover a lot to inspect it, open a farm to see its data.",
+      "Lots outlined from satellite imagery, with their crops, NDVI and status. Select a lot to read it.",
     to: "/map",
     icon: MapIcon,
     isAvailable: true,
@@ -47,23 +47,15 @@ export const appSections = {
       "Past campaigns that started like this one, matched by El Niño phase and soil moisture.",
     to: "/analog-years",
     icon: CalendarSearch,
-    isAvailable: false,
+    isAvailable: true,
   },
   strategies: {
     title: "Strategies",
     description:
-      "At least three crop rotations side by side, the current one included.",
+      "Crop rotations side by side, the current one included, in the campaigns that started like this one.",
     to: "/strategies",
     icon: Sprout,
-    isAvailable: false,
-  },
-  assistant: {
-    title: "Assistant",
-    description:
-      "Ask about a strategy and get answers that cite their dataset, period and location.",
-    to: "/assistant",
-    icon: MessagesSquare,
-    isAvailable: false,
+    isAvailable: true,
   },
 } as const satisfies Record<string, AppSectionDefinition>
 
@@ -79,10 +71,6 @@ export const sectionGroups: ReadonlyArray<{
   },
   {
     label: "Analysis",
-    sections: [
-      appSections.analogYears,
-      appSections.strategies,
-      appSections.assistant,
-    ],
+    sections: [appSections.analogYears, appSections.strategies],
   },
 ]

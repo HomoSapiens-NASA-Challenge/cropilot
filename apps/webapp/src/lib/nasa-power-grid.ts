@@ -1,4 +1,4 @@
-import type { LngLat } from "@/features/farm-map/geometry"
+import type { LngLat } from "@/lib/geo"
 
 // NASA POWER serves its meteorology and soil wetness (MERRA-2) on a
 // 1/2° latitude × 5/8° longitude grid, centered on multiples of each step.
