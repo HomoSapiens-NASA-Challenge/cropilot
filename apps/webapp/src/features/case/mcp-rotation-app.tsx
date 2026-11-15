@@ -49,11 +49,6 @@ function RotationApp() {
       setPending(false)
       setError("The host cancelled the comparison.")
     }
-    app.onhostcontextchanged = (context) =>
-      document.documentElement.classList.toggle(
-        "dark",
-        context.theme === "dark"
-      )
     app.onclose = () => {
       if (active) {
         generation.current += 1
@@ -67,10 +62,6 @@ function RotationApp() {
       .then(() => {
         if (!active) return
         setInteractive(Boolean(app.getHostCapabilities()?.serverTools))
-        document.documentElement.classList.toggle(
-          "dark",
-          app.getHostContext()?.theme === "dark"
-        )
       })
       .catch(() => {
         if (active)
