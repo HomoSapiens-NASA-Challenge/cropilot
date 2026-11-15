@@ -1,0 +1,86 @@
+{
+  "case": {
+    "field_id": "rio-cuarto-illustrative",
+    "label": "Río Cuarto, Córdoba",
+    "case_kind": "illustrative_scenario",
+    "current_rotation_confirmed": false,
+    "longitude": -64.3,
+    "latitude": -33.2,
+    "timezone": "America/Argentina/Buenos_Aires",
+    "profile_depth_m": 1.0
+  },
+  "initial_water_fractions": [0.25, 0.5, 0.75],
+  "scenarios": [
+    { "scenario_id": "history-1997", "start_year": 1997, "campaigns": 3 },
+    { "scenario_id": "history-2008", "start_year": 2008, "campaigns": 3 },
+    { "scenario_id": "history-2015", "start_year": 2015, "campaigns": 3 },
+    { "scenario_id": "history-2022", "start_year": 2022, "campaigns": 3 }
+  ],
+  "strategies": [
+    {
+      "strategy_id": "soybean-baseline",
+      "label": "Soybean baseline",
+      "is_baseline": true,
+      "sequence": [["soybean_first"], ["soybean_first"], ["soybean_first"]],
+      "rationale": "Illustrative reference sequence, not a verified current farm rotation.",
+      "potential_benefit": "Shows the water carried through winter fallows.",
+      "tradeoff": "Does not evaluate monoculture effects on soil, pests or yield."
+    },
+    {
+      "strategy_id": "maize-soybean",
+      "label": "Maize / soybean",
+      "is_baseline": false,
+      "sequence": [["maize"], ["soybean_first"], ["maize"]],
+      "rationale": "Compare alternating summer crops under identical historical weather.",
+      "potential_benefit": "Makes differences in seasonal water demand visible.",
+      "tradeoff": "Water demand alone cannot establish a yield or profit advantage."
+    },
+    {
+      "strategy_id": "wheat-soybean-maize",
+      "label": "Wheat + soybean / maize",
+      "is_baseline": false,
+      "sequence": [["wheat", "soybean_second"], ["maize"], ["soybean_first"]],
+      "rationale": "Explore adding a winter crop before the first summer soybean.",
+      "potential_benefit": "Shows more calendar days with a growing crop.",
+      "tradeoff": "Winter water use can change the reserve available to the following soybean."
+    }
+  ],
+  "crops": {
+    "soybean_first": {
+      "label": "Soybean",
+      "sowing_month_day": "11-08",
+      "stage_lengths": [20, 35, 60, 25],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.5,
+      "depletion_fraction": 0.5
+    },
+    "soybean_second": {
+      "label": "Second soybean",
+      "sowing_month_day": "12-18",
+      "stage_lengths": [20, 35, 60, 25],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.5,
+      "depletion_fraction": 0.5
+    },
+    "maize": {
+      "label": "Maize",
+      "sowing_month_day": "10-21",
+      "stage_lengths": [30, 40, 50, 30],
+      "kc_initial": 0.3,
+      "kc_mid": 1.2,
+      "kc_end": 0.35,
+      "depletion_fraction": 0.55
+    },
+    "wheat": {
+      "label": "Wheat",
+      "sowing_month_day": "06-10",
+      "stage_lengths": [20, 25, 60, 30],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.25,
+      "depletion_fraction": 0.55
+    }
+  }
+}

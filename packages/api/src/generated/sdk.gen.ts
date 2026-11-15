@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, ListFarmsData, ListFarmsResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, ListFarmsData, ListFarmsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -43,4 +43,26 @@ export const createFarm = <ThrowOnError extends boolean = false>(options: Option
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get Water Strategies
+ *
+ * Shared Pergamino research scenarios; contains no user's farm records.
+ */
+export const getWaterStrategies = <ThrowOnError extends boolean = false>(options?: Options<GetWaterStrategiesData, ThrowOnError>): RequestResult<GetWaterStrategiesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetWaterStrategiesResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/water/strategies',
+    ...options
+});
+
+/**
+ * Get Water Strategy Run
+ *
+ * Daily series and crop stages for one released historical scenario.
+ */
+export const getWaterStrategyRun = <ThrowOnError extends boolean = false>(options: Options<GetWaterStrategyRunData, ThrowOnError>): RequestResult<GetWaterStrategyRunResponses, GetWaterStrategyRunErrors, ThrowOnError> => (options.client ?? client).get<GetWaterStrategyRunResponses, GetWaterStrategyRunErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/water/strategies/runs/{run_id}',
+    ...options
 });

@@ -103,10 +103,460 @@
           }
         ]
       }
+    },
+    "/api/water/strategies": {
+      "get": {
+        "tags": [
+          "water"
+        ],
+        "summary": "Get Water Strategies",
+        "description": "Shared Pergamino research scenarios; contains no user's farm records.",
+        "operationId": "get_water_strategies",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategiesBundle"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/water/strategies/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "water"
+        ],
+        "summary": "Get Water Strategy Run",
+        "description": "Daily series and crop stages for one released historical scenario.",
+        "operationId": "get_water_strategy_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaterRunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CalendarEffect": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "summer_shift_days": {
+            "type": "integer",
+            "title": "Summer Shift Days"
+          },
+          "deficit_difference": {
+            "$ref": "#/components/schemas/DifferenceDistribution"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "summer_shift_days",
+          "deficit_difference"
+        ],
+        "title": "CalendarEffect"
+      },
+      "CampaignWater": {
+        "properties": {
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year"
+          },
+          "water_start_mm": {
+            "type": "number",
+            "title": "Water Start Mm"
+          },
+          "water_end_mm": {
+            "type": "number",
+            "title": "Water End Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "title": "Crop Et Deficit Mm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_year",
+          "water_start_mm",
+          "water_end_mm",
+          "crop_et_deficit_mm"
+        ],
+        "title": "CampaignWater"
+      },
+      "CropResult": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "crop_id": {
+            "type": "string",
+            "title": "Crop Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "campaign_year": {
+            "type": "integer",
+            "title": "Campaign Year"
+          },
+          "sowing_date": {
+            "type": "string",
+            "title": "Sowing Date"
+          },
+          "end_date": {
+            "type": "string",
+            "title": "End Date"
+          },
+          "stage_lengths": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Stage Lengths"
+          },
+          "kc_initial": {
+            "type": "number",
+            "title": "Kc Initial"
+          },
+          "kc_mid": {
+            "type": "number",
+            "title": "Kc Mid"
+          },
+          "kc_end": {
+            "type": "number",
+            "title": "Kc End"
+          },
+          "depletion_fraction": {
+            "type": "number",
+            "title": "Depletion Fraction"
+          },
+          "water_at_sowing_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Water At Sowing Mm"
+          },
+          "et_potential_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Et Potential Mm"
+          },
+          "et_actual_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Et Actual Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "crop_days": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Crop Days"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/CropStage"
+            },
+            "type": "array",
+            "title": "Stages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "crop_id",
+          "label",
+          "campaign_year",
+          "sowing_date",
+          "end_date",
+          "stage_lengths",
+          "kc_initial",
+          "kc_mid",
+          "kc_end",
+          "depletion_fraction",
+          "water_at_sowing_mm",
+          "et_potential_mm",
+          "et_actual_mm",
+          "crop_et_deficit_mm",
+          "crop_days",
+          "stages"
+        ],
+        "title": "CropResult"
+      },
+      "CropStage": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "development",
+              "mid_season",
+              "late_season"
+            ],
+            "title": "Stage"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "days": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Days"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "stress_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stress Days"
+          },
+          "longest_stress_spell_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Longest Stress Spell Days"
+          },
+          "hot_days_above_35_c": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Hot Days Above 35 C"
+          },
+          "coincident_stress_heat_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Coincident Stress Heat Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stage",
+          "start",
+          "end",
+          "days",
+          "crop_et_deficit_mm",
+          "stress_days",
+          "longest_stress_spell_days",
+          "hot_days_above_35_c",
+          "coincident_stress_heat_days"
+        ],
+        "title": "CropStage"
+      },
+      "DailyWater": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "available_water_start_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Available Water Start Mm"
+          },
+          "precip_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Precip Mm"
+          },
+          "irrigation_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Irrigation Mm"
+          },
+          "eto_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Eto Mm"
+          },
+          "et_potential_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Et Potential Mm"
+          },
+          "et_actual_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Et Actual Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "excess_above_capacity_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Excess Above Capacity Mm"
+          },
+          "available_water_end_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Available Water End Mm"
+          },
+          "surface_depletion_end_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Surface Depletion End Mm"
+          },
+          "crop_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop Event Id"
+          },
+          "water_stress_coefficient": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Stress Coefficient"
+          },
+          "mass_residual_mm": {
+            "type": "number",
+            "title": "Mass Residual Mm"
+          },
+          "temperature_max_c": {
+            "type": "number",
+            "title": "Temperature Max C"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "available_water_start_mm",
+          "precip_mm",
+          "irrigation_mm",
+          "eto_mm",
+          "et_potential_mm",
+          "et_actual_mm",
+          "crop_et_deficit_mm",
+          "excess_above_capacity_mm",
+          "available_water_end_mm",
+          "surface_depletion_end_mm",
+          "crop_event_id",
+          "water_stress_coefficient",
+          "mass_residual_mm",
+          "temperature_max_c"
+        ],
+        "title": "DailyWater"
+      },
+      "DifferenceDistribution": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Count"
+          },
+          "minimum_mm": {
+            "type": "number",
+            "title": "Minimum Mm"
+          },
+          "median_mm": {
+            "type": "number",
+            "title": "Median Mm"
+          },
+          "maximum_mm": {
+            "type": "number",
+            "title": "Maximum Mm"
+          },
+          "lower_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Lower Count"
+          },
+          "equal_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Equal Count"
+          },
+          "higher_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Higher Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "minimum_mm",
+          "median_mm",
+          "maximum_mm",
+          "lower_count",
+          "equal_count",
+          "higher_count"
+        ],
+        "title": "DifferenceDistribution"
+      },
       "FarmCreate": {
         "properties": {
           "name": {
@@ -160,6 +610,188 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "JsonValue": {},
+      "PairedDifference": {
+        "properties": {
+          "reference_run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{20}$",
+            "title": "Reference Run Id"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "title": "Crop Et Deficit Mm"
+          },
+          "water_end_mm": {
+            "type": "number",
+            "title": "Water End Mm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reference_run_id",
+          "crop_et_deficit_mm",
+          "water_end_mm"
+        ],
+        "title": "PairedDifference"
+      },
+      "RobustnessSummary": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "depth_m": {
+            "type": "number",
+            "title": "Depth M"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "title": "Initial Water Fraction"
+          },
+          "deficit_difference": {
+            "$ref": "#/components/schemas/DifferenceDistribution"
+          }
+        },
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "depth_m",
+          "initial_water_fraction",
+          "deficit_difference"
+        ],
+        "title": "RobustnessSummary"
+      },
+      "StrategiesBundle": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "strategies-v1",
+            "title": "Schema Version"
+          },
+          "status": {
+            "type": "string",
+            "const": "research_only",
+            "title": "Status"
+          },
+          "design_id": {
+            "type": "string",
+            "title": "Design Id"
+          },
+          "field": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Field"
+          },
+          "weather_point": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Weather Point"
+          },
+          "model": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Model"
+          },
+          "config": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Config"
+          },
+          "soils": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Soils"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/WaterRunSummary"
+            },
+            "type": "array",
+            "title": "Runs"
+          },
+          "robustness": {
+            "items": {
+              "$ref": "#/components/schemas/RobustnessSummary"
+            },
+            "type": "array",
+            "title": "Robustness"
+          },
+          "calendar_effects": {
+            "items": {
+              "$ref": "#/components/schemas/CalendarEffect"
+            },
+            "type": "array",
+            "title": "Calendar Effects"
+          },
+          "rejected_cases": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Rejected Cases"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schema_version",
+          "status",
+          "design_id",
+          "field",
+          "weather_point",
+          "model",
+          "config",
+          "soils",
+          "runs",
+          "robustness",
+          "calendar_effects",
+          "rejected_cases",
+          "sources",
+          "source_ids",
+          "limitations"
+        ],
+        "title": "StrategiesBundle"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -199,6 +831,251 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WaterRunDetail": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{20}$",
+            "title": "Run Id"
+          },
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year"
+          },
+          "depth_m": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Depth M"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Initial Water Fraction"
+          },
+          "summer_shift_days": {
+            "type": "integer",
+            "title": "Summer Shift Days"
+          },
+          "capacity_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Capacity Mm"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/WaterSummary"
+          },
+          "provenance": {
+            "type": "string",
+            "const": "modeled",
+            "title": "Provenance"
+          },
+          "day_basis": {
+            "type": "string",
+            "const": "UTC",
+            "title": "Day Basis"
+          },
+          "campaigns": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignWater"
+            },
+            "type": "array",
+            "title": "Campaigns"
+          },
+          "crops": {
+            "items": {
+              "$ref": "#/components/schemas/CropResult"
+            },
+            "type": "array",
+            "title": "Crops"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/DailyWater"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "strategy_id",
+          "start_year",
+          "depth_m",
+          "initial_water_fraction",
+          "summer_shift_days",
+          "capacity_mm",
+          "summary",
+          "provenance",
+          "day_basis",
+          "campaigns",
+          "crops",
+          "rows"
+        ],
+        "title": "WaterRunDetail"
+      },
+      "WaterRunSummary": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{20}$",
+            "title": "Run Id"
+          },
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year"
+          },
+          "depth_m": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Depth M"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Initial Water Fraction"
+          },
+          "summer_shift_days": {
+            "type": "integer",
+            "title": "Summer Shift Days"
+          },
+          "capacity_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Capacity Mm"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/WaterSummary"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "daily_path": {
+            "type": "string",
+            "title": "Daily Path"
+          },
+          "versus_reference_rotation": {
+            "$ref": "#/components/schemas/PairedDifference"
+          },
+          "versus_unshifted_calendar": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PairedDifference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "strategy_id",
+          "start_year",
+          "depth_m",
+          "initial_water_fraction",
+          "summer_shift_days",
+          "capacity_mm",
+          "summary",
+          "start",
+          "end",
+          "daily_path",
+          "versus_reference_rotation"
+        ],
+        "title": "WaterRunSummary"
+      },
+      "WaterSummary": {
+        "properties": {
+          "initial_water_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Initial Water Mm"
+          },
+          "water_end_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Water End Mm"
+          },
+          "precip_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Precip Mm"
+          },
+          "et_actual_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Et Actual Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "excess_above_capacity_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Excess Above Capacity Mm"
+          },
+          "crop_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Crop Days"
+          },
+          "max_abs_mass_residual_mm": {
+            "type": "number",
+            "maximum": 1e-07,
+            "minimum": 0.0,
+            "title": "Max Abs Mass Residual Mm"
+          },
+          "crop_et_potential_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Crop Et Potential Mm"
+          },
+          "crop_et_actual_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Actual Mm"
+          },
+          "crop_demand_unmet_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Crop Demand Unmet Fraction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "initial_water_mm",
+          "water_end_mm",
+          "precip_mm",
+          "et_actual_mm",
+          "crop_et_deficit_mm",
+          "excess_above_capacity_mm",
+          "crop_days",
+          "max_abs_mass_residual_mm",
+          "crop_et_potential_mm",
+          "crop_et_actual_mm",
+          "crop_demand_unmet_fraction"
+        ],
+        "title": "WaterSummary"
       }
     },
     "securitySchemes": {

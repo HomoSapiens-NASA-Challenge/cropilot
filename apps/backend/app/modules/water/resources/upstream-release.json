@@ -1,0 +1,11 @@
+{
+  "tag": "research-water-enso-v1",
+  "url": "https://github.com/HomoSapiens-NASA-Challenge/hub/releases/tag/research-water-enso-v1",
+  "prerelease": true,
+  "source_revision": "ae9c545625709f8f3397ff4cd2c325fea2e6725c",
+  "asset": "enso-water-v1-snapshot.tar.gz",
+  "archive_sha256": "0aaa53eda65fae676407b17cc251df47bde0bb94a7e9c5c1e27951247e20efe5",
+  "archive_bytes": 5185748,
+  "verified_download": true,
+  "bundle_sha256": "0cea028f0a70cb17a82123adaec7c4569729999e8adf77edb40ef432478a44e0"
+}

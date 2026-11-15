@@ -1,0 +1,125 @@
+{
+  "schema_version": "1.0",
+  "status": "research_only",
+  "features": [
+    "zone_id",
+    "latitude_deg",
+    "longitude_deg",
+    "oni_mjj_c",
+    "oni_change_c",
+    "rain_antecedent_mm",
+    "eto_antecedent_mm",
+    "temperature_antecedent_c",
+    "gwetroot_last10_fraction"
+  ],
+  "sites": [
+    {
+      "id": "pergamino",
+      "name": "Pergamino",
+      "lat": -33.89,
+      "lon": -60.57
+    },
+    {
+      "id": "marcos_juarez",
+      "name": "Marcos Juárez",
+      "lat": -32.7,
+      "lon": -62.1
+    },
+    {
+      "id": "balcarce",
+      "name": "Balcarce",
+      "lat": -37.85,
+      "lon": -58.25
+    },
+    {
+      "id": "trenque_lauquen",
+      "name": "Trenque Lauquen",
+      "lat": -35.97,
+      "lon": -62.73
+    },
+    {
+      "id": "rio_cuarto",
+      "name": "Río Cuarto",
+      "lat": -33.13,
+      "lon": -64.35
+    },
+    {
+      "id": "parana",
+      "name": "Paraná",
+      "lat": -31.73,
+      "lon": -60.53
+    },
+    {
+      "id": "anguil",
+      "name": "Anguil (Capital, La Pampa)",
+      "lat": -36.53,
+      "lon": -64.01
+    },
+    {
+      "id": "charata",
+      "name": "Charata (Chacabuco, Chaco)",
+      "lat": -27.21,
+      "lon": -61.19
+    },
+    {
+      "id": "quimili",
+      "name": "Quimilí (Moreno, Santiago del Estero)",
+      "lat": -27.63,
+      "lon": -62.42
+    },
+    {
+      "id": "las_lajitas",
+      "name": "Las Lajitas (Anta, Salta)",
+      "lat": -24.73,
+      "lon": -64.2
+    }
+  ],
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.5.3",
+    "matplotlib": "3.11.2"
+  },
+  "python": "3.12.7",
+  "thresholds": {
+    "anguil": [-219.50627504996706, -89.44923971159989],
+    "balcarce": [-162.39960490761945, -83.31401529097094],
+    "charata": [-148.71039523482574, -20.36311591702028],
+    "las_lajitas": [-75.70420435719555, 80.31585469665767],
+    "marcos_juarez": [-141.86736417910774, -3.0965856800372844],
+    "parana": [-189.09059847893215, -11.659494516568556],
+    "pergamino": [-180.34579620242172, -16.662472871378462],
+    "quimili": [-158.3973161225916, -49.58984636720098],
+    "rio_cuarto": [-68.12409015012732, 29.176106671439925],
+    "trenque_lauquen": [-172.4427900484768, -76.31461221483524]
+  },
+  "source_sha256": {
+    "__init__.py": "093058ce5072c0c36aa235d0456292ff53746b1252ca543485142b07f644d876",
+    "data.py": "265010bbce71b862d643ecd21ab8cfa4356a34727365b46926cd171c84c95a0c",
+    "experiment.py": "207efe213aa6879c4fa6140cb05a48c8ab64688aa1eea8602b6941f0ccaa4a29",
+    "inference.py": "4f9b3bb396abde51b2658f7e084d5ecd776d968f8b99036916f75ba5999cf69b",
+    "models.py": "6056159951ef1a82db1bb4148901bc8e1e5acdd39624184c094d9e23b52de152"
+  },
+  "dataset_sha256": "c8cbfa32113c9c5cca6abab5c60aa6f21730678b62c262cb908fcc0d3766e4af",
+  "eto_source_sha256": "3dc3b96c85c99851ad5e663ff6d9cbc22f29acac8bc828acd149f0f038895dfb",
+  "fit_campaigns": [1984, 2006],
+  "validation_campaigns": [2007, 2012],
+  "test_campaigns": [2013, 2024],
+  "feature_cutoff": "July 31; 31-day availability buffer is an unverified assumption",
+  "source_vintage": "revised_history_not_as_issued",
+  "target_window": "December 10 to January 20 inclusive; exploratory, 42 days",
+  "created_at_utc": "2026-11-14T18:40:58.221951+00:00",
+  "selected": {
+    "regime": "linear_no_oni",
+    "balance": "hgb",
+    "heat": "hgb"
+  },
+  "artifact": "enso-water-v1.joblib",
+  "sha256": "0cea028f0a70cb17a82123adaec7c4569729999e8adf77edb40ef432478a44e0",
+  "size_bytes": 137873,
+  "fitted_candidates": 15,
+  "learned_candidates": 9,
+  "load_policy": "Trusted artifacts only; joblib/pickle can execute code. Use the pinned environment."
+}

@@ -5,6 +5,259 @@ export type ClientOptions = {
 };
 
 /**
+ * CalendarEffect
+ */
+export type CalendarEffect = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: number;
+    deficit_difference: DifferenceDistribution;
+};
+
+/**
+ * CampaignWater
+ */
+export type CampaignWater = {
+    /**
+     * Start Year
+     */
+    start_year: number;
+    /**
+     * Water Start Mm
+     */
+    water_start_mm: number;
+    /**
+     * Water End Mm
+     */
+    water_end_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+};
+
+/**
+ * CropResult
+ */
+export type CropResult = {
+    /**
+     * Event Id
+     */
+    event_id: string;
+    /**
+     * Crop Id
+     */
+    crop_id: string;
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Campaign Year
+     */
+    campaign_year: number;
+    /**
+     * Sowing Date
+     */
+    sowing_date: string;
+    /**
+     * End Date
+     */
+    end_date: string;
+    /**
+     * Stage Lengths
+     */
+    stage_lengths: Array<number>;
+    /**
+     * Kc Initial
+     */
+    kc_initial: number;
+    /**
+     * Kc Mid
+     */
+    kc_mid: number;
+    /**
+     * Kc End
+     */
+    kc_end: number;
+    /**
+     * Depletion Fraction
+     */
+    depletion_fraction: number;
+    /**
+     * Water At Sowing Mm
+     */
+    water_at_sowing_mm: number;
+    /**
+     * Et Potential Mm
+     */
+    et_potential_mm: number;
+    /**
+     * Et Actual Mm
+     */
+    et_actual_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Crop Days
+     */
+    crop_days: number;
+    /**
+     * Stages
+     */
+    stages: Array<CropStage>;
+};
+
+/**
+ * CropStage
+ */
+export type CropStage = {
+    /**
+     * Stage
+     */
+    stage: 'initial' | 'development' | 'mid_season' | 'late_season';
+    /**
+     * Start
+     */
+    start: string;
+    /**
+     * End
+     */
+    end: string;
+    /**
+     * Days
+     */
+    days: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Stress Days
+     */
+    stress_days: number;
+    /**
+     * Longest Stress Spell Days
+     */
+    longest_stress_spell_days: number;
+    /**
+     * Hot Days Above 35 C
+     */
+    hot_days_above_35_c: number;
+    /**
+     * Coincident Stress Heat Days
+     */
+    coincident_stress_heat_days: number;
+};
+
+/**
+ * DailyWater
+ */
+export type DailyWater = {
+    /**
+     * Date
+     */
+    date: string;
+    /**
+     * Available Water Start Mm
+     */
+    available_water_start_mm: number;
+    /**
+     * Precip Mm
+     */
+    precip_mm: number;
+    /**
+     * Irrigation Mm
+     */
+    irrigation_mm: number;
+    /**
+     * Eto Mm
+     */
+    eto_mm: number;
+    /**
+     * Et Potential Mm
+     */
+    et_potential_mm: number;
+    /**
+     * Et Actual Mm
+     */
+    et_actual_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Excess Above Capacity Mm
+     */
+    excess_above_capacity_mm: number;
+    /**
+     * Available Water End Mm
+     */
+    available_water_end_mm: number;
+    /**
+     * Surface Depletion End Mm
+     */
+    surface_depletion_end_mm: number;
+    /**
+     * Crop Event Id
+     */
+    crop_event_id: string | null;
+    /**
+     * Water Stress Coefficient
+     */
+    water_stress_coefficient: number | null;
+    /**
+     * Mass Residual Mm
+     */
+    mass_residual_mm: number;
+    /**
+     * Temperature Max C
+     */
+    temperature_max_c: number;
+};
+
+/**
+ * DifferenceDistribution
+ */
+export type DifferenceDistribution = {
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Minimum Mm
+     */
+    minimum_mm: number;
+    /**
+     * Median Mm
+     */
+    median_mm: number;
+    /**
+     * Maximum Mm
+     */
+    maximum_mm: number;
+    /**
+     * Lower Count
+     */
+    lower_count: number;
+    /**
+     * Equal Count
+     */
+    equal_count: number;
+    /**
+     * Higher Count
+     */
+    higher_count: number;
+};
+
+/**
  * FarmCreate
  */
 export type FarmCreate = {
@@ -42,6 +295,123 @@ export type HttpValidationError = {
     detail?: Array<ValidationError>;
 };
 
+export type JsonValue = unknown;
+
+/**
+ * PairedDifference
+ */
+export type PairedDifference = {
+    /**
+     * Reference Run Id
+     */
+    reference_run_id: string;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Water End Mm
+     */
+    water_end_mm: number;
+};
+
+/**
+ * RobustnessSummary
+ */
+export type RobustnessSummary = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    deficit_difference: DifferenceDistribution;
+};
+
+/**
+ * StrategiesBundle
+ */
+export type StrategiesBundle = {
+    /**
+     * Schema Version
+     */
+    schema_version: 'strategies-v1';
+    /**
+     * Status
+     */
+    status: 'research_only';
+    /**
+     * Design Id
+     */
+    design_id: string;
+    /**
+     * Field
+     */
+    field: {
+        [key: string]: JsonValue;
+    };
+    /**
+     * Weather Point
+     */
+    weather_point: Array<number>;
+    /**
+     * Model
+     */
+    model: {
+        [key: string]: string;
+    };
+    /**
+     * Config
+     */
+    config: {
+        [key: string]: JsonValue;
+    };
+    /**
+     * Soils
+     */
+    soils: Array<{
+        [key: string]: JsonValue;
+    }>;
+    /**
+     * Runs
+     */
+    runs: Array<WaterRunSummary>;
+    /**
+     * Robustness
+     */
+    robustness: Array<RobustnessSummary>;
+    /**
+     * Calendar Effects
+     */
+    calendar_effects: Array<CalendarEffect>;
+    /**
+     * Rejected Cases
+     */
+    rejected_cases: Array<{
+        [key: string]: JsonValue;
+    }>;
+    /**
+     * Sources
+     */
+    sources: Array<{
+        [key: string]: JsonValue;
+    }>;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+    /**
+     * Limitations
+     */
+    limitations: Array<string>;
+};
+
 /**
  * ValidationError
  */
@@ -68,6 +438,160 @@ export type ValidationError = {
     ctx?: {
         [key: string]: unknown;
     };
+};
+
+/**
+ * WaterRunDetail
+ */
+export type WaterRunDetail = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Start Year
+     */
+    start_year: number;
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: number;
+    /**
+     * Capacity Mm
+     */
+    capacity_mm: number;
+    summary: WaterSummary;
+    /**
+     * Provenance
+     */
+    provenance: 'modeled';
+    /**
+     * Day Basis
+     */
+    day_basis: 'UTC';
+    /**
+     * Campaigns
+     */
+    campaigns: Array<CampaignWater>;
+    /**
+     * Crops
+     */
+    crops: Array<CropResult>;
+    /**
+     * Rows
+     */
+    rows: Array<DailyWater>;
+};
+
+/**
+ * WaterRunSummary
+ */
+export type WaterRunSummary = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Start Year
+     */
+    start_year: number;
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: number;
+    /**
+     * Capacity Mm
+     */
+    capacity_mm: number;
+    summary: WaterSummary;
+    /**
+     * Start
+     */
+    start: string;
+    /**
+     * End
+     */
+    end: string;
+    /**
+     * Daily Path
+     */
+    daily_path: string;
+    versus_reference_rotation: PairedDifference;
+    versus_unshifted_calendar?: PairedDifference | null;
+};
+
+/**
+ * WaterSummary
+ */
+export type WaterSummary = {
+    /**
+     * Initial Water Mm
+     */
+    initial_water_mm: number;
+    /**
+     * Water End Mm
+     */
+    water_end_mm: number;
+    /**
+     * Precip Mm
+     */
+    precip_mm: number;
+    /**
+     * Et Actual Mm
+     */
+    et_actual_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Excess Above Capacity Mm
+     */
+    excess_above_capacity_mm: number;
+    /**
+     * Crop Days
+     */
+    crop_days: number;
+    /**
+     * Max Abs Mass Residual Mm
+     */
+    max_abs_mass_residual_mm: number;
+    /**
+     * Crop Et Potential Mm
+     */
+    crop_et_potential_mm: number;
+    /**
+     * Crop Et Actual Mm
+     */
+    crop_et_actual_mm: number;
+    /**
+     * Crop Demand Unmet Fraction
+     */
+    crop_demand_unmet_fraction: number;
 };
 
 export type GetHealthData = {
@@ -132,3 +656,49 @@ export type CreateFarmResponses = {
 };
 
 export type CreateFarmResponse = CreateFarmResponses[keyof CreateFarmResponses];
+
+export type GetWaterStrategiesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/water/strategies';
+};
+
+export type GetWaterStrategiesResponses = {
+    /**
+     * Successful Response
+     */
+    200: StrategiesBundle;
+};
+
+export type GetWaterStrategiesResponse = GetWaterStrategiesResponses[keyof GetWaterStrategiesResponses];
+
+export type GetWaterStrategyRunData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/water/strategies/runs/{run_id}';
+};
+
+export type GetWaterStrategyRunErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetWaterStrategyRunError = GetWaterStrategyRunErrors[keyof GetWaterStrategyRunErrors];
+
+export type GetWaterStrategyRunResponses = {
+    /**
+     * Successful Response
+     */
+    200: WaterRunDetail;
+};
+
+export type GetWaterStrategyRunResponse = GetWaterStrategyRunResponses[keyof GetWaterStrategyRunResponses];

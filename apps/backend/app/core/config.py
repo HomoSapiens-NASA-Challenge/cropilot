@@ -1,4 +1,6 @@
+import os
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -21,3 +23,20 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+class WaterModelSettings(BaseSettings):
+    """Independent model settings also work without database or authentication setup."""
+
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parents[4] / ".env", extra="ignore"
+    )
+
+    water_models_dir: Path = Path(__file__).resolve().parents[2] / "models/water-v1"
+    water_data_dir: Path = Path(__file__).resolve().parents[2] / "data/water-v1"
+    water_environment: Path = Path(__file__).resolve().parents[2] / ".venv-models"
+
+    @property
+    def runtime_python(self) -> Path:
+        relative = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+        return self.water_environment / relative

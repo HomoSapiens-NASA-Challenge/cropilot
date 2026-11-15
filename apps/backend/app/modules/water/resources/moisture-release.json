@@ -1,0 +1,27 @@
+{
+  "repository": "HomoSapiens-NASA-Challenge/cropilot",
+  "tag": "models-moisture-v1",
+  "asset": "cropilot-moisture-models-v1.tar.gz",
+  "archive_sha256": "a872a0c79a8236d87d58c47dd4c0da9cb2f1e425f9959a652f2c5a7a8e656a8e",
+  "python_version": "3.12.7",
+  "status": "research_only",
+  "requires_release": "models-water-v1",
+  "files": {
+    "models/moisture-v1.joblib": {
+      "sha256": "618455a17e5d061931b80a444d380d0d920acc24f6b46f22ff7aa8af31740fbe",
+      "size": 282883
+    },
+    "models/runtime/moisture.py": {
+      "sha256": "c7163f9032a61116d6a30d5ba497cfec6bf1b1385c68e68e26422d62d41711c0",
+      "size": 18184
+    },
+    "data/predictions-7d.csv": {
+      "sha256": "ee167b6e23ee999557083bbdd85ea77a34c0574d93e65a554fc3476cad94ebed",
+      "size": 3413685
+    },
+    "data/predictions-14d.csv": {
+      "sha256": "6f20121b826e49acd33bb6f88921539f526b74cba7be57cda6f428f16a3d0d7a",
+      "size": 3405971
+    }
+  }
+}

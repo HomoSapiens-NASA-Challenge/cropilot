@@ -3,6 +3,102 @@
 import * as z from 'zod';
 
 /**
+ * CampaignWater
+ */
+export const zCampaignWater = z.object({
+    start_year: z.int(),
+    water_start_mm: z.number(),
+    water_end_mm: z.number(),
+    crop_et_deficit_mm: z.number()
+});
+
+/**
+ * CropStage
+ */
+export const zCropStage = z.object({
+    stage: z.enum([
+        'initial',
+        'development',
+        'mid_season',
+        'late_season'
+    ]),
+    start: z.string(),
+    end: z.string(),
+    days: z.int().gt(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    stress_days: z.int().gte(0),
+    longest_stress_spell_days: z.int().gte(0),
+    hot_days_above_35_c: z.int().gte(0),
+    coincident_stress_heat_days: z.int().gte(0)
+});
+
+/**
+ * CropResult
+ */
+export const zCropResult = z.object({
+    event_id: z.string(),
+    crop_id: z.string(),
+    label: z.string(),
+    campaign_year: z.int(),
+    sowing_date: z.string(),
+    end_date: z.string(),
+    stage_lengths: z.array(z.int()),
+    kc_initial: z.number(),
+    kc_mid: z.number(),
+    kc_end: z.number(),
+    depletion_fraction: z.number(),
+    water_at_sowing_mm: z.number().gte(0),
+    et_potential_mm: z.number().gte(0),
+    et_actual_mm: z.number().gte(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    crop_days: z.int().gt(0),
+    stages: z.array(zCropStage)
+});
+
+/**
+ * DailyWater
+ */
+export const zDailyWater = z.object({
+    date: z.string(),
+    available_water_start_mm: z.number().gte(0),
+    precip_mm: z.number().gte(0),
+    irrigation_mm: z.number().gte(0),
+    eto_mm: z.number().gte(0),
+    et_potential_mm: z.number().gte(0),
+    et_actual_mm: z.number().gte(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    excess_above_capacity_mm: z.number().gte(0),
+    available_water_end_mm: z.number().gte(0),
+    surface_depletion_end_mm: z.number().gte(0),
+    crop_event_id: z.string().nullable(),
+    water_stress_coefficient: z.number().gte(0).lte(1).nullable(),
+    mass_residual_mm: z.number(),
+    temperature_max_c: z.number()
+});
+
+/**
+ * DifferenceDistribution
+ */
+export const zDifferenceDistribution = z.object({
+    count: z.int().gt(0),
+    minimum_mm: z.number(),
+    median_mm: z.number(),
+    maximum_mm: z.number(),
+    lower_count: z.int().gte(0),
+    equal_count: z.int().gte(0),
+    higher_count: z.int().gte(0)
+});
+
+/**
+ * CalendarEffect
+ */
+export const zCalendarEffect = z.object({
+    strategy_id: z.string(),
+    summer_shift_days: z.int(),
+    deficit_difference: zDifferenceDistribution
+});
+
+/**
  * FarmCreate
  */
 export const zFarmCreate = z.object({
@@ -16,6 +112,27 @@ export const zFarmRead = z.object({
     id: z.uuid(),
     name: z.string(),
     created_at: z.iso.datetime()
+});
+
+export const zJsonValue = z.unknown();
+
+/**
+ * PairedDifference
+ */
+export const zPairedDifference = z.object({
+    reference_run_id: z.string().regex(/^[a-f0-9]{20}$/),
+    crop_et_deficit_mm: z.number(),
+    water_end_mm: z.number()
+});
+
+/**
+ * RobustnessSummary
+ */
+export const zRobustnessSummary = z.object({
+    strategy_id: z.string(),
+    depth_m: z.number(),
+    initial_water_fraction: z.number(),
+    deficit_difference: zDifferenceDistribution
 });
 
 /**
@@ -34,6 +151,82 @@ export const zValidationError = z.object({
  */
 export const zHttpValidationError = z.object({
     detail: z.array(zValidationError).optional()
+});
+
+/**
+ * WaterSummary
+ */
+export const zWaterSummary = z.object({
+    initial_water_mm: z.number().gte(0),
+    water_end_mm: z.number().gte(0),
+    precip_mm: z.number().gte(0),
+    et_actual_mm: z.number().gte(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    excess_above_capacity_mm: z.number().gte(0),
+    crop_days: z.int().gte(0),
+    max_abs_mass_residual_mm: z.number().gte(0).lte(1e-7),
+    crop_et_potential_mm: z.number().gt(0),
+    crop_et_actual_mm: z.number().gte(0),
+    crop_demand_unmet_fraction: z.number().gte(0).lte(1)
+});
+
+/**
+ * WaterRunDetail
+ */
+export const zWaterRunDetail = z.object({
+    run_id: z.string().regex(/^[a-f0-9]{20}$/),
+    strategy_id: z.string(),
+    start_year: z.int(),
+    depth_m: z.number().gt(0),
+    initial_water_fraction: z.number().gte(0).lte(1),
+    summer_shift_days: z.int(),
+    capacity_mm: z.number().gt(0),
+    summary: zWaterSummary,
+    provenance: z.literal('modeled'),
+    day_basis: z.literal('UTC'),
+    campaigns: z.array(zCampaignWater),
+    crops: z.array(zCropResult),
+    rows: z.array(zDailyWater)
+});
+
+/**
+ * WaterRunSummary
+ */
+export const zWaterRunSummary = z.object({
+    run_id: z.string().regex(/^[a-f0-9]{20}$/),
+    strategy_id: z.string(),
+    start_year: z.int(),
+    depth_m: z.number().gt(0),
+    initial_water_fraction: z.number().gte(0).lte(1),
+    summer_shift_days: z.int(),
+    capacity_mm: z.number().gt(0),
+    summary: zWaterSummary,
+    start: z.string(),
+    end: z.string(),
+    daily_path: z.string(),
+    versus_reference_rotation: zPairedDifference,
+    versus_unshifted_calendar: zPairedDifference.nullish()
+});
+
+/**
+ * StrategiesBundle
+ */
+export const zStrategiesBundle = z.object({
+    schema_version: z.literal('strategies-v1'),
+    status: z.literal('research_only'),
+    design_id: z.string(),
+    field: z.record(z.string(), zJsonValue),
+    weather_point: z.array(z.number()),
+    model: z.record(z.string(), z.string()),
+    config: z.record(z.string(), zJsonValue),
+    soils: z.array(z.record(z.string(), zJsonValue)),
+    runs: z.array(zWaterRunSummary),
+    robustness: z.array(zRobustnessSummary),
+    calendar_effects: z.array(zCalendarEffect),
+    rejected_cases: z.array(z.record(z.string(), zJsonValue)),
+    sources: z.array(z.record(z.string(), zJsonValue)),
+    source_ids: z.array(z.string()),
+    limitations: z.array(z.string())
 });
 
 /**
@@ -56,3 +249,17 @@ export const zCreateFarmBody = zFarmCreate;
  * Successful Response
  */
 export const zCreateFarmResponse = zFarmRead;
+
+/**
+ * Successful Response
+ */
+export const zGetWaterStrategiesResponse = zStrategiesBundle;
+
+export const zGetWaterStrategyRunPath = z.object({
+    run_id: z.string()
+});
+
+/**
+ * Successful Response
+ */
+export const zGetWaterStrategyRunResponse = zWaterRunDetail;

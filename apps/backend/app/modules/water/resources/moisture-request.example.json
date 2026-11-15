@@ -1,0 +1,28 @@
+{
+  "schema_version": "moisture-v1",
+  "source_vintage": "revised_history_not_as_issued",
+  "zone_id": "pergamino",
+  "data_end": "2025-11-01",
+  "features": {
+    "latitude_deg": -33.89,
+    "longitude_deg": -60.57,
+    "season_sin": -0.8692328164574792,
+    "season_cos": 0.49440298420761813,
+    "wetness_fraction": 0.64,
+    "wetness_lag1_fraction": 0.64,
+    "wetness_lag7_fraction": 0.65,
+    "wetness_lag14_fraction": 0.67,
+    "wetness_lag28_fraction": 0.7,
+    "wetness_mean7_fraction": 0.6414285714285715,
+    "wetness_mean14_fraction": 0.647142857142857,
+    "wetness_mean28_fraction": 0.6696428571428571,
+    "rain7_mm": 0.010000000000063949,
+    "rain14_mm": 4.100000000000028,
+    "rain28_mm": 43.82000000000003,
+    "eto7_mm": 28.156570610765538,
+    "eto14_mm": 61.52364743927865,
+    "eto28_mm": 121.26269108551323,
+    "temperature7_c": 14.335714285714287,
+    "temperature28_c": 17.06
+  }
+}

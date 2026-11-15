@@ -1,0 +1,682 @@
+{
+  "created_at_utc": "2026-11-14T18:38:18.172060+00:00",
+  "rows": 410,
+  "campaigns": 41,
+  "zones": 10,
+  "sources": [
+    {
+      "file": "oni.txt",
+      "sha256": "118c563331335c8649cdc2677e6be7ae89d1259d901345fcddbc2857af280f7f",
+      "bytes": 23050,
+      "url": "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
+      "cached_file_mtime_utc": "2026-11-14T18:38:00.231022+00:00"
+    },
+    {
+      "file": "power_pergamino.json",
+      "sha256": "28be1e00e9db23cfab59dfc7ef50c48a971c798294cfcd9223c005adfe46e191",
+      "bytes": 2011983,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-60.57&latitude=-33.89&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:05.054502+00:00",
+      "site": {
+        "id": "pergamino",
+        "name": "Pergamino",
+        "lat": -33.89,
+        "lon": -60.57
+      },
+      "location": {
+        "latitude_deg": -33.89,
+        "longitude_deg": -60.57,
+        "elevation_m": 69.07
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_marcos_juarez.json",
+      "sha256": "abba63e326f45c7f9cc69d6b1caf9b30f73ec3b554fa7e7bf600791a27207ebf",
+      "bytes": 2012815,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-62.1&latitude=-32.7&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:05.141170+00:00",
+      "site": {
+        "id": "marcos_juarez",
+        "name": "Marcos Juárez",
+        "lat": -32.7,
+        "lon": -62.1
+      },
+      "location": {
+        "latitude_deg": -32.7,
+        "longitude_deg": -62.1,
+        "elevation_m": 99.46
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_balcarce.json",
+      "sha256": "90ae701e7ec5649b6f53fc0e2deb3e73f0a974832f1c6a6a5889071f589bdaba",
+      "bytes": 2007197,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-58.25&latitude=-37.85&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:05.162512+00:00",
+      "site": {
+        "id": "balcarce",
+        "name": "Balcarce",
+        "lat": -37.85,
+        "lon": -58.25
+      },
+      "location": {
+        "latitude_deg": -37.85,
+        "longitude_deg": -58.25,
+        "elevation_m": 106.51
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_trenque_lauquen.json",
+      "sha256": "c0a145a35821710a59ae4600f4ddf46c1c052775c69bc4c4a9b32b41910ce92d",
+      "bytes": 2009793,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-62.73&latitude=-35.97&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:09.941540+00:00",
+      "site": {
+        "id": "trenque_lauquen",
+        "name": "Trenque Lauquen",
+        "lat": -35.97,
+        "lon": -62.73
+      },
+      "location": {
+        "latitude_deg": -35.97,
+        "longitude_deg": -62.73,
+        "elevation_m": 91.41
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_rio_cuarto.json",
+      "sha256": "c0c9406a1c6696da2ede4e732a0a81eb385f0ca7e3e9c651ac3f006669b371b1",
+      "bytes": 2011207,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-64.35&latitude=-33.13&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:09.810781+00:00",
+      "site": {
+        "id": "rio_cuarto",
+        "name": "Río Cuarto",
+        "lat": -33.13,
+        "lon": -64.35
+      },
+      "location": {
+        "latitude_deg": -33.13,
+        "longitude_deg": -64.35,
+        "elevation_m": 490.65
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_parana.json",
+      "sha256": "e80e871ca36c65fd2a6e2bd382d5d082315a4d105ab1e309b0de590dea3b6ad1",
+      "bytes": 2015549,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-60.53&latitude=-31.73&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:10.229542+00:00",
+      "site": {
+        "id": "parana",
+        "name": "Paraná",
+        "lat": -31.73,
+        "lon": -60.53
+      },
+      "location": {
+        "latitude_deg": -31.73,
+        "longitude_deg": -60.53,
+        "elevation_m": 23.97
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_anguil.json",
+      "sha256": "4a6228a3febf43bd26ba1ecaad6a852b9b4a194e363d9b45b09c1b9df9fb84ff",
+      "bytes": 2008881,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-64.01&latitude=-36.53&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:13.401561+00:00",
+      "site": {
+        "id": "anguil",
+        "name": "Anguil (Capital, La Pampa)",
+        "lat": -36.53,
+        "lon": -64.01
+      },
+      "location": {
+        "latitude_deg": -36.53,
+        "longitude_deg": -64.01,
+        "elevation_m": 138.28
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_charata.json",
+      "sha256": "99c43f0dc1b81f8ee8ef42f83e50bf8af34f2ae949490ef6c04c7a81167f0c41",
+      "bytes": 2018073,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-61.19&latitude=-27.21&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:14.068949+00:00",
+      "site": {
+        "id": "charata",
+        "name": "Charata (Chacabuco, Chaco)",
+        "lat": -27.21,
+        "lon": -61.19
+      },
+      "location": {
+        "latitude_deg": -27.21,
+        "longitude_deg": -61.19,
+        "elevation_m": 108.26
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_quimili.json",
+      "sha256": "f3fef5edceba306a8115926bd1ff092d6e931e6e7e49da9690ac2165ded678d1",
+      "bytes": 2017613,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-62.42&latitude=-27.63&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:14.764958+00:00",
+      "site": {
+        "id": "quimili",
+        "name": "Quimilí (Moreno, Santiago del Estero)",
+        "lat": -27.63,
+        "lon": -62.42
+      },
+      "location": {
+        "latitude_deg": -27.63,
+        "longitude_deg": -62.42,
+        "elevation_m": 148.68
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    },
+    {
+      "file": "power_las_lajitas.json",
+      "sha256": "d66035e0b4b3c8a55887a3f3b77b4ff5b975cc71e3ecc36d14714ba184d1575d",
+      "bytes": 2018145,
+      "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=PRECTOTCORR%2CT2M%2CT2M_MAX%2CT2M_MIN%2CALLSKY_SFC_SW_DWN%2CRH2M%2CWS2M%2CGWETROOT&community=AG&longitude=-64.2&latitude=-24.73&start=19840101&end=20251231&format=JSON&time-standard=UTC",
+      "cached_file_mtime_utc": "2026-11-14T18:38:17.833937+00:00",
+      "site": {
+        "id": "las_lajitas",
+        "name": "Las Lajitas (Anta, Salta)",
+        "lat": -24.73,
+        "lon": -64.2
+      },
+      "location": {
+        "latitude_deg": -24.73,
+        "longitude_deg": -64.2,
+        "elevation_m": 934.38
+      },
+      "header": {
+        "title": "NASA/POWER Source Native Resolution Daily Data",
+        "api": {
+          "version": "v2.10.3",
+          "name": "POWER Daily API"
+        },
+        "sources": ["MERRA2", "SRB", "SYN1DEG", "POWER"],
+        "fill_value": -999.0,
+        "time_standard": "UTC",
+        "start": "19840101",
+        "end": "20251231"
+      },
+      "units": {
+        "PRECTOTCORR": {
+          "units": "mm/day",
+          "longname": "Precipitation Corrected"
+        },
+        "T2M": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters"
+        },
+        "T2M_MAX": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Maximum"
+        },
+        "T2M_MIN": {
+          "units": "C",
+          "longname": "Temperature at 2 Meters Minimum"
+        },
+        "ALLSKY_SFC_SW_DWN": {
+          "units": "MJ/m^2/day",
+          "longname": "All Sky Surface Shortwave Downward Irradiance"
+        },
+        "RH2M": {
+          "units": "%",
+          "longname": "Relative Humidity at 2 Meters"
+        },
+        "WS2M": {
+          "units": "m/s",
+          "longname": "Wind Speed at 2 Meters"
+        },
+        "GWETROOT": {
+          "units": "1",
+          "longname": "Root Zone Soil Wetness"
+        }
+      },
+      "days": 15341
+    }
+  ],
+  "panel_sha256": "c8cbfa32113c9c5cca6abab5c60aa6f21730678b62c262cb908fcc0d3766e4af",
+  "eto_source_sha256": "3dc3b96c85c99851ad5e663ff6d9cbc22f29acac8bc828acd149f0f038895dfb",
+  "status": "research_only",
+  "vintage": "revised_history_not_as_issued",
+  "availability": "31-day buffer assumption, not verified release dates",
+  "meteorology_time_standard": "UTC",
+  "features": [
+    "zone_id",
+    "latitude_deg",
+    "longitude_deg",
+    "oni_mjj_c",
+    "oni_change_c",
+    "rain_antecedent_mm",
+    "eto_antecedent_mm",
+    "temperature_antecedent_c",
+    "gwetroot_last10_fraction"
+  ]
+}
