@@ -33,7 +33,7 @@ Desde la raíz:
 
 - Migración nueva: `cd apps/backend && uv run alembic revision --autogenerate -m "<qué cambia>"`.
 - Dependencias: `pnpm --filter @cropilot/<paquete> add <lib>`, `uv add <lib>` en `apps/backend`, `pnpm exec expo install <lib>` en `apps/mobile`.
-- Componente de UI: `pnpm dlx shadcn@latest add <componente>` en `apps/webapp`, y se adapta al sistema visual antes de usarlo.
+- Componente de UI: `pnpm dlx shadcn@latest add <componente>` en `apps/webapp` y `pnpm dlx @react-native-reusables/cli@latest add <componente>` en `apps/mobile`, y se adapta al sistema visual antes de usarlo.
 
 ## Reglas de código
 
@@ -103,8 +103,11 @@ Vale para la landing, la plataforma y todo componente de shadcn, nuevo o existen
 
 - Misma separación: `app/` (pantallas de Expo Router, finas), `features/`, `lib/`.
 - Usa el mismo `@cropilot/api` que la web. La lógica sin interfaz que sirva a las dos va a `packages/`.
-- La sesión sale de `authClient.useSession()` y `Stack.Protected` decide qué pantallas se ven.
-- Estilos con `StyleSheet.create`. Todavía no hay librería de componentes.
+- La app replica la web a ancho de celular: abre en la landing (`app/index.tsx`, secciones en `features/landing/`), las páginas públicas salen de `features/landing/site-content.ts` (copia de la web) en `app/site/[sectionSlug]/[pageSlug].tsx`, y la parte interna usa el encabezado y el menú lateral de `features/shell/`. Si la web cambia una sección, se cambia acá también.
+- Build de demo: el login (`app/sign-in.tsx`) es decorativo y entra sin sesión. Los diagnósticos de lotes leen `assets/map-data/` (ignorado por Git, se genera con el script de preparación del mapa) a través de `src/features/fields/field-data.ts`. `app/farms.tsx` queda para cuando vuelva el login real.
+- Componentes de React Native Reusables en `src/components/ui/`, adaptados al sistema visual de la web: se agregan con su CLI y se ajustan a sus reglas (sección Sistema visual).
+- Estilos con clases de NativeWind (Tailwind v3) y los tokens de `src/global.css`, que replican los de `apps/webapp/src/index.css`. Solo modo claro. La navegación nativa toma los mismos valores de `src/lib/theme.ts`: si cambia un token, se cambian los dos.
+- `react-native-css-interop` es dependencia directa porque el JSX que genera NativeWind la importa y pnpm no la expone. Su versión es la que fija `nativewind`: se suben juntas.
 - React está fijado en el catálogo a la versión que exige el SDK de Expo. Se sube junto con el SDK.
 
 ## Contrato de API · `packages/api`
