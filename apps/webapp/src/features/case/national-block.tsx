@@ -84,6 +84,7 @@ function ZoneRow({
       <Link
         to="/case/$zoneId"
         params={{ zoneId: zone.zone_id }}
+        resetScroll={false}
         className={cn(
           "group/zone flex flex-col gap-2 rounded-lg border px-3 py-2.5 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50",
           isSelected && "border-primary bg-primary/5 hover:bg-primary/5"
