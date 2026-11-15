@@ -5,6 +5,86 @@ export type ClientOptions = {
 };
 
 /**
+ * AnalogMargins
+ */
+export type AnalogMargins = {
+    /**
+     * Scenario Id
+     */
+    scenario_id: string;
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Analog Rank
+     */
+    analog_rank: number;
+    /**
+     * Leading Strategy Id
+     */
+    leading_strategy_id: string | null;
+    /**
+     * Margins
+     */
+    margins: Array<StrategyMargin>;
+};
+
+/**
+ * AnalogMethod
+ */
+export type AnalogMethod = {
+    /**
+     * K
+     */
+    k: number;
+    /**
+     * Features
+     */
+    features: Array<string>;
+    /**
+     * Distance
+     */
+    distance: string;
+    /**
+     * Candidates
+     */
+    candidates: string;
+    /**
+     * Phase Rule
+     */
+    phase_rule: string;
+};
+
+/**
+ * BlockMeta
+ *
+ * Provenance shared by every number of one block or column.
+ */
+export type BlockMeta = {
+    /**
+     * Provenance
+     */
+    provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Scale
+     */
+    scale: 'global' | 'grid_cell' | 'department' | 'field';
+    /**
+     * Unit
+     */
+    unit: string | null;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+    /**
+     * Note
+     */
+    note: string | null;
+};
+
+/**
  * CalendarEffect
  */
 export type CalendarEffect = {
@@ -17,6 +97,88 @@ export type CalendarEffect = {
      */
     summer_shift_days: number;
     deficit_difference: DifferenceDistribution;
+};
+
+/**
+ * CampaignNote
+ */
+export type CampaignNote = {
+    /**
+     * Kind
+     */
+    kind: 'worst_on_record' | 'june_dry_soil_alert' | 'counterexample' | 'dated_event' | 'strongest_start';
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+};
+
+/**
+ * CampaignPoint
+ *
+ * One real past campaign, placed by the two signals known at the end of August.
+ */
+export type CampaignPoint = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Start Year
+     */
+    start_year: number;
+    /**
+     * Scenario Id
+     */
+    scenario_id: string;
+    /**
+     * Oni Jas
+     */
+    oni_jas: number;
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'strong_el_nino' | 'el_nino' | 'neutral' | 'la_nina';
+    /**
+     * Soil Wetness End Aug
+     */
+    soil_wetness_end_aug: number | null;
+    /**
+     * Maize Yield Anomaly Pct
+     */
+    maize_yield_anomaly_pct: number | null;
+    /**
+     * Maize Yield Provenance
+     */
+    maize_yield_provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Soybean Yield Anomaly Pct
+     */
+    soybean_yield_anomaly_pct: number | null;
+    /**
+     * Soybean Yield Provenance
+     */
+    soybean_yield_provenance: 'observed' | 'retrieved' | 'modeled' | 'scenario' | 'missing';
+    /**
+     * Is Analog
+     */
+    is_analog: boolean;
+    /**
+     * Analog Rank
+     */
+    analog_rank: number | null;
+    /**
+     * Analog Distance
+     */
+    analog_distance: number | null;
+    /**
+     * Notes
+     */
+    notes: Array<CampaignNote>;
 };
 
 /**
@@ -125,6 +287,173 @@ export type CampaignWater = {
      * Crop Et Deficit Mm
      */
     crop_et_deficit_mm: number;
+};
+
+/**
+ * CaseBundle
+ */
+export type CaseBundle = {
+    /**
+     * Schema Version
+     */
+    schema_version: 'case-v1';
+    /**
+     * Zone Id
+     */
+    zone_id: string;
+    /**
+     * Zone Name
+     */
+    zone_name: string;
+    /**
+     * Province
+     */
+    province: string;
+    /**
+     * Generated Utc
+     */
+    generated_utc: string;
+    decision: Decision;
+    modules: CaseModules;
+    years_like_this: YearsLikeThis;
+    compare: Compare;
+    field: FieldBlock | null;
+    /**
+     * Limits
+     */
+    limits: Array<Limit>;
+    /**
+     * Glossary
+     */
+    glossary: Array<GlossaryTerm>;
+    /**
+     * Sources
+     */
+    sources: Array<SourceRef>;
+};
+
+/**
+ * CaseIndex
+ *
+ * The national view: how the 2026/27 campaign started in every zone with a case.
+ */
+export type CaseIndex = {
+    /**
+     * Schema Version
+     */
+    schema_version: 'case-v1';
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Decision Date
+     */
+    decision_date: string;
+    /**
+     * Oni Jas
+     */
+    oni_jas: number;
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'strong_el_nino' | 'el_nino' | 'neutral' | 'la_nina';
+    /**
+     * Highest Past Oni Jas
+     */
+    highest_past_oni_jas: number;
+    /**
+     * Highest Past Oni Campaign
+     */
+    highest_past_oni_campaign: string;
+    /**
+     * Zones
+     */
+    zones: Array<ZoneCard>;
+    meta: BlockMeta;
+    /**
+     * Sources
+     */
+    sources: Array<SourceRef>;
+};
+
+/**
+ * CaseModules
+ */
+export type CaseModules = {
+    /**
+     * Years Like This
+     */
+    years_like_this: 'available' | 'not_available';
+    /**
+     * Margins
+     */
+    margins: 'available' | 'not_available';
+    /**
+     * Water
+     */
+    water: 'available' | 'not_available';
+    /**
+     * Field
+     */
+    field: 'available' | 'not_available';
+};
+
+/**
+ * Claim
+ *
+ * A sentence shown to the agronomist, with the sources that back it.
+ */
+export type Claim = {
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+};
+
+/**
+ * Compare
+ */
+export type Compare = {
+    /**
+     * Strategies
+     */
+    strategies: Array<Strategy>;
+    margins_meta: BlockMeta;
+    /**
+     * Margin Assumptions
+     */
+    margin_assumptions: Array<string>;
+    /**
+     * Analog Margins
+     */
+    analog_margins: Array<AnalogMargins>;
+    /**
+     * Ranking Changes
+     */
+    ranking_changes: Array<RankingChange>;
+    /**
+     * Risk Summary
+     */
+    risk_summary: Array<RiskRow>;
+    /**
+     * Risk Note
+     */
+    risk_note: string;
+    /**
+     * Unharvested
+     */
+    unharvested: Array<UnharvestedRow>;
+    unharvested_meta: BlockMeta;
+    water: WaterBlock | null;
+    /**
+     * Not Computed
+     */
+    not_computed: Array<NotComputed>;
 };
 
 /**
@@ -256,6 +585,48 @@ export type CropStage = {
 };
 
 /**
+ * CurrentCampaign
+ */
+export type CurrentCampaign = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Decision Date
+     */
+    decision_date: string;
+    /**
+     * Oni Jas
+     */
+    oni_jas: number;
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'strong_el_nino' | 'el_nino' | 'neutral' | 'la_nina';
+    /**
+     * Soil Wetness End Aug
+     */
+    soil_wetness_end_aug: number;
+    /**
+     * Soil Wetness Percentile
+     */
+    soil_wetness_percentile: number;
+    /**
+     * Highest Past Oni Jas
+     */
+    highest_past_oni_jas: number;
+    /**
+     * Highest Past Oni Campaign
+     */
+    highest_past_oni_campaign: string;
+    /**
+     * Outside Historical Range
+     */
+    outside_historical_range: boolean;
+};
+
+/**
  * CurrentSeason
  */
 export type CurrentSeason = {
@@ -348,6 +719,24 @@ export type DailyWater = {
 };
 
 /**
+ * Decision
+ */
+export type Decision = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Decision Date
+     */
+    decision_date: string;
+    /**
+     * Description
+     */
+    description: string;
+};
+
+/**
  * DifferenceDistribution
  */
 export type DifferenceDistribution = {
@@ -425,6 +814,35 @@ export type FarmRead = {
      * Created At
      */
     created_at: string;
+};
+
+/**
+ * FieldBlock
+ */
+export type FieldBlock = {
+    /**
+     * Farm Name
+     */
+    farm_name: string;
+    /**
+     * Farm Name Is Made Up
+     */
+    farm_name_is_made_up: boolean;
+    /**
+     * Ndvi Months
+     */
+    ndvi_months: Array<string>;
+    /**
+     * Lots
+     */
+    lots: Array<Lot>;
+    lots_meta: BlockMeta;
+    reference_field: ReferenceField | null;
+    reference_meta: BlockMeta | null;
+    /**
+     * Limitations
+     */
+    limitations: Array<string>;
 };
 
 /**
@@ -534,6 +952,20 @@ export type FieldProperties = {
 };
 
 /**
+ * GlossaryTerm
+ */
+export type GlossaryTerm = {
+    /**
+     * Term
+     */
+    term: string;
+    /**
+     * Definition
+     */
+    definition: string;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -544,6 +976,200 @@ export type HttpValidationError = {
 };
 
 export type JsonValue = unknown;
+
+/**
+ * Limit
+ */
+export type Limit = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Source Ids
+     */
+    source_ids: Array<string>;
+};
+
+/**
+ * Lot
+ *
+ * One satellite-estimated field outline with its crop history and greenness.
+ */
+export type Lot = {
+    /**
+     * Field Id
+     */
+    field_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Area Ha
+     */
+    area_ha: number;
+    /**
+     * Is Demo Farm
+     */
+    is_demo_farm: boolean;
+    /**
+     * Polygon
+     */
+    polygon: Array<Array<Array<number>>>;
+    /**
+     * Latest Campaign
+     */
+    latest_campaign: string;
+    /**
+     * Latest Crop
+     */
+    latest_crop: string | null;
+    /**
+     * Latest Crop Source
+     */
+    latest_crop_source: 'INTA' | 'model';
+    /**
+     * Status
+     */
+    status: 'ok' | 'watch' | 'alert' | 'check' | 'bare' | null;
+    /**
+     * Status Reason
+     */
+    status_reason: string | null;
+    /**
+     * Crop Purity
+     */
+    crop_purity: number | null;
+    /**
+     * Vigor Ndvi
+     */
+    vigor_ndvi: number | null;
+    /**
+     * Vigor Gap
+     */
+    vigor_gap: number | null;
+    /**
+     * Evenness
+     */
+    evenness: number | null;
+    /**
+     * History
+     */
+    history: Array<LotCampaign>;
+    /**
+     * Ndvi Curve
+     */
+    ndvi_curve: Array<number | null>;
+    /**
+     * Zone Ndvi Curve
+     */
+    zone_ndvi_curve: Array<number | null>;
+};
+
+/**
+ * LotCampaign
+ */
+export type LotCampaign = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Crop
+     */
+    crop: string | null;
+    /**
+     * Source
+     */
+    source: 'INTA' | 'model';
+};
+
+/**
+ * NdviSample
+ */
+export type NdviSample = {
+    /**
+     * Month
+     */
+    month: string;
+    /**
+     * Ndvi Mean
+     */
+    ndvi_mean: number | null;
+    /**
+     * Valid Fraction
+     */
+    valid_fraction: number;
+};
+
+/**
+ * NotComputed
+ */
+export type NotComputed = {
+    /**
+     * Metric
+     */
+    metric: string;
+    /**
+     * Reason
+     */
+    reason: string;
+};
+
+/**
+ * PairedCounts
+ */
+export type PairedCounts = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: number;
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Lower Count
+     */
+    lower_count: number;
+    /**
+     * Equal Count
+     */
+    equal_count: number;
+    /**
+     * Higher Count
+     */
+    higher_count: number;
+    /**
+     * Median Mm
+     */
+    median_mm: number;
+    /**
+     * Minimum Mm
+     */
+    minimum_mm: number;
+    /**
+     * Maximum Mm
+     */
+    maximum_mm: number;
+};
 
 /**
  * PairedDifference
@@ -578,6 +1204,94 @@ export type PolygonGeometry = {
         number,
         number
     ]>>;
+};
+
+/**
+ * RankingChange
+ */
+export type RankingChange = {
+    /**
+     * Metric
+     */
+    metric: 'gross_margin' | 'gross_margin_after_rent';
+    /**
+     * Strategy A
+     */
+    strategy_a: string;
+    /**
+     * Strategy B
+     */
+    strategy_b: string;
+    /**
+     * A Ahead In
+     */
+    a_ahead_in: Array<string>;
+    /**
+     * B Ahead In
+     */
+    b_ahead_in: Array<string>;
+    /**
+     * Order Inverts
+     */
+    order_inverts: boolean;
+};
+
+/**
+ * ReferenceCrop
+ */
+export type ReferenceCrop = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Season
+     */
+    season: 'annual' | 'winter' | 'summer';
+    /**
+     * Crop
+     */
+    crop: string;
+    /**
+     * Fraction Of Field
+     */
+    fraction_of_field: number;
+};
+
+/**
+ * ReferenceField
+ *
+ * The footprint the water scenarios were run on.
+ */
+export type ReferenceField = {
+    /**
+     * Field Id
+     */
+    field_id: string;
+    /**
+     * Area Ha
+     */
+    area_ha: number;
+    /**
+     * Polygon
+     */
+    polygon: Array<Array<Array<number>>>;
+    /**
+     * Crop History
+     */
+    crop_history: Array<ReferenceCrop>;
+    /**
+     * Ndvi
+     */
+    ndvi: Array<NdviSample>;
+    /**
+     * Soil Capacity
+     */
+    soil_capacity: Array<SoilCapacity>;
+    /**
+     * Note
+     */
+    note: string;
 };
 
 /**
@@ -621,6 +1335,54 @@ export type Region = {
 };
 
 /**
+ * RiskRow
+ *
+ * Secondary ensemble statistics; small n, never the headline.
+ */
+export type RiskRow = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * N Yield Campaigns
+     */
+    n_yield_campaigns: number;
+    /**
+     * N Price Campaigns
+     */
+    n_price_campaigns: number;
+    /**
+     * N Scenarios
+     */
+    n_scenarios: number;
+    /**
+     * P10 Usd Ha
+     */
+    p10_usd_ha: number | null;
+    /**
+     * P50 Usd Ha
+     */
+    p50_usd_ha: number | null;
+    /**
+     * P90 Usd Ha
+     */
+    p90_usd_ha: number | null;
+    /**
+     * Cvar10 Usd Ha
+     */
+    cvar10_usd_ha: number | null;
+    /**
+     * Share Below Rent
+     */
+    share_below_rent: number | null;
+    /**
+     * Share Below Zero
+     */
+    share_below_zero: number | null;
+};
+
+/**
  * RobustnessSummary
  */
 export type RobustnessSummary = {
@@ -637,6 +1399,60 @@ export type RobustnessSummary = {
      */
     initial_water_fraction: number;
     deficit_difference: DifferenceDistribution;
+};
+
+/**
+ * SoilCapacity
+ */
+export type SoilCapacity = {
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Capacity Mm
+     */
+    capacity_mm: number;
+};
+
+/**
+ * SourceRef
+ *
+ * One dataset, paper or person behind a number: what, who, when and where.
+ */
+export type SourceRef = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Dataset
+     */
+    dataset: string;
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Url
+     */
+    url: string | null;
+    /**
+     * Period
+     */
+    period: string;
+    /**
+     * Location
+     */
+    location: string;
+    /**
+     * Nature
+     */
+    nature: 'observation' | 'reanalysis' | 'model' | 'reference' | 'agronomist_input';
+    /**
+     * License
+     */
+    license: string | null;
 };
 
 /**
@@ -718,6 +1534,123 @@ export type StrategiesBundle = {
 };
 
 /**
+ * Strategy
+ */
+export type Strategy = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Sequence
+     */
+    sequence: Array<string>;
+    /**
+     * Is Current
+     */
+    is_current: boolean;
+    /**
+     * Current Note
+     */
+    current_note: string | null;
+    /**
+     * Market Rotation Id
+     */
+    market_rotation_id: string | null;
+    /**
+     * Water Strategy Id
+     */
+    water_strategy_id: string | null;
+    /**
+     * Water Match
+     */
+    water_match: 'exact' | 'closest' | 'none';
+    answers: StrategyAnswers;
+};
+
+/**
+ * StrategyAnswers
+ *
+ * The five answers the challenge asks of every strategy.
+ */
+export type StrategyAnswers = {
+    /**
+     * Why
+     */
+    why: Array<Claim>;
+    /**
+     * Evidence
+     */
+    evidence: Array<Claim>;
+    /**
+     * Benefits
+     */
+    benefits: Array<Claim>;
+    /**
+     * Missing
+     */
+    missing: Array<Claim>;
+    /**
+     * Local Review
+     */
+    local_review: Array<Claim>;
+};
+
+/**
+ * StrategyMargin
+ */
+export type StrategyMargin = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Gross Margin Usd Ha
+     */
+    gross_margin_usd_ha: number | null;
+    /**
+     * Gross Margin After Rent Usd Ha
+     */
+    gross_margin_after_rent_usd_ha: number | null;
+};
+
+/**
+ * UnharvestedRow
+ *
+ * Planted but not harvested area by ENSO phase known at the end of August.
+ */
+export type UnharvestedRow = {
+    /**
+     * Crop
+     */
+    crop: string;
+    /**
+     * Enso Phase
+     */
+    enso_phase: 'strong_el_nino' | 'el_nino' | 'neutral' | 'la_nina';
+    /**
+     * Campaigns
+     */
+    campaigns: number;
+    /**
+     * Mean Pct
+     */
+    mean_pct: number | null;
+    /**
+     * Max Pct
+     */
+    max_pct: number | null;
+    /**
+     * Max Campaign
+     */
+    max_campaign: string | null;
+};
+
+/**
  * ValidationError
  */
 export type ValidationError = {
@@ -743,6 +1676,147 @@ export type ValidationError = {
     ctx?: {
         [key: string]: unknown;
     };
+};
+
+/**
+ * WaterBlock
+ */
+export type WaterBlock = {
+    /**
+     * Field Id
+     */
+    field_id: string;
+    meta: BlockMeta;
+    /**
+     * Starting Points
+     */
+    starting_points: Array<WaterStartingPoint>;
+    /**
+     * Default Depth M
+     */
+    default_depth_m: number;
+    /**
+     * Default Initial Water Fraction
+     */
+    default_initial_water_fraction: number;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: Array<number>;
+    /**
+     * Episodes
+     */
+    episodes: Array<WaterEpisode>;
+    /**
+     * Robustness
+     */
+    robustness: Array<PairedCounts>;
+    /**
+     * Calendar Effects
+     */
+    calendar_effects: Array<PairedCounts>;
+    /**
+     * Limitations
+     */
+    limitations: Array<string>;
+};
+
+/**
+ * WaterCrop
+ */
+export type WaterCrop = {
+    /**
+     * Crop
+     */
+    crop: string;
+    /**
+     * Campaign Year
+     */
+    campaign_year: number;
+    /**
+     * Sowing Date
+     */
+    sowing_date: string;
+    /**
+     * Water At Sowing Mm
+     */
+    water_at_sowing_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Mid Season Stress Days
+     */
+    mid_season_stress_days: number;
+    /**
+     * Coincident Stress Heat Days
+     */
+    coincident_stress_heat_days: number;
+};
+
+/**
+ * WaterEpisode
+ *
+ * One released physical run: three continuous campaigns from June of `start_year`.
+ */
+export type WaterEpisode = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Start Year
+     */
+    start_year: number;
+    /**
+     * Scenario Id
+     */
+    scenario_id: string | null;
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    /**
+     * Summer Shift Days
+     */
+    summer_shift_days: number;
+    /**
+     * Crop Et Potential Mm
+     */
+    crop_et_potential_mm: number;
+    /**
+     * Crop Et Deficit Mm
+     */
+    crop_et_deficit_mm: number;
+    /**
+     * Crop Demand Unmet Fraction
+     */
+    crop_demand_unmet_fraction: number;
+    /**
+     * Excess Above Capacity Mm
+     */
+    excess_above_capacity_mm: number;
+    /**
+     * Water End Mm
+     */
+    water_end_mm: number;
+    /**
+     * Deficit Vs Current Mm
+     */
+    deficit_vs_current_mm: number;
+    /**
+     * Crops
+     */
+    crops: Array<WaterCrop>;
 };
 
 /**
@@ -850,6 +1924,24 @@ export type WaterRunSummary = {
 };
 
 /**
+ * WaterStartingPoint
+ */
+export type WaterStartingPoint = {
+    /**
+     * Depth M
+     */
+    depth_m: number;
+    /**
+     * Capacity Mm
+     */
+    capacity_mm: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+};
+
+/**
  * WaterSummary
  */
 export type WaterSummary = {
@@ -914,6 +2006,60 @@ export type WorkspaceSave = {
      * Region Id
      */
     region_id: string;
+};
+
+/**
+ * YearsLikeThis
+ */
+export type YearsLikeThis = {
+    current: CurrentCampaign;
+    /**
+     * Campaigns
+     */
+    campaigns: Array<CampaignPoint>;
+    method: AnalogMethod;
+    signals: BlockMeta;
+    yields: BlockMeta;
+    backtest: Claim;
+};
+
+/**
+ * ZoneCard
+ */
+export type ZoneCard = {
+    /**
+     * Zone Id
+     */
+    zone_id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Province
+     */
+    province: string;
+    /**
+     * Latitude Deg
+     */
+    latitude_deg: number;
+    /**
+     * Longitude Deg
+     */
+    longitude_deg: number;
+    /**
+     * Soil Wetness End Aug
+     */
+    soil_wetness_end_aug: number | null;
+    /**
+     * Soil Wetness Percentile
+     */
+    soil_wetness_percentile: number | null;
+    /**
+     * Analogs
+     */
+    analogs: Array<string>;
+    modules: CaseModules;
 };
 
 export type GetHealthData = {
@@ -1115,3 +2261,49 @@ export type GetCropFieldMapResponses = {
 };
 
 export type GetCropFieldMapResponse = GetCropFieldMapResponses[keyof GetCropFieldMapResponses];
+
+export type GetCaseIndexData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/cases';
+};
+
+export type GetCaseIndexResponses = {
+    /**
+     * Successful Response
+     */
+    200: CaseIndex;
+};
+
+export type GetCaseIndexResponse = GetCaseIndexResponses[keyof GetCaseIndexResponses];
+
+export type GetCaseData = {
+    body?: never;
+    path: {
+        /**
+         * Zone Id
+         */
+        zone_id: string;
+    };
+    query?: never;
+    url: '/api/cases/{zone_id}';
+};
+
+export type GetCaseErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCaseError = GetCaseErrors[keyof GetCaseErrors];
+
+export type GetCaseResponses = {
+    /**
+     * Successful Response
+     */
+    200: CaseBundle;
+};
+
+export type GetCaseResponse = GetCaseResponses[keyof GetCaseResponses];

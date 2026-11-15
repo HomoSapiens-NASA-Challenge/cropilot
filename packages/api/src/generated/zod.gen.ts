@@ -3,6 +3,95 @@
 import * as z from 'zod';
 
 /**
+ * AnalogMethod
+ */
+export const zAnalogMethod = z.object({
+    k: z.int().gte(1),
+    features: z.array(z.string()),
+    distance: z.string(),
+    candidates: z.string(),
+    phase_rule: z.string()
+});
+
+/**
+ * BlockMeta
+ *
+ * Provenance shared by every number of one block or column.
+ */
+export const zBlockMeta = z.object({
+    provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    scale: z.enum([
+        'global',
+        'grid_cell',
+        'department',
+        'field'
+    ]),
+    unit: z.string().nullable(),
+    source_ids: z.array(z.string()).min(1),
+    note: z.string().nullable()
+});
+
+/**
+ * CampaignNote
+ */
+export const zCampaignNote = z.object({
+    kind: z.enum([
+        'worst_on_record',
+        'june_dry_soil_alert',
+        'counterexample',
+        'dated_event',
+        'strongest_start'
+    ]),
+    text: z.string(),
+    source_ids: z.array(z.string()).min(1)
+});
+
+/**
+ * CampaignPoint
+ *
+ * One real past campaign, placed by the two signals known at the end of August.
+ */
+export const zCampaignPoint = z.object({
+    campaign: z.string().regex(/^\d{4}\/\d{2}$/),
+    start_year: z.int(),
+    scenario_id: z.string(),
+    oni_jas: z.number(),
+    enso_phase: z.enum([
+        'strong_el_nino',
+        'el_nino',
+        'neutral',
+        'la_nina'
+    ]),
+    soil_wetness_end_aug: z.number().gte(0).lte(1).nullable(),
+    maize_yield_anomaly_pct: z.number().nullable(),
+    maize_yield_provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    soybean_yield_anomaly_pct: z.number().nullable(),
+    soybean_yield_provenance: z.enum([
+        'observed',
+        'retrieved',
+        'modeled',
+        'scenario',
+        'missing'
+    ]),
+    is_analog: z.boolean(),
+    analog_rank: z.int().gte(1).nullable(),
+    analog_distance: z.number().gte(0).nullable(),
+    notes: z.array(zCampaignNote)
+});
+
+/**
  * CampaignRecord
  */
 export const zCampaignRecord = z.object({
@@ -58,6 +147,26 @@ export const zCampaignWater = z.object({
 });
 
 /**
+ * CaseModules
+ */
+export const zCaseModules = z.object({
+    years_like_this: z.enum(['available', 'not_available']),
+    margins: z.enum(['available', 'not_available']),
+    water: z.enum(['available', 'not_available']),
+    field: z.enum(['available', 'not_available'])
+});
+
+/**
+ * Claim
+ *
+ * A sentence shown to the agronomist, with the sources that back it.
+ */
+export const zClaim = z.object({
+    text: z.string(),
+    source_ids: z.array(z.string())
+});
+
+/**
  * CropStage
  */
 export const zCropStage = z.object({
@@ -101,6 +210,26 @@ export const zCropResult = z.object({
 });
 
 /**
+ * CurrentCampaign
+ */
+export const zCurrentCampaign = z.object({
+    campaign: z.string().regex(/^\d{4}\/\d{2}$/),
+    decision_date: z.string(),
+    oni_jas: z.number(),
+    enso_phase: z.enum([
+        'strong_el_nino',
+        'el_nino',
+        'neutral',
+        'la_nina'
+    ]),
+    soil_wetness_end_aug: z.number().gte(0).lte(1),
+    soil_wetness_percentile: z.number().gte(0).lte(1),
+    highest_past_oni_jas: z.number(),
+    highest_past_oni_campaign: z.string(),
+    outside_historical_range: z.boolean()
+});
+
+/**
  * CurrentSeason
  */
 export const zCurrentSeason = z.object({
@@ -134,6 +263,15 @@ export const zDailyWater = z.object({
     water_stress_coefficient: z.number().gte(0).lte(1).nullable(),
     mass_residual_mm: z.number(),
     temperature_max_c: z.number()
+});
+
+/**
+ * Decision
+ */
+export const zDecision = z.object({
+    campaign: z.string(),
+    decision_date: z.string(),
+    description: z.string()
 });
 
 /**
@@ -225,7 +363,98 @@ export const zFieldProperties = z.object({
     history: z.array(zCampaignRecord).min(1)
 });
 
+/**
+ * GlossaryTerm
+ */
+export const zGlossaryTerm = z.object({
+    term: z.string(),
+    definition: z.string()
+});
+
 export const zJsonValue = z.unknown();
+
+/**
+ * Limit
+ */
+export const zLimit = z.object({
+    title: z.string(),
+    text: z.string(),
+    source_ids: z.array(z.string()).min(1)
+});
+
+/**
+ * LotCampaign
+ */
+export const zLotCampaign = z.object({
+    campaign: z.string().regex(/^\d{4}\/\d{2}$/),
+    crop: z.string().nullable(),
+    source: z.enum(['INTA', 'model'])
+});
+
+/**
+ * Lot
+ *
+ * One satellite-estimated field outline with its crop history and greenness.
+ */
+export const zLot = z.object({
+    field_id: z.string(),
+    name: z.string(),
+    area_ha: z.number().gt(0),
+    is_demo_farm: z.boolean(),
+    polygon: z.array(z.array(z.array(z.number()))),
+    latest_campaign: z.string(),
+    latest_crop: z.string().nullable(),
+    latest_crop_source: z.enum(['INTA', 'model']),
+    status: z.enum([
+        'ok',
+        'watch',
+        'alert',
+        'check',
+        'bare'
+    ]).nullable(),
+    status_reason: z.string().nullable(),
+    crop_purity: z.number().gte(0).lte(1).nullable(),
+    vigor_ndvi: z.number().nullable(),
+    vigor_gap: z.number().nullable(),
+    evenness: z.number().gte(0).lte(1).nullable(),
+    history: z.array(zLotCampaign),
+    ndvi_curve: z.array(z.union([z.number(), z.null()])),
+    zone_ndvi_curve: z.array(z.union([z.number(), z.null()]))
+});
+
+/**
+ * NdviSample
+ */
+export const zNdviSample = z.object({
+    month: z.string().regex(/^\d{4}-\d{2}$/),
+    ndvi_mean: z.number().nullable(),
+    valid_fraction: z.number().gte(0).lte(1)
+});
+
+/**
+ * NotComputed
+ */
+export const zNotComputed = z.object({
+    metric: z.string(),
+    reason: z.string()
+});
+
+/**
+ * PairedCounts
+ */
+export const zPairedCounts = z.object({
+    strategy_id: z.string(),
+    depth_m: z.number(),
+    initial_water_fraction: z.number(),
+    summer_shift_days: z.int(),
+    count: z.int().gt(0),
+    lower_count: z.int().gte(0),
+    equal_count: z.int().gte(0),
+    higher_count: z.int().gte(0),
+    median_mm: z.number(),
+    minimum_mm: z.number(),
+    maximum_mm: z.number()
+});
 
 /**
  * PairedDifference
@@ -263,6 +492,32 @@ export const zFieldMap = z.object({
 });
 
 /**
+ * RankingChange
+ */
+export const zRankingChange = z.object({
+    metric: z.enum(['gross_margin', 'gross_margin_after_rent']),
+    strategy_a: z.string(),
+    strategy_b: z.string(),
+    a_ahead_in: z.array(z.string()),
+    b_ahead_in: z.array(z.string()),
+    order_inverts: z.boolean()
+});
+
+/**
+ * ReferenceCrop
+ */
+export const zReferenceCrop = z.object({
+    campaign: z.string(),
+    season: z.enum([
+        'annual',
+        'winter',
+        'summer'
+    ]),
+    crop: z.string(),
+    fraction_of_field: z.number().gte(0).lte(1)
+});
+
+/**
  * Region
  *
  * A department Cropilot can scope its analyses to, anchored on one reference point.
@@ -279,6 +534,24 @@ export const zRegion = z.object({
 });
 
 /**
+ * RiskRow
+ *
+ * Secondary ensemble statistics; small n, never the headline.
+ */
+export const zRiskRow = z.object({
+    strategy_id: z.string(),
+    n_yield_campaigns: z.int(),
+    n_price_campaigns: z.int(),
+    n_scenarios: z.int(),
+    p10_usd_ha: z.number().nullable(),
+    p50_usd_ha: z.number().nullable(),
+    p90_usd_ha: z.number().nullable(),
+    cvar10_usd_ha: z.number().nullable(),
+    share_below_rent: z.number().gte(0).lte(1).nullable(),
+    share_below_zero: z.number().gte(0).lte(1).nullable()
+});
+
+/**
  * RobustnessSummary
  */
 export const zRobustnessSummary = z.object({
@@ -286,6 +559,136 @@ export const zRobustnessSummary = z.object({
     depth_m: z.number(),
     initial_water_fraction: z.number(),
     deficit_difference: zDifferenceDistribution
+});
+
+/**
+ * SoilCapacity
+ */
+export const zSoilCapacity = z.object({
+    depth_m: z.number().gt(0),
+    capacity_mm: z.number().gt(0)
+});
+
+/**
+ * ReferenceField
+ *
+ * The footprint the water scenarios were run on.
+ */
+export const zReferenceField = z.object({
+    field_id: z.string(),
+    area_ha: z.number().gt(0),
+    polygon: z.array(z.array(z.array(z.number()))),
+    crop_history: z.array(zReferenceCrop),
+    ndvi: z.array(zNdviSample),
+    soil_capacity: z.array(zSoilCapacity),
+    note: z.string()
+});
+
+/**
+ * FieldBlock
+ */
+export const zFieldBlock = z.object({
+    farm_name: z.string(),
+    farm_name_is_made_up: z.boolean(),
+    ndvi_months: z.array(z.string()),
+    lots: z.array(zLot),
+    lots_meta: zBlockMeta,
+    reference_field: zReferenceField.nullable(),
+    reference_meta: zBlockMeta.nullable(),
+    limitations: z.array(z.string())
+});
+
+/**
+ * SourceRef
+ *
+ * One dataset, paper or person behind a number: what, who, when and where.
+ */
+export const zSourceRef = z.object({
+    id: z.string(),
+    dataset: z.string(),
+    provider: z.string(),
+    url: z.string().nullable(),
+    period: z.string(),
+    location: z.string(),
+    nature: z.enum([
+        'observation',
+        'reanalysis',
+        'model',
+        'reference',
+        'agronomist_input'
+    ]),
+    license: z.string().nullable()
+});
+
+/**
+ * StrategyAnswers
+ *
+ * The five answers the challenge asks of every strategy.
+ */
+export const zStrategyAnswers = z.object({
+    why: z.array(zClaim).min(1),
+    evidence: z.array(zClaim).min(1),
+    benefits: z.array(zClaim),
+    missing: z.array(zClaim).min(1),
+    local_review: z.array(zClaim).min(1)
+});
+
+/**
+ * Strategy
+ */
+export const zStrategy = z.object({
+    strategy_id: z.string(),
+    label: z.string(),
+    sequence: z.array(z.string()).min(1),
+    is_current: z.boolean(),
+    current_note: z.string().nullable(),
+    market_rotation_id: z.string().nullable(),
+    water_strategy_id: z.string().nullable(),
+    water_match: z.enum([
+        'exact',
+        'closest',
+        'none'
+    ]),
+    answers: zStrategyAnswers
+});
+
+/**
+ * StrategyMargin
+ */
+export const zStrategyMargin = z.object({
+    strategy_id: z.string(),
+    gross_margin_usd_ha: z.number().nullable(),
+    gross_margin_after_rent_usd_ha: z.number().nullable()
+});
+
+/**
+ * AnalogMargins
+ */
+export const zAnalogMargins = z.object({
+    scenario_id: z.string(),
+    campaign: z.string(),
+    analog_rank: z.int().gte(1),
+    leading_strategy_id: z.string().nullable(),
+    margins: z.array(zStrategyMargin)
+});
+
+/**
+ * UnharvestedRow
+ *
+ * Planted but not harvested area by ENSO phase known at the end of August.
+ */
+export const zUnharvestedRow = z.object({
+    crop: z.string(),
+    enso_phase: z.enum([
+        'strong_el_nino',
+        'el_nino',
+        'neutral',
+        'la_nina'
+    ]),
+    campaigns: z.int().gte(0),
+    mean_pct: z.number().nullable(),
+    max_pct: z.number().nullable(),
+    max_campaign: z.string().nullable()
 });
 
 /**
@@ -304,6 +707,83 @@ export const zValidationError = z.object({
  */
 export const zHttpValidationError = z.object({
     detail: z.array(zValidationError).optional()
+});
+
+/**
+ * WaterCrop
+ */
+export const zWaterCrop = z.object({
+    crop: z.string(),
+    campaign_year: z.int(),
+    sowing_date: z.string(),
+    water_at_sowing_mm: z.number().gte(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    mid_season_stress_days: z.int().gte(0),
+    coincident_stress_heat_days: z.int().gte(0)
+});
+
+/**
+ * WaterEpisode
+ *
+ * One released physical run: three continuous campaigns from June of `start_year`.
+ */
+export const zWaterEpisode = z.object({
+    run_id: z.string(),
+    strategy_id: z.string(),
+    start_year: z.int(),
+    scenario_id: z.string().nullable(),
+    depth_m: z.number().gt(0),
+    initial_water_fraction: z.number().gte(0).lte(1),
+    summer_shift_days: z.int(),
+    crop_et_potential_mm: z.number().gt(0),
+    crop_et_deficit_mm: z.number().gte(0),
+    crop_demand_unmet_fraction: z.number().gte(0).lte(1),
+    excess_above_capacity_mm: z.number().gte(0),
+    water_end_mm: z.number().gte(0),
+    deficit_vs_current_mm: z.number(),
+    crops: z.array(zWaterCrop)
+});
+
+/**
+ * WaterStartingPoint
+ */
+export const zWaterStartingPoint = z.object({
+    depth_m: z.number().gt(0),
+    capacity_mm: z.number().gt(0),
+    initial_water_fraction: z.number().gte(0).lte(1)
+});
+
+/**
+ * WaterBlock
+ */
+export const zWaterBlock = z.object({
+    field_id: z.string(),
+    meta: zBlockMeta,
+    starting_points: z.array(zWaterStartingPoint).min(1),
+    default_depth_m: z.number(),
+    default_initial_water_fraction: z.number(),
+    summer_shift_days: z.array(z.int()),
+    episodes: z.array(zWaterEpisode),
+    robustness: z.array(zPairedCounts),
+    calendar_effects: z.array(zPairedCounts),
+    limitations: z.array(z.string())
+});
+
+/**
+ * Compare
+ */
+export const zCompare = z.object({
+    strategies: z.array(zStrategy).min(3),
+    margins_meta: zBlockMeta,
+    margin_assumptions: z.array(z.string()),
+    analog_margins: z.array(zAnalogMargins),
+    ranking_changes: z.array(zRankingChange),
+    risk_summary: z.array(zRiskRow),
+    risk_note: z.string(),
+    unharvested: z.array(zUnharvestedRow),
+    unharvested_meta: zBlockMeta,
+    water: zWaterBlock.nullable(),
+    not_computed: z.array(zNotComputed).min(1)
 });
 
 /**
@@ -397,6 +877,75 @@ export const zWorkspaceSave = z.object({
 });
 
 /**
+ * YearsLikeThis
+ */
+export const zYearsLikeThis = z.object({
+    current: zCurrentCampaign,
+    campaigns: z.array(zCampaignPoint),
+    method: zAnalogMethod,
+    signals: zBlockMeta,
+    yields: zBlockMeta,
+    backtest: zClaim
+});
+
+/**
+ * CaseBundle
+ */
+export const zCaseBundle = z.object({
+    schema_version: z.literal('case-v1'),
+    zone_id: z.string(),
+    zone_name: z.string(),
+    province: z.string(),
+    generated_utc: z.string(),
+    decision: zDecision,
+    modules: zCaseModules,
+    years_like_this: zYearsLikeThis,
+    compare: zCompare,
+    field: zFieldBlock.nullable(),
+    limits: z.array(zLimit),
+    glossary: z.array(zGlossaryTerm),
+    sources: z.array(zSourceRef).min(1)
+});
+
+/**
+ * ZoneCard
+ */
+export const zZoneCard = z.object({
+    zone_id: z.string(),
+    name: z.string(),
+    province: z.string(),
+    latitude_deg: z.number(),
+    longitude_deg: z.number(),
+    soil_wetness_end_aug: z.number().gte(0).lte(1).nullable(),
+    soil_wetness_percentile: z.number().gte(0).lte(1).nullable(),
+    analogs: z.array(z.string()),
+    modules: zCaseModules
+});
+
+/**
+ * CaseIndex
+ *
+ * The national view: how the 2026/27 campaign started in every zone with a case.
+ */
+export const zCaseIndex = z.object({
+    schema_version: z.literal('case-v1'),
+    campaign: z.string(),
+    decision_date: z.string(),
+    oni_jas: z.number(),
+    enso_phase: z.enum([
+        'strong_el_nino',
+        'el_nino',
+        'neutral',
+        'la_nina'
+    ]),
+    highest_past_oni_jas: z.number(),
+    highest_past_oni_campaign: z.string(),
+    zones: z.array(zZoneCard).min(1),
+    meta: zBlockMeta,
+    sources: z.array(zSourceRef).min(1)
+});
+
+/**
  * Response Get Health
  *
  * Successful Response
@@ -460,3 +1009,17 @@ export const zGetCropFieldMapPath = z.object({
  * Successful Response
  */
 export const zGetCropFieldMapResponse = zFieldMap;
+
+/**
+ * Successful Response
+ */
+export const zGetCaseIndexResponse = zCaseIndex;
+
+export const zGetCasePath = z.object({
+    zone_id: z.string()
+});
+
+/**
+ * Successful Response
+ */
+export const zGetCaseResponse = zCaseBundle;

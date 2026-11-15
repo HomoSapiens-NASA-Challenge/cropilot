@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -108,3 +108,17 @@ export const getCropFieldMap = <ThrowOnError extends boolean = false>(options: O
     url: '/api/crops/zones/{zone}/fields',
     ...options
 });
+
+/**
+ * Get Case Index
+ *
+ * How the 2026/27 campaign started in every zone that has a case.
+ */
+export const getCaseIndex = <ThrowOnError extends boolean = false>(options?: Options<GetCaseIndexData, ThrowOnError>): RequestResult<GetCaseIndexResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetCaseIndexResponses, unknown, ThrowOnError>({ url: '/api/cases', ...options });
+
+/**
+ * Get Case
+ *
+ * Years like this, the strategy comparison and the field view for one zone.
+ */
+export const getCase = <ThrowOnError extends boolean = false>(options: Options<GetCaseData, ThrowOnError>): RequestResult<GetCaseResponses, GetCaseErrors, ThrowOnError> => (options.client ?? client).get<GetCaseResponses, GetCaseErrors, ThrowOnError>({ url: '/api/cases/{zone_id}', ...options });
