@@ -28,6 +28,17 @@ jobs:
       - run: pnpm build
       - name: Generated API client is up to date
         run: pnpm generate && git diff --exit-code
+      - name: Production configuration and deployment scripts
+        run: |
+          docker compose -f compose.prod.yml config --quiet
+          bash -n scripts/deploy/prepare-strategies.sh scripts/deploy/deploy.sh
+          python3 -m py_compile scripts/deploy/smoke.py
+        env:
+          DOMAIN: cropilot.example.invalid
+          ACME_EMAIL: demo@example.invalid
+          BETTER_AUTH_SECRET: ci-validation-only-not-a-production-secret
+          GOOGLE_CLIENT_ID: demo-disabled
+          GOOGLE_CLIENT_SECRET: demo-disabled
 
   pr-title:
     if: github.event_name == 'pull_request'
@@ -52,10 +63,10 @@ jobs:
       - run: uv run ty check experiments --python .venv-models --python-version 3.12 --error-on-warning
       - run: .venv-models/bin/python -m pytest experiments -q
 
-  # Runs only once the repository variable DEPLOY_HOST is set. See README > Deploy.
+  # Opt-in after a verified manual deployment. See docs/deployment.md.
   deploy:
     if: github.event_name == 'push' && vars.DEPLOY_HOST != ''
-    needs: check
+    needs: [check, model-science]
     runs-on: ubuntu-latest
     steps:
       - name: Pull and restart the stack on the VPS
@@ -64,10 +75,20 @@ jobs:
           DEPLOY_USER: ${{ vars.DEPLOY_USER }}
           DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_COMMIT: ${{ github.sha }}
         run: |
           install -d -m 700 ~/.ssh
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           install -m 600 /dev/null ~/.ssh/id_deploy
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy
-          ssh -i ~/.ssh/id_deploy "$DEPLOY_USER@$DEPLOY_HOST" \
-            'cd cropilot && git pull --ff-only && docker compose -f compose.prod.yml up -d --build'
+          ssh -i ~/.ssh/id_deploy "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$DEPLOY_COMMIT'" <<'REMOTE'
+          set -euo pipefail
+          cd cropilot
+          if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
+            printf '%s\n' 'Deployment refused: resolve tracked changes and non-ignored untracked files in the checkout first.' >&2
+            exit 1
+          fi
+          git fetch origin "$1"
+          git checkout --detach "$1"
+          scripts/deploy/deploy.sh
+          REMOTE

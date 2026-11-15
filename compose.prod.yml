@@ -1,15 +1,22 @@
 # Production stack for a single VPS. Run with:
-#   docker compose -f compose.prod.yml up -d --build
+#   scripts/deploy/deploy.sh
+# See docs/deployment.md for host setup, frozen assets and rollback.
 # Traefik terminates TLS and routes by path, so everything is served from https://${DOMAIN}:
 #   /api/auth/*  -> auth      /api/*  -> backend      everything else -> webapp
 name: cropilot
 
-x-database-url: &database-url postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+x-database-url: &database-url postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+x-logging: &logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
   traefik:
     image: traefik:v3.7
     restart: unless-stopped
+    logging: *logging
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -18,9 +25,15 @@ services:
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.http.tls.certresolver=letsencrypt
       - --entrypoints.websecure.http.middlewares=compress@docker
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --ping=true
+    healthcheck:
+      test: [CMD, traefik, healthcheck, --ping]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     ports:
       - 80:80
       - 443:443
@@ -36,21 +49,41 @@ services:
       context: .
       dockerfile: apps/webapp/Dockerfile
     restart: unless-stopped
+    logging: *logging
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1/]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webapp.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.webapp.rule=Host(`${DOMAIN:?Set DOMAIN}`)
+      - traefik.http.services.webapp.loadbalancer.server.port=80
 
   auth:
     build:
       context: .
       dockerfile: apps/auth/Dockerfile
     restart: unless-stopped
+    logging: *logging
     environment:
       DATABASE_URL: *database-url
       BETTER_AUTH_URL: https://${DOMAIN}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Set GOOGLE_CLIENT_ID; see docs/deployment.md}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Set GOOGLE_CLIENT_SECRET; see docs/deployment.md}
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/api/auth/ok').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -64,13 +97,39 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile
     restart: unless-stopped
+    logging: *logging
     environment:
       DATABASE_URL: *database-url
       BETTER_AUTH_URL: https://${DOMAIN}
       AUTH_JWKS_URL: http://auth:3000/api/auth/jwks
     volumes:
+      # Install on the host first. Missing directories fail instead of becoming empty mounts.
+      - type: bind
+        source: ./apps/backend/data/strategies-v1
+        target: /app/data/strategies-v1
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./apps/backend/models/strategies-v1
+        target: /app/models/strategies-v1
+        read_only: true
+        bind:
+          create_host_path: false
       # Released crop-map files (docs/crop-map.md); missing files only make that endpoint 503.
       - ./apps/backend/data/crops:/app/data/crops:ro
+    healthcheck:
+      test:
+        [
+          CMD,
+          python,
+          -c,
+          "import json, urllib.request; assert json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)) == {'status': 'ok'}",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -82,6 +141,7 @@ services:
   db:
     image: postgres:18
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -89,7 +149,8 @@ services:
     volumes:
       - db:/var/lib/postgresql
     healthcheck:
-      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      test:
+        [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 5s
       timeout: 5s
       retries: 10

@@ -20,8 +20,8 @@ configureApi({ baseUrl: API_URL, getToken: accessToken.get })
 
 const queryClient = new QueryClient()
 
-// Demo build: the sign-in screen is the entry and lets anyone in, so the
-// field diagnostics can be shown without the auth service or the backend.
+// Demo build: anyone can enter; the public case API supplies the evidence
+// without requiring an authenticated session.
 // Light only, like the web's visual system.
 export default function RootLayout() {
   // Geist, like the web. Each weight is its own font family on native, so the
