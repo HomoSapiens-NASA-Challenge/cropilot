@@ -1,0 +1,59 @@
+import type { GlossaryTerm, SourceRef } from "@cropilot/api"
+import { createContext, type ReactNode, useContext, useMemo } from "react"
+
+type CaseReferences = {
+  sources: ReadonlyArray<SourceRef>
+  glossary: ReadonlyArray<GlossaryTerm>
+}
+
+const CaseReferencesContext = createContext<CaseReferences | null>(null)
+
+const NO_GLOSSARY: ReadonlyArray<GlossaryTerm> = []
+
+/** Gives evidence chips and glossary hints the sources and terms of the bundle they sit in. */
+export function CaseReferencesProvider({
+  sources,
+  glossary = NO_GLOSSARY,
+  children,
+}: {
+  sources: ReadonlyArray<SourceRef>
+  glossary?: ReadonlyArray<GlossaryTerm>
+  children: ReactNode
+}) {
+  const references = useMemo(() => ({ sources, glossary }), [sources, glossary])
+  return (
+    <CaseReferencesContext.Provider value={references}>
+      {children}
+    </CaseReferencesContext.Provider>
+  )
+}
+
+function useCaseReferences(): CaseReferences {
+  const references = useContext(CaseReferencesContext)
+  if (!references) {
+    throw new Error("Evidence needs a CaseReferencesProvider above it")
+  }
+  return references
+}
+
+/** The sources behind a list of ids. An unknown id means the bundle is broken, so it fails loudly. */
+export function useSources(ids: ReadonlyArray<string>): SourceRef[] {
+  const { sources } = useCaseReferences()
+  return ids.map((id) => {
+    const source = sources.find((entry) => entry.id === id)
+    if (!source) {
+      throw new Error(`Unknown source id: ${id}`)
+    }
+    return source
+  })
+}
+
+/** The glossary entry for a term, matched without regard to case. */
+export function useGlossaryEntry(term: string): GlossaryTerm | undefined {
+  const { glossary } = useCaseReferences()
+  const wanted = term.toLowerCase()
+  return (
+    glossary.find((entry) => entry.term.toLowerCase() === wanted) ??
+    glossary.find((entry) => entry.term.toLowerCase().includes(wanted))
+  )
+}

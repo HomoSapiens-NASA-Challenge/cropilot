@@ -22,6 +22,16 @@ export function AgronomistSection() {
           <p className="text-muted-foreground">
             No remote sensing background needed.
           </p>
+          <figure className="mt-6 flex flex-col gap-3 border-l-2 border-primary pl-5">
+            <blockquote className="text-xl/8 font-light tracking-tight text-pretty">
+              “We all know the forecast; the starting point in each case is what
+              matters for the decision.”
+            </blockquote>
+            <figcaption className="text-sm text-muted-foreground">
+              Ing. Agr. MBA Fernando Spelanzon, adviser in southern Córdoba,
+              central Buenos Aires and Bragado (translated from Spanish)
+            </figcaption>
+          </figure>
         </div>
         <div>
           <h3 className="pb-4 text-sm text-muted-foreground">

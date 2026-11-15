@@ -335,10 +335,224 @@
           }
         }
       }
+    },
+    "/api/cases": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Get Case Index",
+        "description": "How the 2026/27 campaign started in every zone that has a case.",
+        "operationId": "get_case_index",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseIndex"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cases/{zone_id}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Get Case",
+        "description": "Years like this, the strategy comparison and the field view for one zone.",
+        "operationId": "get_case",
+        "parameters": [
+          {
+            "name": "zone_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Zone Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseBundle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AnalogMargins": {
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "analog_rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Analog Rank"
+          },
+          "leading_strategy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leading Strategy Id"
+          },
+          "margins": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyMargin"
+            },
+            "type": "array",
+            "title": "Margins"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "campaign",
+          "analog_rank",
+          "leading_strategy_id",
+          "margins"
+        ],
+        "title": "AnalogMargins"
+      },
+      "AnalogMethod": {
+        "properties": {
+          "k": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "K"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "distance": {
+            "type": "string",
+            "title": "Distance"
+          },
+          "candidates": {
+            "type": "string",
+            "title": "Candidates"
+          },
+          "phase_rule": {
+            "type": "string",
+            "title": "Phase Rule"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "k",
+          "features",
+          "distance",
+          "candidates",
+          "phase_rule"
+        ],
+        "title": "AnalogMethod"
+      },
+      "BlockMeta": {
+        "properties": {
+          "provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Provenance"
+          },
+          "scale": {
+            "type": "string",
+            "enum": [
+              "global",
+              "grid_cell",
+              "department",
+              "field"
+            ],
+            "title": "Scale"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Source Ids"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provenance",
+          "scale",
+          "unit",
+          "source_ids",
+          "note"
+        ],
+        "title": "BlockMeta",
+        "description": "Provenance shared by every number of one block or column."
+      },
       "CalendarEffect": {
         "properties": {
           "strategy_id": {
@@ -360,6 +574,184 @@
           "deficit_difference"
         ],
         "title": "CalendarEffect"
+      },
+      "CampaignNote": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "worst_on_record",
+              "june_dry_soil_alert",
+              "counterexample",
+              "dated_event",
+              "strongest_start"
+            ],
+            "title": "Kind"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Source Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "text",
+          "source_ids"
+        ],
+        "title": "CampaignNote"
+      },
+      "CampaignPoint": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "pattern": "^\\d{4}/\\d{2}$",
+            "title": "Campaign"
+          },
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year"
+          },
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "oni_jas": {
+            "type": "number",
+            "title": "Oni Jas"
+          },
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "strong_el_nino",
+              "el_nino",
+              "neutral",
+              "la_nina"
+            ],
+            "title": "Enso Phase"
+          },
+          "soil_wetness_end_aug": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soil Wetness End Aug"
+          },
+          "maize_yield_anomaly_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maize Yield Anomaly Pct"
+          },
+          "maize_yield_provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Maize Yield Provenance"
+          },
+          "soybean_yield_anomaly_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soybean Yield Anomaly Pct"
+          },
+          "soybean_yield_provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "retrieved",
+              "modeled",
+              "scenario",
+              "missing"
+            ],
+            "title": "Soybean Yield Provenance"
+          },
+          "is_analog": {
+            "type": "boolean",
+            "title": "Is Analog"
+          },
+          "analog_rank": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analog Rank"
+          },
+          "analog_distance": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analog Distance"
+          },
+          "notes": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignNote"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign",
+          "start_year",
+          "scenario_id",
+          "oni_jas",
+          "enso_phase",
+          "soil_wetness_end_aug",
+          "maize_yield_anomaly_pct",
+          "maize_yield_provenance",
+          "soybean_yield_anomaly_pct",
+          "soybean_yield_provenance",
+          "is_analog",
+          "analog_rank",
+          "analog_distance",
+          "notes"
+        ],
+        "title": "CampaignPoint",
+        "description": "One real past campaign, placed by the two signals known at the end of August."
       },
       "CampaignRecord": {
         "properties": {
@@ -561,6 +953,326 @@
         ],
         "title": "CampaignWater"
       },
+      "CaseBundle": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "case-v1",
+            "title": "Schema Version"
+          },
+          "zone_id": {
+            "type": "string",
+            "title": "Zone Id"
+          },
+          "zone_name": {
+            "type": "string",
+            "title": "Zone Name"
+          },
+          "province": {
+            "type": "string",
+            "title": "Province"
+          },
+          "generated_utc": {
+            "type": "string",
+            "title": "Generated Utc"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "modules": {
+            "$ref": "#/components/schemas/CaseModules"
+          },
+          "years_like_this": {
+            "$ref": "#/components/schemas/YearsLikeThis"
+          },
+          "compare": {
+            "$ref": "#/components/schemas/Compare"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FieldBlock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limits": {
+            "items": {
+              "$ref": "#/components/schemas/Limit"
+            },
+            "type": "array",
+            "title": "Limits"
+          },
+          "glossary": {
+            "items": {
+              "$ref": "#/components/schemas/GlossaryTerm"
+            },
+            "type": "array",
+            "title": "Glossary"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceRef"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sources"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "zone_id",
+          "zone_name",
+          "province",
+          "generated_utc",
+          "decision",
+          "modules",
+          "years_like_this",
+          "compare",
+          "field",
+          "limits",
+          "glossary",
+          "sources"
+        ],
+        "title": "CaseBundle"
+      },
+      "CaseIndex": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "case-v1",
+            "title": "Schema Version"
+          },
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "decision_date": {
+            "type": "string",
+            "title": "Decision Date"
+          },
+          "oni_jas": {
+            "type": "number",
+            "title": "Oni Jas"
+          },
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "strong_el_nino",
+              "el_nino",
+              "neutral",
+              "la_nina"
+            ],
+            "title": "Enso Phase"
+          },
+          "highest_past_oni_jas": {
+            "type": "number",
+            "title": "Highest Past Oni Jas"
+          },
+          "highest_past_oni_campaign": {
+            "type": "string",
+            "title": "Highest Past Oni Campaign"
+          },
+          "zones": {
+            "items": {
+              "$ref": "#/components/schemas/ZoneCard"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Zones"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceRef"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sources"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "campaign",
+          "decision_date",
+          "oni_jas",
+          "enso_phase",
+          "highest_past_oni_jas",
+          "highest_past_oni_campaign",
+          "zones",
+          "meta",
+          "sources"
+        ],
+        "title": "CaseIndex",
+        "description": "The national view: how the 2026/27 campaign started in every zone with a case."
+      },
+      "CaseModules": {
+        "properties": {
+          "years_like_this": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Years Like This"
+          },
+          "margins": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Margins"
+          },
+          "water": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Water"
+          },
+          "field": {
+            "type": "string",
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Field"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "years_like_this",
+          "margins",
+          "water",
+          "field"
+        ],
+        "title": "CaseModules"
+      },
+      "Claim": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "source_ids"
+        ],
+        "title": "Claim",
+        "description": "A sentence shown to the agronomist, with the sources that back it."
+      },
+      "Compare": {
+        "properties": {
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/Strategy"
+            },
+            "type": "array",
+            "minItems": 3,
+            "title": "Strategies"
+          },
+          "margins_meta": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "margin_assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Margin Assumptions"
+          },
+          "analog_margins": {
+            "items": {
+              "$ref": "#/components/schemas/AnalogMargins"
+            },
+            "type": "array",
+            "title": "Analog Margins"
+          },
+          "ranking_changes": {
+            "items": {
+              "$ref": "#/components/schemas/RankingChange"
+            },
+            "type": "array",
+            "title": "Ranking Changes"
+          },
+          "risk_summary": {
+            "items": {
+              "$ref": "#/components/schemas/RiskRow"
+            },
+            "type": "array",
+            "title": "Risk Summary"
+          },
+          "risk_note": {
+            "type": "string",
+            "title": "Risk Note"
+          },
+          "unharvested": {
+            "items": {
+              "$ref": "#/components/schemas/UnharvestedRow"
+            },
+            "type": "array",
+            "title": "Unharvested"
+          },
+          "unharvested_meta": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "water": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WaterBlock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "not_computed": {
+            "items": {
+              "$ref": "#/components/schemas/NotComputed"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Not Computed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategies",
+          "margins_meta",
+          "margin_assumptions",
+          "analog_margins",
+          "ranking_changes",
+          "risk_summary",
+          "risk_note",
+          "unharvested",
+          "unharvested_meta",
+          "water",
+          "not_computed"
+        ],
+        "title": "Compare"
+      },
       "CropField": {
         "properties": {
           "type": {
@@ -752,6 +1464,71 @@
         ],
         "title": "CropStage"
       },
+      "CurrentCampaign": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "pattern": "^\\d{4}/\\d{2}$",
+            "title": "Campaign"
+          },
+          "decision_date": {
+            "type": "string",
+            "title": "Decision Date"
+          },
+          "oni_jas": {
+            "type": "number",
+            "title": "Oni Jas"
+          },
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "strong_el_nino",
+              "el_nino",
+              "neutral",
+              "la_nina"
+            ],
+            "title": "Enso Phase"
+          },
+          "soil_wetness_end_aug": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Soil Wetness End Aug"
+          },
+          "soil_wetness_percentile": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Soil Wetness Percentile"
+          },
+          "highest_past_oni_jas": {
+            "type": "number",
+            "title": "Highest Past Oni Jas"
+          },
+          "highest_past_oni_campaign": {
+            "type": "string",
+            "title": "Highest Past Oni Campaign"
+          },
+          "outside_historical_range": {
+            "type": "boolean",
+            "title": "Outside Historical Range"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign",
+          "decision_date",
+          "oni_jas",
+          "enso_phase",
+          "soil_wetness_end_aug",
+          "soil_wetness_percentile",
+          "highest_past_oni_jas",
+          "highest_past_oni_campaign",
+          "outside_historical_range"
+        ],
+        "title": "CurrentCampaign"
+      },
       "CurrentSeason": {
         "properties": {
           "campaign": {
@@ -900,6 +1677,30 @@
         ],
         "title": "DailyWater"
       },
+      "Decision": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "decision_date": {
+            "type": "string",
+            "title": "Decision Date"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign",
+          "decision_date",
+          "description"
+        ],
+        "title": "Decision"
+      },
       "DifferenceDistribution": {
         "properties": {
           "count": {
@@ -1014,6 +1815,75 @@
           "created_at"
         ],
         "title": "FarmRead"
+      },
+      "FieldBlock": {
+        "properties": {
+          "farm_name": {
+            "type": "string",
+            "title": "Farm Name"
+          },
+          "farm_name_is_made_up": {
+            "type": "boolean",
+            "title": "Farm Name Is Made Up"
+          },
+          "ndvi_months": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ndvi Months"
+          },
+          "lots": {
+            "items": {
+              "$ref": "#/components/schemas/Lot"
+            },
+            "type": "array",
+            "title": "Lots"
+          },
+          "lots_meta": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "reference_field": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceField"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reference_meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BlockMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "farm_name",
+          "farm_name_is_made_up",
+          "ndvi_months",
+          "lots",
+          "lots_meta",
+          "reference_field",
+          "reference_meta",
+          "limitations"
+        ],
+        "title": "FieldBlock"
       },
       "FieldMap": {
         "properties": {
@@ -1203,6 +2073,25 @@
         ],
         "title": "FieldProperties"
       },
+      "GlossaryTerm": {
+        "properties": {
+          "term": {
+            "type": "string",
+            "title": "Term"
+          },
+          "definition": {
+            "type": "string",
+            "title": "Definition"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "term",
+          "definition"
+        ],
+        "title": "GlossaryTerm"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1217,6 +2106,383 @@
         "title": "HTTPValidationError"
       },
       "JsonValue": {},
+      "Limit": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Source Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "text",
+          "source_ids"
+        ],
+        "title": "Limit"
+      },
+      "Lot": {
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "title": "Field Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "area_ha": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Area Ha"
+          },
+          "is_demo_farm": {
+            "type": "boolean",
+            "title": "Is Demo Farm"
+          },
+          "polygon": {
+            "items": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Polygon"
+          },
+          "latest_campaign": {
+            "type": "string",
+            "title": "Latest Campaign"
+          },
+          "latest_crop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Crop"
+          },
+          "latest_crop_source": {
+            "type": "string",
+            "enum": [
+              "INTA",
+              "model"
+            ],
+            "title": "Latest Crop Source"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "watch",
+                  "alert",
+                  "check",
+                  "bare"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "status_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Reason"
+          },
+          "crop_purity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop Purity"
+          },
+          "vigor_ndvi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vigor Ndvi"
+          },
+          "vigor_gap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vigor Gap"
+          },
+          "evenness": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evenness"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/LotCampaign"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "ndvi_curve": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Ndvi Curve"
+          },
+          "zone_ndvi_curve": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Zone Ndvi Curve"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_id",
+          "name",
+          "area_ha",
+          "is_demo_farm",
+          "polygon",
+          "latest_campaign",
+          "latest_crop",
+          "latest_crop_source",
+          "status",
+          "status_reason",
+          "crop_purity",
+          "vigor_ndvi",
+          "vigor_gap",
+          "evenness",
+          "history",
+          "ndvi_curve",
+          "zone_ndvi_curve"
+        ],
+        "title": "Lot",
+        "description": "One satellite-estimated field outline with its crop history and greenness."
+      },
+      "LotCampaign": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "pattern": "^\\d{4}/\\d{2}$",
+            "title": "Campaign"
+          },
+          "crop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "INTA",
+              "model"
+            ],
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign",
+          "crop",
+          "source"
+        ],
+        "title": "LotCampaign"
+      },
+      "NdviSample": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$",
+            "title": "Month"
+          },
+          "ndvi_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ndvi Mean"
+          },
+          "valid_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Valid Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "ndvi_mean",
+          "valid_fraction"
+        ],
+        "title": "NdviSample"
+      },
+      "NotComputed": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "reason"
+        ],
+        "title": "NotComputed"
+      },
+      "PairedCounts": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "depth_m": {
+            "type": "number",
+            "title": "Depth M"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "title": "Initial Water Fraction"
+          },
+          "summer_shift_days": {
+            "type": "integer",
+            "title": "Summer Shift Days"
+          },
+          "count": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Count"
+          },
+          "lower_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Lower Count"
+          },
+          "equal_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Equal Count"
+          },
+          "higher_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Higher Count"
+          },
+          "median_mm": {
+            "type": "number",
+            "title": "Median Mm"
+          },
+          "minimum_mm": {
+            "type": "number",
+            "title": "Minimum Mm"
+          },
+          "maximum_mm": {
+            "type": "number",
+            "title": "Maximum Mm"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "depth_m",
+          "initial_water_fraction",
+          "summer_shift_days",
+          "count",
+          "lower_count",
+          "equal_count",
+          "higher_count",
+          "median_mm",
+          "minimum_mm",
+          "maximum_mm"
+        ],
+        "title": "PairedCounts"
+      },
       "PairedDifference": {
         "properties": {
           "reference_run_id": {
@@ -1276,6 +2542,155 @@
         ],
         "title": "PolygonGeometry"
       },
+      "RankingChange": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "gross_margin",
+              "gross_margin_after_rent"
+            ],
+            "title": "Metric"
+          },
+          "strategy_a": {
+            "type": "string",
+            "title": "Strategy A"
+          },
+          "strategy_b": {
+            "type": "string",
+            "title": "Strategy B"
+          },
+          "a_ahead_in": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "A Ahead In"
+          },
+          "b_ahead_in": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "B Ahead In"
+          },
+          "order_inverts": {
+            "type": "boolean",
+            "title": "Order Inverts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "strategy_a",
+          "strategy_b",
+          "a_ahead_in",
+          "b_ahead_in",
+          "order_inverts"
+        ],
+        "title": "RankingChange"
+      },
+      "ReferenceCrop": {
+        "properties": {
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "season": {
+            "type": "string",
+            "enum": [
+              "annual",
+              "winter",
+              "summer"
+            ],
+            "title": "Season"
+          },
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "fraction_of_field": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Fraction Of Field"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign",
+          "season",
+          "crop",
+          "fraction_of_field"
+        ],
+        "title": "ReferenceCrop"
+      },
+      "ReferenceField": {
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "title": "Field Id"
+          },
+          "area_ha": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Area Ha"
+          },
+          "polygon": {
+            "items": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Polygon"
+          },
+          "crop_history": {
+            "items": {
+              "$ref": "#/components/schemas/ReferenceCrop"
+            },
+            "type": "array",
+            "title": "Crop History"
+          },
+          "ndvi": {
+            "items": {
+              "$ref": "#/components/schemas/NdviSample"
+            },
+            "type": "array",
+            "title": "Ndvi"
+          },
+          "soil_capacity": {
+            "items": {
+              "$ref": "#/components/schemas/SoilCapacity"
+            },
+            "type": "array",
+            "title": "Soil Capacity"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_id",
+          "area_ha",
+          "polygon",
+          "crop_history",
+          "ndvi",
+          "soil_capacity",
+          "note"
+        ],
+        "title": "ReferenceField",
+        "description": "The footprint the water scenarios were run on."
+      },
       "Region": {
         "properties": {
           "id": {
@@ -1332,6 +2747,112 @@
         "title": "Region",
         "description": "A department Cropilot can scope its analyses to, anchored on one reference point."
       },
+      "RiskRow": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "n_yield_campaigns": {
+            "type": "integer",
+            "title": "N Yield Campaigns"
+          },
+          "n_price_campaigns": {
+            "type": "integer",
+            "title": "N Price Campaigns"
+          },
+          "n_scenarios": {
+            "type": "integer",
+            "title": "N Scenarios"
+          },
+          "p10_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P10 Usd Ha"
+          },
+          "p50_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Usd Ha"
+          },
+          "p90_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Usd Ha"
+          },
+          "cvar10_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cvar10 Usd Ha"
+          },
+          "share_below_rent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Below Rent"
+          },
+          "share_below_zero": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Below Zero"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "n_yield_campaigns",
+          "n_price_campaigns",
+          "n_scenarios",
+          "p10_usd_ha",
+          "p50_usd_ha",
+          "p90_usd_ha",
+          "cvar10_usd_ha",
+          "share_below_rent",
+          "share_below_zero"
+        ],
+        "title": "RiskRow",
+        "description": "Secondary ensemble statistics; small n, never the headline."
+      },
       "RobustnessSummary": {
         "properties": {
           "strategy_id": {
@@ -1358,6 +2879,98 @@
           "deficit_difference"
         ],
         "title": "RobustnessSummary"
+      },
+      "SoilCapacity": {
+        "properties": {
+          "depth_m": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Depth M"
+          },
+          "capacity_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Capacity Mm"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "depth_m",
+          "capacity_mm"
+        ],
+        "title": "SoilCapacity"
+      },
+      "SourceRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "dataset": {
+            "type": "string",
+            "title": "Dataset"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "nature": {
+            "type": "string",
+            "enum": [
+              "observation",
+              "reanalysis",
+              "model",
+              "reference",
+              "agronomist_input"
+            ],
+            "title": "Nature"
+          },
+          "license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "dataset",
+          "provider",
+          "url",
+          "period",
+          "location",
+          "nature",
+          "license"
+        ],
+        "title": "SourceRef",
+        "description": "One dataset, paper or person behind a number: what, who, when and where."
       },
       "StrategiesBundle": {
         "properties": {
@@ -1489,6 +3102,249 @@
         ],
         "title": "StrategiesBundle"
       },
+      "Strategy": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "sequence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Sequence"
+          },
+          "is_current": {
+            "type": "boolean",
+            "title": "Is Current"
+          },
+          "current_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Note"
+          },
+          "market_rotation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Rotation Id"
+          },
+          "water_strategy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Water Strategy Id"
+          },
+          "water_match": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "closest",
+              "none"
+            ],
+            "title": "Water Match"
+          },
+          "answers": {
+            "$ref": "#/components/schemas/StrategyAnswers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "label",
+          "sequence",
+          "is_current",
+          "current_note",
+          "market_rotation_id",
+          "water_strategy_id",
+          "water_match",
+          "answers"
+        ],
+        "title": "Strategy"
+      },
+      "StrategyAnswers": {
+        "properties": {
+          "why": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Why"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Evidence"
+          },
+          "benefits": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "title": "Benefits"
+          },
+          "missing": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Missing"
+          },
+          "local_review": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Local Review"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "why",
+          "evidence",
+          "benefits",
+          "missing",
+          "local_review"
+        ],
+        "title": "StrategyAnswers",
+        "description": "The five answers the challenge asks of every strategy."
+      },
+      "StrategyMargin": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "gross_margin_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Margin Usd Ha"
+          },
+          "gross_margin_after_rent_usd_ha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Margin After Rent Usd Ha"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "gross_margin_usd_ha",
+          "gross_margin_after_rent_usd_ha"
+        ],
+        "title": "StrategyMargin"
+      },
+      "UnharvestedRow": {
+        "properties": {
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "enso_phase": {
+            "type": "string",
+            "enum": [
+              "strong_el_nino",
+              "el_nino",
+              "neutral",
+              "la_nina"
+            ],
+            "title": "Enso Phase"
+          },
+          "campaigns": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Campaigns"
+          },
+          "mean_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Pct"
+          },
+          "max_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Pct"
+          },
+          "max_campaign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Campaign"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "crop",
+          "enso_phase",
+          "campaigns",
+          "mean_pct",
+          "max_pct",
+          "max_campaign"
+        ],
+        "title": "UnharvestedRow",
+        "description": "Planted but not harvested area by ENSO phase known at the end of August."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -1528,6 +3384,230 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WaterBlock": {
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "title": "Field Id"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "starting_points": {
+            "items": {
+              "$ref": "#/components/schemas/WaterStartingPoint"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Starting Points"
+          },
+          "default_depth_m": {
+            "type": "number",
+            "title": "Default Depth M"
+          },
+          "default_initial_water_fraction": {
+            "type": "number",
+            "title": "Default Initial Water Fraction"
+          },
+          "summer_shift_days": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Summer Shift Days"
+          },
+          "episodes": {
+            "items": {
+              "$ref": "#/components/schemas/WaterEpisode"
+            },
+            "type": "array",
+            "title": "Episodes"
+          },
+          "robustness": {
+            "items": {
+              "$ref": "#/components/schemas/PairedCounts"
+            },
+            "type": "array",
+            "title": "Robustness"
+          },
+          "calendar_effects": {
+            "items": {
+              "$ref": "#/components/schemas/PairedCounts"
+            },
+            "type": "array",
+            "title": "Calendar Effects"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_id",
+          "meta",
+          "starting_points",
+          "default_depth_m",
+          "default_initial_water_fraction",
+          "summer_shift_days",
+          "episodes",
+          "robustness",
+          "calendar_effects",
+          "limitations"
+        ],
+        "title": "WaterBlock"
+      },
+      "WaterCrop": {
+        "properties": {
+          "crop": {
+            "type": "string",
+            "title": "Crop"
+          },
+          "campaign_year": {
+            "type": "integer",
+            "title": "Campaign Year"
+          },
+          "sowing_date": {
+            "type": "string",
+            "title": "Sowing Date"
+          },
+          "water_at_sowing_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Water At Sowing Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "mid_season_stress_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mid Season Stress Days"
+          },
+          "coincident_stress_heat_days": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Coincident Stress Heat Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "crop",
+          "campaign_year",
+          "sowing_date",
+          "water_at_sowing_mm",
+          "crop_et_deficit_mm",
+          "mid_season_stress_days",
+          "coincident_stress_heat_days"
+        ],
+        "title": "WaterCrop"
+      },
+      "WaterEpisode": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "depth_m": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Depth M"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Initial Water Fraction"
+          },
+          "summer_shift_days": {
+            "type": "integer",
+            "title": "Summer Shift Days"
+          },
+          "crop_et_potential_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Crop Et Potential Mm"
+          },
+          "crop_et_deficit_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Crop Et Deficit Mm"
+          },
+          "crop_demand_unmet_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Crop Demand Unmet Fraction"
+          },
+          "excess_above_capacity_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Excess Above Capacity Mm"
+          },
+          "water_end_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Water End Mm"
+          },
+          "deficit_vs_current_mm": {
+            "type": "number",
+            "title": "Deficit Vs Current Mm"
+          },
+          "crops": {
+            "items": {
+              "$ref": "#/components/schemas/WaterCrop"
+            },
+            "type": "array",
+            "title": "Crops"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "strategy_id",
+          "start_year",
+          "scenario_id",
+          "depth_m",
+          "initial_water_fraction",
+          "summer_shift_days",
+          "crop_et_potential_mm",
+          "crop_et_deficit_mm",
+          "crop_demand_unmet_fraction",
+          "excess_above_capacity_mm",
+          "water_end_mm",
+          "deficit_vs_current_mm",
+          "crops"
+        ],
+        "title": "WaterEpisode",
+        "description": "One released physical run: three continuous campaigns from June of `start_year`."
       },
       "WaterRunDetail": {
         "properties": {
@@ -1698,6 +3778,34 @@
         ],
         "title": "WaterRunSummary"
       },
+      "WaterStartingPoint": {
+        "properties": {
+          "depth_m": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Depth M"
+          },
+          "capacity_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Capacity Mm"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Initial Water Fraction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "depth_m",
+          "capacity_mm",
+          "initial_water_fraction"
+        ],
+        "title": "WaterStartingPoint"
+      },
       "WaterSummary": {
         "properties": {
           "initial_water_mm": {
@@ -1799,6 +3907,117 @@
           "region_id"
         ],
         "title": "WorkspaceSave"
+      },
+      "YearsLikeThis": {
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/CurrentCampaign"
+          },
+          "campaigns": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignPoint"
+            },
+            "type": "array",
+            "title": "Campaigns"
+          },
+          "method": {
+            "$ref": "#/components/schemas/AnalogMethod"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "yields": {
+            "$ref": "#/components/schemas/BlockMeta"
+          },
+          "backtest": {
+            "$ref": "#/components/schemas/Claim"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "current",
+          "campaigns",
+          "method",
+          "signals",
+          "yields",
+          "backtest"
+        ],
+        "title": "YearsLikeThis"
+      },
+      "ZoneCard": {
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "title": "Zone Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "province": {
+            "type": "string",
+            "title": "Province"
+          },
+          "latitude_deg": {
+            "type": "number",
+            "title": "Latitude Deg"
+          },
+          "longitude_deg": {
+            "type": "number",
+            "title": "Longitude Deg"
+          },
+          "soil_wetness_end_aug": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soil Wetness End Aug"
+          },
+          "soil_wetness_percentile": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soil Wetness Percentile"
+          },
+          "analogs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Analogs"
+          },
+          "modules": {
+            "$ref": "#/components/schemas/CaseModules"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "zone_id",
+          "name",
+          "province",
+          "latitude_deg",
+          "longitude_deg",
+          "soil_wetness_end_aug",
+          "soil_wetness_percentile",
+          "analogs",
+          "modules"
+        ],
+        "title": "ZoneCard"
       }
     },
     "securitySchemes": {

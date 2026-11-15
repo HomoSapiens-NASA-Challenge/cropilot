@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
+import { createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -207,4 +207,44 @@ export const getCropFieldMapOptions = (options: Options<GetCropFieldMapData>) =>
         return data;
     },
     queryKey: getCropFieldMapQueryKey(options)
+});
+
+export const getCaseIndexQueryKey = (options?: Options<GetCaseIndexData>) => createQueryKey('getCaseIndex', options);
+
+/**
+ * Get Case Index
+ *
+ * How the 2026/27 campaign started in every zone that has a case.
+ */
+export const getCaseIndexOptions = (options?: Options<GetCaseIndexData>) => queryOptions<GetCaseIndexResponse, DefaultError, GetCaseIndexResponse, ReturnType<typeof getCaseIndexQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getCaseIndex({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getCaseIndexQueryKey(options)
+});
+
+export const getCaseQueryKey = (options: Options<GetCaseData>) => createQueryKey('getCase', options);
+
+/**
+ * Get Case
+ *
+ * Years like this, the strategy comparison and the field view for one zone.
+ */
+export const getCaseOptions = (options: Options<GetCaseData>) => queryOptions<GetCaseResponse, GetCaseError, GetCaseResponse, ReturnType<typeof getCaseQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getCase({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getCaseQueryKey(options)
 });

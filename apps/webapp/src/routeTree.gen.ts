@@ -14,13 +14,13 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthenticatedAnalogYearsRouteImport } from './routes/_authenticated/analog-years'
-import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedFarmsRouteImport } from './routes/_authenticated/farms'
 import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
 import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
 import { Route as AuthenticatedStrategiesRouteImport } from './routes/_authenticated/strategies'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteSectionSlugPageSlugRouteImport } from './routes/_site/$sectionSlug.$pageSlug'
+import { Route as SiteCaseZoneIdRouteImport } from './routes/_site/case.$zoneId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -46,11 +46,6 @@ const AuthenticatedAnalogYearsRoute =
     path: '/analog-years',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
-  id: '/assistant',
-  path: '/assistant',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedFarmsRoute = AuthenticatedFarmsRouteImport.update({
   id: '/farms',
   path: '/farms',
@@ -81,30 +76,35 @@ const SiteSectionSlugPageSlugRoute = SiteSectionSlugPageSlugRouteImport.update({
   path: '/$sectionSlug/$pageSlug',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCaseZoneIdRoute = SiteCaseZoneIdRouteImport.update({
+  id: '/case/$zoneId',
+  path: '/case/$zoneId',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/analog-years': typeof AuthenticatedAnalogYearsRoute
-  '/assistant': typeof AuthenticatedAssistantRoute
   '/farms': typeof AuthenticatedFarmsRoute
   '/map': typeof AuthenticatedMapRoute
   '/overview': typeof AuthenticatedOverviewRoute
   '/strategies': typeof AuthenticatedStrategiesRoute
   '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
+  '/case/$zoneId': typeof SiteCaseZoneIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/analog-years': typeof AuthenticatedAnalogYearsRoute
-  '/assistant': typeof AuthenticatedAssistantRoute
   '/farms': typeof AuthenticatedFarmsRoute
   '/map': typeof AuthenticatedMapRoute
   '/overview': typeof AuthenticatedOverviewRoute
   '/strategies': typeof AuthenticatedStrategiesRoute
   '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
+  '/case/$zoneId': typeof SiteCaseZoneIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -113,13 +113,13 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/_authenticated/analog-years': typeof AuthenticatedAnalogYearsRoute
-  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/farms': typeof AuthenticatedFarmsRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
   '/_authenticated/overview': typeof AuthenticatedOverviewRoute
   '/_authenticated/strategies': typeof AuthenticatedStrategiesRoute
   '/_site/': typeof SiteIndexRoute
   '/_site/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
+  '/_site/case/$zoneId': typeof SiteCaseZoneIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,24 +128,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/analog-years'
-    | '/assistant'
     | '/farms'
     | '/map'
     | '/overview'
     | '/strategies'
     | '/$sectionSlug/$pageSlug'
+    | '/case/$zoneId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/onboarding'
     | '/analog-years'
-    | '/assistant'
     | '/farms'
     | '/map'
     | '/overview'
     | '/strategies'
     | '/$sectionSlug/$pageSlug'
+    | '/case/$zoneId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -153,13 +153,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/_authenticated/analog-years'
-    | '/_authenticated/assistant'
     | '/_authenticated/farms'
     | '/_authenticated/map'
     | '/_authenticated/overview'
     | '/_authenticated/strategies'
     | '/_site/'
     | '/_site/$sectionSlug/$pageSlug'
+    | '/_site/case/$zoneId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,13 +206,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAnalogYearsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/assistant': {
-      id: '/_authenticated/assistant'
-      path: '/assistant'
-      fullPath: '/assistant'
-      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/farms': {
       id: '/_authenticated/farms'
       path: '/farms'
@@ -255,12 +248,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteSectionSlugPageSlugRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/case/$zoneId': {
+      id: '/_site/case/$zoneId'
+      path: '/case/$zoneId'
+      fullPath: '/case/$zoneId'
+      preLoaderRoute: typeof SiteCaseZoneIdRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAnalogYearsRoute: typeof AuthenticatedAnalogYearsRoute
-  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedFarmsRoute: typeof AuthenticatedFarmsRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
   AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
@@ -269,7 +268,6 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAnalogYearsRoute: AuthenticatedAnalogYearsRoute,
-  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedFarmsRoute: AuthenticatedFarmsRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
   AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
@@ -283,11 +281,13 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface SiteRouteChildren {
   SiteIndexRoute: typeof SiteIndexRoute
   SiteSectionSlugPageSlugRoute: typeof SiteSectionSlugPageSlugRoute
+  SiteCaseZoneIdRoute: typeof SiteCaseZoneIdRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteIndexRoute: SiteIndexRoute,
   SiteSectionSlugPageSlugRoute: SiteSectionSlugPageSlugRoute,
+  SiteCaseZoneIdRoute: SiteCaseZoneIdRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)

@@ -3,15 +3,18 @@ import type { ReactNode } from "react"
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Window that frames a product preview. Previews show the layout of a
- * screen with placeholder lines: they carry no results, real or mock.
+ * Window that frames a product preview. A preview either shows the layout of a screen
+ * with placeholder lines ("Illustrative", no results, real or mock) or carries real
+ * values copied from a measured result, and then its badge names where they come from.
  */
 export function PreviewWindow({
   title,
+  badge = "Illustrative",
   className,
   children,
 }: {
   title: string
+  badge?: string
   className?: string
   children: ReactNode
 }) {
@@ -30,7 +33,7 @@ export function PreviewWindow({
         </span>
         <span className="truncate text-xs text-muted-foreground">{title}</span>
         <Badge variant="outline" className="ml-auto bg-background/60">
-          Illustrative
+          {badge}
         </Badge>
       </div>
       <div className="p-4 sm:p-5">{children}</div>

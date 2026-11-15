@@ -48,7 +48,7 @@ Valen para todo el repo. El linter, el type checker y los hooks cubren el format
 - **Comentarios.** En inglés, solo para explicar el porqué.
 - **Datos.** Nunca un número inventado. Lo mock o sintético lo dice en el nombre y en la interfaz. Cada indicador que se muestra lleva su fuente: dataset, período y ubicación.
 - **Interfaz en inglés.**
-- **No se editan a mano:** `packages/api/src/generated/`, `packages/api/openapi.json`, `routeTree.gen.ts`, `pnpm-lock.yaml`, `uv.lock`.
+- **No se editan a mano:** `packages/api/src/generated/`, `packages/api/openapi.json`, `routeTree.gen.ts`, `pnpm-lock.yaml`, `uv.lock`, `apps/backend/app/modules/cases/resources/` (los genera `scripts/demo_case/build.py`).
 - **Hooks.** No se saltean con `--no-verify`.
 
 ## Backend · `apps/backend/app`
@@ -67,6 +67,7 @@ main.py        registra los routers en ROUTERS
 - **Autorización.** Todo endpoint privado recibe `CurrentUser` y filtra por `user.id`. El dueño de un dato nunca llega desde el cliente.
 - **Nombres de endpoints.** El nombre de la función es el nombre en el cliente TypeScript (`list_farms` → `listFarms`): con verbo y único en todo el API.
 - **Modelos de ML.** Misma estructura de módulo. El trabajo de CPU (inferencia) nunca corre dentro de un `async def`: va en un endpoint `def` o en `run_in_threadpool`. Los pesos y los datos no van a git: un script los deja en `apps/backend/models/` y `apps/backend/data/`.
+- **Casos de demo.** `modules/cases` sirve, sin login y de solo lectura, el contrato `case-v1` (`schemas.py`): un índice nacional y un caso por región. Los JSON de `resources/` se arman offline con `scripts/demo_case/` desde lo que ya calcularon los modelos del equipo; HTTP no calcula nada. Para regenerarlos, ver `scripts/demo_case/README.md`.
 - **Schema.** Solo cambia por migración de Alembic autogenerada y revisada. Nunca `create_all`.
 - **Tests** en `tests/`, donde un número mal calculado engañaría a un agrónomo (transformaciones, scoring) y en seguridad.
 
@@ -80,6 +81,8 @@ lib/             clientes y utilidades sin dominio
 ```
 
 - Las rutas bajo `routes/_authenticated/` exigen sesión y una región en el workspace (`getWorkspaceOptions()`); sin región se va a `/onboarding`, que la elige. Después se cambia con `components/region-dialog.tsx`, que guarda y llama a `router.invalidate()`. El layout pasa `user` y `region` por el contexto de la ruta. Las de `routes/_site/` son el sitio público: la landing y las páginas de sus menús, que salen del catálogo `features/landing/site-content.ts`.
+- `routes/_site/case.$zoneId.tsx` es el caso público de una región (`/case/pergamino`), sin login. Sus bloques viven en `features/case/` y los reusan Overview, Years like this, Strategies y Farm map. Las páginas públicas leen la sesión con `publicSessionOptions`: si auth falla, cuentan como sin sesión.
+- Los colores que codifican un dato (cultivo, estado del lote, anomalía de rinde, escala de humedad) se declaran una sola vez en `lib/data-colors.ts`.
 - **Estado de servidor solo con TanStack Query**, con las options generadas (`listFarmsOptions()`, `createFarmMutation()`). Nada de `fetch` ni `useEffect` para traer datos. La ruta precarga con `loader` y `ensureQueryData`; el componente lee con `useSuspenseQuery`.
 - **Formularios** con TanStack Form, los schemas Zod generados (`zFarmCreate`) y los componentes `Field`.
 - Estado local con `useState`. No se agrega un store global.
