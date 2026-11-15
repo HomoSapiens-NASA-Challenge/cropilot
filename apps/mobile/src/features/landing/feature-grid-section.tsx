@@ -6,8 +6,8 @@ import { Text } from "@/components/ui/text"
 import { CardGradient } from "@/features/landing/decor"
 import { Band, SplitHeading } from "@/features/landing/frame"
 import { AnalogYearsPreview } from "@/features/landing/previews/analog-years-preview"
-import { AssistantPreview } from "@/features/landing/previews/assistant-preview"
 import { FarmMapPreview } from "@/features/landing/previews/farm-map-preview"
+import { LimitsPreview } from "@/features/landing/previews/limits-preview"
 import { RotationComparisonPreview } from "@/features/landing/previews/rotation-comparison-preview"
 import { SourceTrailPreview } from "@/features/landing/previews/source-trail-preview"
 import { openSitePage } from "@/features/landing/site-links"
@@ -74,14 +74,14 @@ export function FeatureGridSection() {
           >
             <SourceTrailPreview />
           </FeatureCard>
-          <FeatureCard title="See every farm, lot by lot" pageSlug="farm-map">
+          <FeatureCard title="See the real lots of a zone" pageSlug="farm-map">
             <FarmMapPreview />
           </FeatureCard>
           <FeatureCard
-            title="Ask, and get answers that cite their data"
-            pageSlug="assistant"
+            title="Measured limits, stated up front"
+            pageSlug="rotation-planner"
           >
-            <AssistantPreview />
+            <LimitsPreview />
           </FeatureCard>
         </View>
       </View>

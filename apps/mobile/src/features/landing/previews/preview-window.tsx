@@ -5,15 +5,16 @@ import { Text } from "@/components/ui/text"
 import { cn } from "@/lib/utils"
 
 /**
- * Window that frames a product preview. Previews show the layout of a
- * screen with placeholder lines: they carry no results, real or mock.
+ * Window that frames an illustrative preview or a labelled measured result.
  */
 export function PreviewWindow({
   title,
+  badge = "Illustrative",
   className,
   children,
 }: {
   title: string
+  badge?: string
   className?: string
   children: ReactNode
 }) {
@@ -36,7 +37,7 @@ export function PreviewWindow({
             {title}
           </Text>
           <Badge variant="outline" className="ml-auto bg-background/60">
-            <Text>Illustrative</Text>
+            <Text>{badge}</Text>
           </Badge>
         </View>
         <View className="p-4">{children}</View>

@@ -111,12 +111,16 @@ function PagePlaceholder({ page }: { page: SitePage }) {
             <Icon as={PencilLine} className="text-primary" size={20} />
           </View>
           <Text className="text-center text-2xl font-light tracking-tight">
-            This page is being written
+            {page.isRoadmap
+              ? "Not in this version"
+              : "This page is being written"}
           </Text>
           <Text className="text-center text-muted-foreground">
-            {page.isInDevelopment
-              ? "This part of Cropilot is in development. The page will describe it once it is in the app, with its data sources."
-              : "The content of this page is on its way."}
+            {page.isRoadmap
+              ? "This is on the roadmap. Cropilot does not do it today, and this page will describe it once it ships."
+              : page.isInDevelopment
+                ? "This part of Cropilot is in development. The page will describe it once it is in the app, with its data sources."
+                : "The content of this page is on its way."}
           </Text>
         </View>
       </View>
@@ -145,6 +149,11 @@ export function SitePageView({
               <Text className="font-medium">{menu.label}</Text>
               <Text className="text-muted-foreground"> · {column.heading}</Text>
             </Text>
+            {page.isRoadmap && (
+              <Badge variant="outline">
+                <Text>Roadmap · not in this version</Text>
+              </Badge>
+            )}
             {page.isInDevelopment && (
               <Badge variant="outline">
                 <Text>In development</Text>

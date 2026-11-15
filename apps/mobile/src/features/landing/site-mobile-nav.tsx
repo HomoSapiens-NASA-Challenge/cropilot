@@ -67,6 +67,12 @@ export function SiteMobileNav({
                     >
                       <Text className="text-base text-foreground">
                         {page.title}
+                        {(page.isInDevelopment || page.isRoadmap) && (
+                          <Text className="text-xs text-muted-foreground">
+                            {" "}
+                            {page.isRoadmap ? "Roadmap" : "Soon"}
+                          </Text>
+                        )}
                       </Text>
                     </Pressable>
                   ))}

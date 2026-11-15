@@ -3,29 +3,21 @@ import {
   LayoutDashboard,
   type LucideIcon,
   Map as MapIcon,
-  MessagesSquare,
-  Satellite,
   Sprout,
 } from "lucide-react-native"
 
 export type AppSection = {
   title: string
   description: string
-  href:
-    | "/overview"
-    | "/map"
-    | "/fields"
-    | "/analysis/analog-years"
-    | "/analysis/strategies"
-    | "/analysis/assistant"
+  href: "/overview" | "/map" | "/years" | "/strategies"
   icon: LucideIcon
   isAvailable: boolean
 }
-
 export const appSections = {
   overview: {
     title: "Overview",
-    description: "Your workspace at a glance.",
+    description:
+      "How the 2026/27 campaign starts in your region and across Argentina.",
     href: "/overview",
     isAvailable: true,
     icon: LayoutDashboard,
@@ -33,60 +25,36 @@ export const appSections = {
   farmMap: {
     title: "Farm map",
     description:
-      "Demo farms on the map. Tap a lot to inspect it, open a farm to see its data.",
+      "Lots outlined from satellite imagery, with their crops, NDVI and status. Select a lot to read it.",
     href: "/map",
     isAvailable: true,
     icon: MapIcon,
-  },
-  fieldFootprints: {
-    title: "Field footprints",
-    description:
-      "Satellite-estimated field footprints in the Pergamino study window, with their crop history, greenness, soil and water data.",
-    href: "/fields",
-    isAvailable: true,
-    icon: Satellite,
   },
   analogYears: {
     title: "Years like this",
     description:
       "Past campaigns that started like this one, matched by El Niño phase and soil moisture.",
-    href: "/analysis/analog-years",
-    isAvailable: false,
+    href: "/years",
+    isAvailable: true,
     icon: CalendarSearch,
   },
   strategies: {
     title: "Strategies",
     description:
-      "At least three crop rotations side by side, the current one included.",
-    href: "/analysis/strategies",
-    isAvailable: false,
+      "Crop rotations side by side, the current one included, in the campaigns that started like this one.",
+    href: "/strategies",
+    isAvailable: true,
     icon: Sprout,
   },
-  assistant: {
-    title: "Assistant",
-    description:
-      "Ask about a strategy and get answers that cite their dataset, period and location.",
-    href: "/analysis/assistant",
-    isAvailable: false,
-    icon: MessagesSquare,
-  },
 } as const satisfies Record<string, AppSection>
-
 export const sectionGroups = [
   {
     label: "Workspace",
     sections: [
       appSections.overview,
       appSections.farmMap,
-      appSections.fieldFootprints,
-    ],
-  },
-  {
-    label: "Analysis",
-    sections: [
       appSections.analogYears,
       appSections.strategies,
-      appSections.assistant,
     ],
   },
 ]

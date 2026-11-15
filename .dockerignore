@@ -1,6 +1,10 @@
 .git
 **/node_modules
 **/.venv
+**/.venv-models
+apps/backend/data
+apps/backend/models
+apps/backend/app/modules/mcp/ui
 **/dist
 **/__pycache__
 .env

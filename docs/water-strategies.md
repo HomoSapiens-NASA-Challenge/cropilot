@@ -75,7 +75,7 @@ The dataset is shared demonstration material derived from public sources, not pr
 
 Suggested display: three rotation cards for the same episode and assumptions, a daily reserve chart, four stage summaries per crop, then soil/water and calendar comparisons. Always retain `research_only`, source links, period, location, assumption labels and the field-validation status. Show crop demand and individual crop results alongside totals: a rotation with more crops may have more total unmet ET simply because it has more crop demand.
 
-This delivery provides data, API and generated client; it does not add a dashboard screen. Production operators must provision the release in the backend filesystem, for example install it on the host and bind-mount its `data/strategies-v1` directory at the backend's configured data parent. The existing Docker Compose deployment does not automatically download or mount private model assets. Do not bake GitHub credentials into an image. Without the data installation the app runs, but these endpoints return 503.
+This delivery provides data, API and generated client. Production operators provision the release on the host with `scripts/deploy/prepare-strategies.sh`; `compose.prod.yml` mounts its data and model directories read-only and refuses missing mount sources. The [deployment runbook](deployment.md) includes verification, smoke checks and rollback. GitHub credentials stay on the host. A backend run without the provisioned data returns 503 from these endpoints; the public `case-v1` demo remains independent of this installation.
 
 ## Reproduce and verify
 

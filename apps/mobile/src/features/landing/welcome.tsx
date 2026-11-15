@@ -1,13 +1,14 @@
 import { router } from "expo-router"
-import { Menu, MessageCircle } from "lucide-react-native"
+import { Menu, Scale } from "lucide-react-native"
 import { useState } from "react"
 import { Text as InlineText, Pressable, ScrollView, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { BrandMark } from "@/components/brand-mark"
 import { Icon } from "@/components/ui/icon"
 import { Text } from "@/components/ui/text"
-import { AppEntryLink, CtaLink } from "@/features/landing/cta-link"
+import { ArrowLink, CtaLink } from "@/features/landing/cta-link"
 import { HeroWash } from "@/features/landing/decor"
+import { REFERENCE_CASE_ZONE_ID } from "@/features/landing/reference-case"
 import { findSitePage } from "@/features/landing/site-content"
 import { openSitePage } from "@/features/landing/site-links"
 import { SiteMobileNav } from "@/features/landing/site-mobile-nav"
@@ -19,8 +20,8 @@ const features = [
   },
   { pageSlug: "rotation-strategies", title: "Compare three or more rotations" },
   { pageSlug: "evidence-trail", title: "Every number names its source" },
-  { pageSlug: "farm-map", title: "See every farm, lot by lot" },
-  { pageSlug: "assistant", title: "Ask, and get answers that cite their data" },
+  { pageSlug: "farm-map", title: "See the real lots of a zone" },
+  { pageSlug: "rotation-planner", title: "Measured limits, stated up front" },
 ]
 
 export function Welcome() {
@@ -78,7 +79,7 @@ export function Welcome() {
           {features.map(({ pageSlug, title }) => {
             const page = findSitePage("features", pageSlug)?.page
             if (!page) throw new Error(`Missing feature page: ${pageSlug}`)
-            const PageIcon = page.content?.highlights[0]?.icon ?? MessageCircle
+            const PageIcon = page.content?.highlights[0]?.icon ?? Scale
             return (
               <Pressable
                 key={pageSlug}
@@ -100,11 +101,25 @@ export function Welcome() {
         </ScrollView>
       </ScrollView>
       <View className="gap-3 border-t border-border/70 bg-background px-6 pt-4 pb-6">
-        <AppEntryLink signedOutLabel="Get started" className="self-stretch" />
         <CtaLink
-          label="See how it works"
+          label="Open the 2026/27 case, no sign-in"
+          className="self-stretch"
+          onPress={() =>
+            router.push({
+              pathname: "/case/[zoneId]",
+              params: { zoneId: REFERENCE_CASE_ZONE_ID },
+            })
+          }
+        />
+        <CtaLink
+          label="Get started"
           variant="outline"
           className="self-stretch"
+          onPress={() => router.push("/sign-in")}
+        />
+        <ArrowLink
+          label="See how it works"
+          className="text-sm"
           onPress={() =>
             router.push({
               pathname: "/tour",
