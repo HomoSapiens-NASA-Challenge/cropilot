@@ -1,6 +1,7 @@
 import type { RotationPlanRun, StageProgress } from "@cropilot/api"
 import { cn } from "cn"
 import { Check } from "lucide-react"
+import { Card } from "@/components/ui/card"
 import { ConvergenceChart } from "@/features/planner/convergence-chart"
 import {
   PipelineStages,
@@ -47,17 +48,16 @@ export function TrainingConsole({
     (training.status !== "pending" || run.convergence.length > 0)
 
   return (
-    <section
-      aria-label="Training console"
+    <Card
       aria-busy={run.status === "queued" || run.status === "running"}
       className={cn(
-        "flex flex-col rounded-xl border bg-card p-4 sm:p-5",
+        "sm:[--card-spacing:--spacing(6)]",
         compact ? "gap-4" : "gap-6"
       )}
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-(--card-spacing)">
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-sm font-medium">Training console</h2>
+          <h2 className="text-base font-medium">Training console</h2>
           <p
             role="status"
             className="text-sm tabular-nums text-muted-foreground"
@@ -70,10 +70,12 @@ export function TrainingConsole({
         </span>
       </div>
 
-      <PipelineStages stages={run.stages} compact={compact} />
+      <div className="px-(--card-spacing)">
+        <PipelineStages stages={run.stages} compact={compact} />
+      </div>
 
       {showChart && training && (
-        <div className="flex flex-col gap-3 border-t pt-5">
+        <div className="mx-(--card-spacing) flex flex-col gap-3 border-t pt-6">
           <h3 className="text-sm font-medium">
             The agents closing in on the optimum
           </h3>
@@ -85,7 +87,7 @@ export function TrainingConsole({
           />
         </div>
       )}
-    </section>
+    </Card>
   )
 }
 
@@ -97,7 +99,7 @@ export function RunSummary({ run }: { run: RotationPlanRun }) {
   return (
     <p
       role="status"
-      className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground tabular-nums"
+      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground tabular-nums"
     >
       <Check aria-hidden className="size-4 text-primary" />
       <span className="font-medium text-foreground">

@@ -19,6 +19,7 @@ import {
   formatScore,
   POLICY_KIND_LABEL,
   POLICY_KIND_ORDER,
+  sourcesById,
 } from "@/features/planner/planner-format"
 import { OUTCOMES } from "@/features/planner/planner-outcomes"
 import { ResultSection } from "@/features/planner/result-section"
@@ -32,6 +33,23 @@ function byKind(a: PolicyResult, b: PolicyResult): number {
 
 function splitName(first: number, last: number): string {
   return `${campaignName(first)} to ${campaignName(last)}`
+}
+
+/** The policy with the highest held-out mean score, in one sentence next to the optimum's. */
+function takeaway(policies: ReadonlyArray<PolicyResult>): string | null {
+  const optimal = policies.find((policy) => policy.kind === "optimal")
+  const leader = policies.reduce<PolicyResult | null>(
+    (best, policy) =>
+      best === null || policy.test.mean_score > best.test.mean_score
+        ? policy
+        : best,
+    null
+  )
+  if (!optimal || !leader) return null
+  if (leader.policy_id === optimal.policy_id) {
+    return `The exact optimum has the highest held-out mean score: ${formatScore(optimal.test.mean_score)}.`
+  }
+  return `On the held-out campaigns ${leader.label} has the highest mean score (${formatScore(leader.test.mean_score)}); the exact optimum scores ${formatScore(optimal.test.mean_score)}.`
 }
 
 /**
@@ -52,13 +70,16 @@ export function PolicyComparison({ result }: { result: RotationPlanResult }) {
     AXIS_INSET_PCT +
     ((score - domainMin) / (domainMax - domainMin)) * (100 - 2 * AXIS_INSET_PCT)
   const ticks = niceTicks(domainMin, domainMax, 4)
+  const summary = takeaway(policies)
 
   return (
     <ResultSection
       title="Policy comparison"
       lead="Mean score per campaign, unitless and higher is better, with the held-out campaigns in real units on the right."
+      sources={sourcesById(result.sources, ["nasa-power", "magyp", "prices"])}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
+        {summary && <p className="text-sm">{summary}</p>}
         {reference && (
           <ul className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground">
             <li className="flex items-center gap-1.5">
@@ -105,6 +126,12 @@ export function PolicyComparison({ result }: { result: RotationPlanResult }) {
                     </text>
                   ))}
                 </svg>
+              </TableHead>
+              <TableHead className="w-24 px-2 text-right align-bottom text-xs leading-tight whitespace-normal">
+                Bad-year margin
+                <span className="block text-xs font-normal text-muted-foreground">
+                  USD/ha
+                </span>
               </TableHead>
               {OUTCOMES.map((outcome) => (
                 <TableHead
@@ -201,6 +228,14 @@ export function PolicyComparison({ result }: { result: RotationPlanResult }) {
                     </span>
                   </div>
                 </TableCell>
+                <TableCell className="px-2 text-right align-top tabular-nums">
+                  <span className="inline-block py-1">
+                    {formatOutcome(
+                      "margin_usd_ha",
+                      policy.test.lower_tail_margin_usd_ha
+                    )}
+                  </span>
+                </TableCell>
                 {OUTCOMES.map((outcome) => (
                   <TableCell
                     key={outcome.id}
@@ -219,8 +254,17 @@ export function PolicyComparison({ result }: { result: RotationPlanResult }) {
           </TableBody>
         </Table>
 
+        {reference && (
+          <p className="text-xs text-muted-foreground">
+            Outcome columns are mean per held-out campaign. Bad-year margin is
+            the mean margin of the worst {reference.test.lower_tail_campaigns}{" "}
+            of the {reference.test.campaigns.length} held-out campaigns, a fifth
+            of them rounded up.
+          </p>
+        )}
+
         {result.unavailable_strategies.length > 0 && (
-          <div className="flex flex-col gap-2 border-t pt-4">
+          <div className="flex flex-col gap-2 border-t pt-6">
             <h3 className="text-sm font-medium">Not scored for this region</h3>
             <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
               {result.unavailable_strategies.map((strategy) => (

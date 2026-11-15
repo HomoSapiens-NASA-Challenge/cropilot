@@ -448,6 +448,33 @@
         ]
       }
     },
+    "/api/rotation-plans/setup": {
+      "get": {
+        "tags": [
+          "rotation-planner"
+        ],
+        "summary": "Get Rotation Plan Setup",
+        "description": "The caller's region as the simulator sees it, and the latest El Ni\u00f1o readings.",
+        "operationId": "get_rotation_plan_setup",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RotationPlanSetup"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/rotation-plans/{run_id}": {
       "get": {
         "tags": [
@@ -647,6 +674,41 @@
         ],
         "title": "BlockMeta",
         "description": "Provenance shared by every number of one block or column."
+      },
+      "BootstrapMethod": {
+        "properties": {
+          "confidence": {
+            "type": "number",
+            "exclusiveMaximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Confidence"
+          },
+          "block_campaigns": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Block Campaigns"
+          },
+          "blocks": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Blocks"
+          },
+          "resamples": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Resamples"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "confidence",
+          "block_campaigns",
+          "blocks",
+          "resamples"
+        ],
+        "title": "BootstrapMethod",
+        "description": "Every ordered resample of the held-out blocks, with replacement; no random draws."
       },
       "CalendarEffect": {
         "properties": {
@@ -2050,6 +2112,81 @@
         ],
         "title": "EnsoPhase"
       },
+      "EnsoReading": {
+        "properties": {
+          "season": {
+            "type": "string",
+            "enum": [
+              "FMA",
+              "JAS"
+            ],
+            "title": "Season"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "oni": {
+            "type": "number",
+            "title": "Oni"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Phase"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "season",
+          "year",
+          "oni",
+          "phase"
+        ],
+        "title": "EnsoReading",
+        "description": "One published NOAA ONI season value and the phase it implies (+-0.5 thresholds)."
+      },
+      "EnsoTransition": {
+        "properties": {
+          "enso_june": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Enso June"
+          },
+          "enso_august": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Enso August"
+          },
+          "training_campaigns": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Training Campaigns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enso_june",
+          "enso_august",
+          "training_campaigns"
+        ],
+        "title": "EnsoTransition",
+        "description": "How often a June El Ni\u00f1o phase was followed by each August phase in training."
+      },
       "FarmCreate": {
         "properties": {
           "name": {
@@ -2378,6 +2515,68 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HeldOutComparison": {
+        "properties": {
+          "baseline_policy_id": {
+            "type": "string",
+            "title": "Baseline Policy Id"
+          },
+          "mean_score_difference": {
+            "type": "number",
+            "title": "Mean Score Difference"
+          },
+          "interval_low": {
+            "type": "number",
+            "title": "Interval Low"
+          },
+          "interval_high": {
+            "type": "number",
+            "title": "Interval High"
+          },
+          "conclusion": {
+            "type": "string",
+            "enum": [
+              "better",
+              "worse",
+              "inconclusive",
+              "identical"
+            ],
+            "title": "Conclusion"
+          },
+          "campaigns_won": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Campaigns Won"
+          },
+          "campaigns": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Campaigns"
+          },
+          "outcome_differences": {
+            "$ref": "#/components/schemas/OutcomeValues"
+          },
+          "lower_tail_margin_difference_usd_ha": {
+            "type": "number",
+            "title": "Lower Tail Margin Difference Usd Ha"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "baseline_policy_id",
+          "mean_score_difference",
+          "interval_low",
+          "interval_high",
+          "conclusion",
+          "campaigns_won",
+          "campaigns",
+          "outcome_differences",
+          "lower_tail_margin_difference_usd_ha"
+        ],
+        "title": "HeldOutComparison",
+        "description": "Optimal policy minus one baseline on the held-out campaigns, paired campaign by campaign."
       },
       "Itinerary": {
         "properties": {
@@ -2900,6 +3099,8 @@
             "enum": [
               "optimal",
               "agent",
+              "myopic",
+              "margin_only",
               "best_fixed",
               "named"
             ],
@@ -3450,6 +3651,16 @@
           "verdict": {
             "$ref": "#/components/schemas/Verdict"
           },
+          "bootstrap": {
+            "$ref": "#/components/schemas/BootstrapMethod"
+          },
+          "enso_transitions": {
+            "items": {
+              "$ref": "#/components/schemas/EnsoTransition"
+            },
+            "type": "array",
+            "title": "Enso Transitions"
+          },
           "sources": {
             "items": {
               "$ref": "#/components/schemas/PlannerSource"
@@ -3471,6 +3682,8 @@
           "decisions",
           "unavailable_strategies",
           "verdict",
+          "bootstrap",
+          "enso_transitions",
           "sources"
         ],
         "title": "RotationPlanResult"
@@ -3566,6 +3779,84 @@
           "result"
         ],
         "title": "RotationPlanRun"
+      },
+      "RotationPlanSetup": {
+        "properties": {
+          "region_id": {
+            "type": "string",
+            "title": "Region Id"
+          },
+          "soil_capacity_mm": {
+            "type": "number",
+            "title": "Soil Capacity Mm"
+          },
+          "water_levels": {
+            "type": "integer",
+            "title": "Water Levels"
+          },
+          "initial_water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Initial Water Fraction"
+          },
+          "itineraries": {
+            "items": {
+              "$ref": "#/components/schemas/Itinerary"
+            },
+            "type": "array",
+            "title": "Itineraries"
+          },
+          "unavailable_strategies": {
+            "items": {
+              "$ref": "#/components/schemas/UnavailableStrategy"
+            },
+            "type": "array",
+            "title": "Unavailable Strategies"
+          },
+          "latest_enso_june": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnsoReading"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest_enso_august": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnsoReading"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/PlannerSource"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "region_id",
+          "soil_capacity_mm",
+          "water_levels",
+          "initial_water_fraction",
+          "itineraries",
+          "unavailable_strategies",
+          "latest_enso_june",
+          "latest_enso_august",
+          "sources"
+        ],
+        "title": "RotationPlanSetup",
+        "description": "What the wizard needs before a run: the region as the simulator sees it."
       },
       "SoilCapacity": {
         "properties": {
@@ -3676,6 +3967,15 @@
           "mean_outcomes": {
             "$ref": "#/components/schemas/OutcomeValues"
           },
+          "lower_tail_margin_usd_ha": {
+            "type": "number",
+            "title": "Lower Tail Margin Usd Ha"
+          },
+          "lower_tail_campaigns": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Lower Tail Campaigns"
+          },
           "campaigns": {
             "items": {
               "$ref": "#/components/schemas/CampaignReplay"
@@ -3691,6 +3991,8 @@
           "last_year",
           "mean_score",
           "mean_outcomes",
+          "lower_tail_margin_usd_ha",
+          "lower_tail_campaigns",
           "campaigns"
         ],
         "title": "SplitReplay"
@@ -4208,23 +4510,6 @@
             "type": "number",
             "title": "Optimal Minus Best Fixed Train"
           },
-          "optimal_minus_best_fixed_test": {
-            "type": "number",
-            "title": "Optimal Minus Best Fixed Test"
-          },
-          "optimal_minus_best_fixed_test_outcomes": {
-            "$ref": "#/components/schemas/OutcomeValues"
-          },
-          "test_campaigns_won": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Test Campaigns Won"
-          },
-          "test_campaigns": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Test Campaigns"
-          },
           "agent_minus_optimal_expected": {
             "type": "number",
             "title": "Agent Minus Optimal Expected"
@@ -4234,6 +4519,13 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Agent Agreement Share"
+          },
+          "held_out": {
+            "items": {
+              "$ref": "#/components/schemas/HeldOutComparison"
+            },
+            "type": "array",
+            "title": "Held Out"
           }
         },
         "additionalProperties": false,
@@ -4242,15 +4534,12 @@
           "best_fixed_policy_id",
           "optimal_minus_best_fixed_expected",
           "optimal_minus_best_fixed_train",
-          "optimal_minus_best_fixed_test",
-          "optimal_minus_best_fixed_test_outcomes",
-          "test_campaigns_won",
-          "test_campaigns",
           "agent_minus_optimal_expected",
-          "agent_agreement_share"
+          "agent_agreement_share",
+          "held_out"
         ],
         "title": "Verdict",
-        "description": "Optimal policy against the best fixed rotation, chosen on training campaigns only."
+        "description": "Optimal policy against the baselines; the best fixed rotation is chosen on training only."
       },
       "WaterBlock": {
         "properties": {

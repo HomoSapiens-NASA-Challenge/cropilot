@@ -85,6 +85,30 @@ export type BlockMeta = {
 };
 
 /**
+ * BootstrapMethod
+ *
+ * Every ordered resample of the held-out blocks, with replacement; no random draws.
+ */
+export type BootstrapMethod = {
+    /**
+     * Confidence
+     */
+    confidence: number;
+    /**
+     * Block Campaigns
+     */
+    block_campaigns: number;
+    /**
+     * Blocks
+     */
+    blocks: number;
+    /**
+     * Resamples
+     */
+    resamples: number;
+};
+
+/**
  * CalendarEffect
  */
 export type CalendarEffect = {
@@ -883,6 +907,50 @@ export type EnsoPhase = {
 };
 
 /**
+ * EnsoReading
+ *
+ * One published NOAA ONI season value and the phase it implies (+-0.5 thresholds).
+ */
+export type EnsoReading = {
+    /**
+     * Season
+     */
+    season: 'FMA' | 'JAS';
+    /**
+     * Year
+     */
+    year: number;
+    /**
+     * Oni
+     */
+    oni: number;
+    /**
+     * Phase
+     */
+    phase: 'la_nina' | 'neutral' | 'el_nino';
+};
+
+/**
+ * EnsoTransition
+ *
+ * How often a June El Niño phase was followed by each August phase in training.
+ */
+export type EnsoTransition = {
+    /**
+     * Enso June
+     */
+    enso_june: 'la_nina' | 'neutral' | 'el_nino';
+    /**
+     * Enso August
+     */
+    enso_august: 'la_nina' | 'neutral' | 'el_nino';
+    /**
+     * Training Campaigns
+     */
+    training_campaigns: number;
+};
+
+/**
  * FarmCreate
  */
 export type FarmCreate = {
@@ -1067,6 +1135,47 @@ export type HttpValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * HeldOutComparison
+ *
+ * Optimal policy minus one baseline on the held-out campaigns, paired campaign by campaign.
+ */
+export type HeldOutComparison = {
+    /**
+     * Baseline Policy Id
+     */
+    baseline_policy_id: string;
+    /**
+     * Mean Score Difference
+     */
+    mean_score_difference: number;
+    /**
+     * Interval Low
+     */
+    interval_low: number;
+    /**
+     * Interval High
+     */
+    interval_high: number;
+    /**
+     * Conclusion
+     */
+    conclusion: 'better' | 'worse' | 'inconclusive' | 'identical';
+    /**
+     * Campaigns Won
+     */
+    campaigns_won: number;
+    /**
+     * Campaigns
+     */
+    campaigns: number;
+    outcome_differences: OutcomeValues;
+    /**
+     * Lower Tail Margin Difference Usd Ha
+     */
+    lower_tail_margin_difference_usd_ha: number;
 };
 
 /**
@@ -1368,7 +1477,7 @@ export type PolicyResult = {
     /**
      * Kind
      */
-    kind: 'optimal' | 'agent' | 'best_fixed' | 'named';
+    kind: 'optimal' | 'agent' | 'myopic' | 'margin_only' | 'best_fixed' | 'named';
     /**
      * Label
      */
@@ -1679,6 +1788,11 @@ export type RotationPlanResult = {
      */
     unavailable_strategies: Array<UnavailableStrategy>;
     verdict: Verdict;
+    bootstrap: BootstrapMethod;
+    /**
+     * Enso Transitions
+     */
+    enso_transitions: Array<EnsoTransition>;
     /**
      * Sources
      */
@@ -1723,6 +1837,44 @@ export type RotationPlanRun = {
      */
     error: string | null;
     result: RotationPlanResult | null;
+};
+
+/**
+ * RotationPlanSetup
+ *
+ * What the wizard needs before a run: the region as the simulator sees it.
+ */
+export type RotationPlanSetup = {
+    /**
+     * Region Id
+     */
+    region_id: string;
+    /**
+     * Soil Capacity Mm
+     */
+    soil_capacity_mm: number;
+    /**
+     * Water Levels
+     */
+    water_levels: number;
+    /**
+     * Initial Water Fraction
+     */
+    initial_water_fraction: number;
+    /**
+     * Itineraries
+     */
+    itineraries: Array<Itinerary>;
+    /**
+     * Unavailable Strategies
+     */
+    unavailable_strategies: Array<UnavailableStrategy>;
+    latest_enso_june: EnsoReading | null;
+    latest_enso_august: EnsoReading | null;
+    /**
+     * Sources
+     */
+    sources: Array<PlannerSource>;
 };
 
 /**
@@ -1796,6 +1948,14 @@ export type SplitReplay = {
      */
     mean_score: number;
     mean_outcomes: OutcomeValues;
+    /**
+     * Lower Tail Margin Usd Ha
+     */
+    lower_tail_margin_usd_ha: number;
+    /**
+     * Lower Tail Campaigns
+     */
+    lower_tail_campaigns: number;
     /**
      * Campaigns
      */
@@ -2076,7 +2236,7 @@ export type ValidationError = {
 /**
  * Verdict
  *
- * Optimal policy against the best fixed rotation, chosen on training campaigns only.
+ * Optimal policy against the baselines; the best fixed rotation is chosen on training only.
  */
 export type Verdict = {
     /**
@@ -2092,19 +2252,6 @@ export type Verdict = {
      */
     optimal_minus_best_fixed_train: number;
     /**
-     * Optimal Minus Best Fixed Test
-     */
-    optimal_minus_best_fixed_test: number;
-    optimal_minus_best_fixed_test_outcomes: OutcomeValues;
-    /**
-     * Test Campaigns Won
-     */
-    test_campaigns_won: number;
-    /**
-     * Test Campaigns
-     */
-    test_campaigns: number;
-    /**
      * Agent Minus Optimal Expected
      */
     agent_minus_optimal_expected: number;
@@ -2112,6 +2259,10 @@ export type Verdict = {
      * Agent Agreement Share
      */
     agent_agreement_share: number;
+    /**
+     * Held Out
+     */
+    held_out: Array<HeldOutComparison>;
 };
 
 /**
@@ -2768,6 +2919,22 @@ export type StartRotationPlanResponses = {
 };
 
 export type StartRotationPlanResponse = StartRotationPlanResponses[keyof StartRotationPlanResponses];
+
+export type GetRotationPlanSetupData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/rotation-plans/setup';
+};
+
+export type GetRotationPlanSetupResponses = {
+    /**
+     * Successful Response
+     */
+    200: RotationPlanSetup;
+};
+
+export type GetRotationPlanSetupResponse = GetRotationPlanSetupResponses[keyof GetRotationPlanSetupResponses];
 
 export type GetRotationPlanData = {
     body?: never;

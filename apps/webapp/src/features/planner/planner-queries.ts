@@ -1,4 +1,9 @@
-import { getRotationPlan, getRotationPlanQueryKey } from "@cropilot/api"
+import {
+  getRotationPlan,
+  getRotationPlanQueryKey,
+  getRotationPlanSetup,
+  getRotationPlanSetupQueryKey,
+} from "@cropilot/api"
 import { queryOptions } from "@tanstack/react-query"
 
 const RUN_NOT_FOUND_STATUS = 404
@@ -33,8 +38,8 @@ export function rotationPlanOptions(runId: string) {
   })
 }
 
-/** The `detail` of a FastAPI error body, which is a string for 409 and 503. */
-export function startErrorMessage(error: unknown): string {
+/** The `detail` of a FastAPI error body, which is a string for 404, 409 and 503. */
+function errorDetail(error: unknown): string | null {
   if (
     typeof error === "object" &&
     error !== null &&
@@ -43,6 +48,31 @@ export function startErrorMessage(error: unknown): string {
   ) {
     return error.detail
   }
+  return null
+}
+
+/**
+ * The region as the simulator sees it. The endpoint reads the region from the workspace, so
+ * the region id only goes into the key: switching region must not reuse the old region's setup.
+ * A failure carries the server's reason (no simulator field, no data) for the route's error view.
+ */
+export function rotationPlanSetupOptions(regionId: string) {
+  return queryOptions({
+    queryKey: [...getRotationPlanSetupQueryKey(), regionId],
+    queryFn: async ({ signal }) => {
+      const { data, error, response } = await getRotationPlanSetup({ signal })
+      if (data) return data
+      throw new Error(
+        errorDetail(error) ??
+          `Could not load the planner setup (${response?.status ?? "no response"})`
+      )
+    },
+  })
+}
+
+export function startErrorMessage(error: unknown): string {
+  const detail = errorDetail(error)
+  if (detail) return detail
   if (error instanceof Error) return error.message
   return "The planner could not start. Check the priorities and try again."
 }

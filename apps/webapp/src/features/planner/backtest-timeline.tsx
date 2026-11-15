@@ -18,12 +18,13 @@ import {
   formatScore,
   itineraryLabel,
   POLICY_KIND_LABEL,
+  sourcesById,
 } from "@/features/planner/planner-format"
 import type { EnsoPhase } from "@/features/planner/planner-types"
 import { ResultSection } from "@/features/planner/result-section"
 import { useElementWidth } from "@/hooks/use-element-width"
 
-const LABEL_COLUMN = "11rem"
+const LABEL_COLUMN = "13rem"
 const CAMPAIGN_COLUMN_MIN = "2.75rem"
 const BAR_HEIGHT_PX = 36
 
@@ -40,7 +41,13 @@ const ENSO_TONE = {
 } as const satisfies Record<EnsoPhase, string>
 
 // Dashes tell the lines apart at rest, when none of them is highlighted.
-const LINE_DASHES = [undefined, "6 3", "2 3", "8 3 2 3"] as const
+const LINE_DASHES = [
+  undefined,
+  "6 3",
+  "2 3",
+  "8 3 2 3",
+  "10 3 2 3 2 3",
+] as const
 
 const CHART_MARGIN = { top: 12, right: 200, bottom: 28, left: 52 } as const
 const CHART_HEIGHT_PX = 240
@@ -54,10 +61,11 @@ type Row = {
   cumulative: ReadonlyArray<number>
 }
 
-/** The policies worth reading against each other: the optimum, the best fixed one, today's and the agent. */
+/** The policies worth reading against each other: the optimum, one campaign at a time, the best fixed one, today's and the agent. */
 function timelinePolicies(result: RotationPlanResult): PolicyResult[] {
   const wanted = [
     result.policies.find((policy) => policy.kind === "optimal"),
+    result.policies.find((policy) => policy.kind === "myopic"),
     result.policies.find((policy) => policy.kind === "best_fixed"),
     result.policies.find((policy) => policy.is_current),
     result.policies.find((policy) => policy.kind === "agent"),
@@ -87,6 +95,39 @@ function toRow(policy: PolicyResult): Row {
       return total
     }),
   }
+}
+
+/** In how many campaigns the optimum scored at least as well as every other policy shown. */
+function optimumTakeaway(rows: ReadonlyArray<Row>): string | null {
+  const [optimal, ...others] = rows
+  if (optimal?.policy.kind !== "optimal" || others.length === 0) {
+    return null
+  }
+  const best = optimal.campaigns.filter((campaign, index) =>
+    others.every(
+      (other) => (other.campaigns[index]?.score ?? -Infinity) <= campaign.score
+    )
+  ).length
+  return `The exact optimum scored at least as high as every other policy shown in ${best} of the ${optimal.campaigns.length} campaigns.`
+}
+
+/** The end of the cumulative lines: who finished highest, next to the optimum. */
+function cumulativeTakeaway(rows: ReadonlyArray<Row>): string | null {
+  const optimal = rows.find((row) => row.policy.kind === "optimal")
+  const leader = rows.reduce<Row | null>(
+    (best, row) =>
+      best === null ||
+      (row.cumulative.at(-1) ?? 0) > (best.cumulative.at(-1) ?? 0)
+        ? row
+        : best,
+    null
+  )
+  if (!optimal || !leader) return null
+  const optimalTotal = formatScore(optimal.cumulative.at(-1) ?? 0)
+  if (leader.policy.policy_id === optimal.policy.policy_id) {
+    return `After ${optimal.campaigns.length} held-out campaigns the exact optimum has the highest cumulative score: ${optimalTotal}.`
+  }
+  return `After ${optimal.campaigns.length} held-out campaigns ${leader.policy.label} has the highest cumulative score (${formatScore(leader.cumulative.at(-1) ?? 0)}); the exact optimum has ${optimalTotal}.`
 }
 
 function CumulativeChart({
@@ -236,16 +277,26 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
   const first = reference[0]?.campaign_start_year
   const last = reference.at(-1)?.campaign_start_year
 
+  const optimumSummary = optimumTakeaway(rows)
+  const chartSummary = cumulativeTakeaway(rows)
+
   return (
-    <ResultSection
-      title="Backtest on held-out campaigns"
-      lead={
-        first !== undefined && last !== undefined
-          ? `Campaigns ${campaignName(first)} to ${campaignName(last)} were never used to fit or to choose a policy. Bars are each campaign's score.`
-          : "Campaigns that were never used to fit or to choose a policy."
-      }
-    >
-      <div className="flex flex-col gap-6">
+    <>
+      <ResultSection
+        title="Backtest on held-out campaigns"
+        lead={
+          first !== undefined && last !== undefined
+            ? `Campaigns ${campaignName(first)} to ${campaignName(last)} were never used to fit or to choose a policy. Bars are each campaign's score, unitless and higher is better.`
+            : "Campaigns that were never used to fit or to choose a policy."
+        }
+        sources={sourcesById(result.sources, [
+          "nasa-power",
+          "noaa-oni",
+          "magyp",
+          "prices",
+        ])}
+      >
+        {optimumSummary && <p className="text-sm">{optimumSummary}</p>}
         <div className="overflow-x-auto">
           <div
             className="flex min-w-max flex-col gap-1"
@@ -305,8 +356,9 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
                 >
                   <span className="flex min-w-0 flex-col gap-0.5 pl-2">
                     <span
+                      title={row.policy.label}
                       className={cn(
-                        "truncate text-sm font-medium",
+                        "line-clamp-2 text-sm font-medium",
                         isHighlighted && "text-primary"
                       )}
                     >
@@ -360,14 +412,21 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
             })}
           </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Each campaign shows two blocks: the winter crop above, the summer crop
+          below. Hover or focus a row to highlight that policy here and in the
+          cumulative chart.
+        </p>
+      </ResultSection>
 
-        <div className="flex flex-col gap-2 border-t pt-4">
-          <h3 className="text-sm font-medium">
-            Cumulative score over the held-out campaigns
-          </h3>
-          <CumulativeChart rows={rows} highlighted={highlighted} />
-        </div>
-      </div>
-    </ResultSection>
+      <ResultSection
+        title="Cumulative score over the held-out campaigns"
+        lead="The running total of each policy's campaign scores, in score units."
+        sources={sourcesById(result.sources, ["nasa-power", "magyp", "prices"])}
+      >
+        {chartSummary && <p className="text-sm">{chartSummary}</p>}
+        <CumulativeChart rows={rows} highlighted={highlighted} />
+      </ResultSection>
+    </>
   )
 }

@@ -1,6 +1,8 @@
 """The rotation planner's numbers: decision process, Q-learning, simulator kernel and replay."""
 
+from dataclasses import replace
 from functools import cache
+from itertools import product
 
 import numpy as np
 import pytest
@@ -13,16 +15,25 @@ from rotation_sim import (
     simulate_campaign,
     simulate_rotation,
 )
+from rotation_sim.oni import Oni
 
 from app.core.config import RotationSimSettings
-from app.modules.rotation_planner import kernel, mdp, pipeline
+from app.modules.rotation_planner import kernel, mdp, pipeline, stats
 from app.modules.rotation_planner.schemas import (
     STAGE_IDS,
     Action,
+    BootstrapMethod,
+    CampaignReplay,
     ConvergencePoint,
+    EnsoReading,
+    HeldOutComparison,
+    Itinerary,
+    OutcomeValues,
+    PolicyResult,
     PriorityWeights,
     RotationPlanRequest,
     RotationPlanResult,
+    SplitReplay,
     StageId,
 )
 
@@ -331,6 +342,240 @@ def test_enso_phase_thresholds() -> None:
     assert kernel.enso_phase_index(-0.5) == 0
 
 
+# One campaign at a time and ENSO transitions ----------------------------------------------
+
+
+def test_a_one_campaign_policy_is_repeated_across_the_horizon() -> None:
+    one = tiny_process(1)
+    solution = one.solve()
+    one_campaign = mdp.greedy(solution.q)
+    tiled = mdp.repeat_policy(one_campaign, 3)
+    assert tiled.winter.shape[0] == tiled.itinerary.shape[0] == 3
+    for k in range(3):
+        assert np.array_equal(tiled.winter[k], one_campaign.winter[0])
+        assert np.array_equal(tiled.itinerary[k], one_campaign.itinerary[0])
+    # One campaign long, the greedy policy is the optimum; three long it can only do worse.
+    assert one.evaluate(mdp.repeat_policy(one_campaign, 1)) == pytest.approx(
+        one.optimal_value(solution), abs=1e-12
+    )
+    three = tiny_process(3)
+    assert three.evaluate(tiled) <= three.optimal_value(three.solve()) + 1e-12
+    with pytest.raises(ValueError, match="one-campaign"):
+        mdp.repeat_policy(tiled, 3)
+
+
+def test_one_campaign_at_a_time_loses_to_planning_ahead_when_the_soil_matters() -> None:
+    # One campaign year and two water levels. Itinerary 0 pays 3 at level 1 and 1 at level 0 and
+    # leaves the soil at level 0; itinerary 1 pays 2 and 0 and leaves it at level 1.
+    rewards = np.array([[[1.0, 3.0], [0.0, 2.0]]])
+    next_level = np.broadcast_to(np.arange(2)[None, :, None], rewards.shape)
+    kernel_ = make_kernel(rewards, next_level, [1], [1], [0, 0])
+    three = mdp.Process(kernel_, MARGIN_ONLY, UNIT_SCALES, 3, start_level=1)
+    one = mdp.Process(kernel_, MARGIN_ONLY, UNIT_SCALES, 1, start_level=1)
+    myopic = mdp.repeat_policy(mdp.greedy(one.solve().q), 3)
+    # Greedy mines the soil every time: 3 + 1 + 1. The optimum invests twice, then mines: 2 + 2 + 3.
+    assert three.evaluate(myopic) == pytest.approx(5.0)
+    assert three.optimal_value(three.solve()) == pytest.approx(7.0)
+
+
+def test_phase_transitions_count_the_training_campaigns_and_report_an_empty_phase_as_zero() -> None:
+    shape = (5, 4, 3)
+    cases = [
+        # (June, August) pairs: (0, 2) (1, 0) (2, 0) (0, 1) (1, 1)
+        ([0, 1, 2, 0, 1], [2, 0, 0, 1, 1], [[0, 1, 1], [1, 1, 0], [1, 0, 0]]),
+        # No campaign is neutral in June: that row stays zero although the solver falls back.
+        ([0, 0, 2, 2, 0], [1, 1, 1, 0, 0], [[1, 2, 0], [0, 0, 0], [1, 1, 0]]),
+    ]
+    for june_phase, august_phase, expected in cases:
+        kernel_ = make_kernel(
+            np.zeros(shape), np.zeros(shape), june_phase, august_phase, [0, 0, 1, 1]
+        )
+        process = mdp.Process(kernel_, MARGIN_ONLY, UNIT_SCALES, 1, start_level=1)
+        counts = process.phase_transitions()
+        assert counts.tolist() == expected
+        assert counts.sum() == kernel_.n_years
+        assert counts.sum(axis=1).tolist() == process.phase_counts_june.tolist()
+        assert counts.sum(axis=0).tolist() == process.phase_counts_august.tolist()
+
+
+# Held-out statistics -----------------------------------------------------------------------
+
+
+def reference_interval(differences: np.ndarray, block_campaigns: int) -> tuple[float, float]:
+    """Every ordered resample of the blocks, built by joining the blocks themselves."""
+    blocks = [
+        differences[start : start + block_campaigns]
+        for start in range(0, len(differences), block_campaigns)
+    ]
+    means = [np.concatenate(chosen).mean() for chosen in product(blocks, repeat=len(blocks))]
+    low, high = np.percentile(means, [2.5, 97.5])
+    return float(low), float(high)
+
+
+def test_the_block_interval_of_constant_differences_has_no_width() -> None:
+    low, high = stats.block_interval(np.full(12, 0.3))
+    assert low == pytest.approx(0.3)
+    assert high == pytest.approx(0.3)
+
+
+def test_four_negative_blocks_give_an_interval_below_zero() -> None:
+    low, high = stats.block_interval(np.repeat([-0.5, -0.1, -0.3, -0.2], 3))
+    assert low < high < 0
+
+
+def test_alternating_blocks_give_an_interval_around_zero() -> None:
+    low, high = stats.block_interval(np.repeat([0.4, -0.4, 0.4, -0.4], 3))
+    assert low < 0 < high
+
+
+@pytest.mark.parametrize(("campaigns", "block_campaigns"), [(12, 3), (8, 2), (15, 5)])
+def test_the_block_interval_matches_an_independent_enumeration(
+    campaigns: int, block_campaigns: int
+) -> None:
+    differences = np.random.default_rng(5).normal(size=campaigns)
+    expected = reference_interval(differences, block_campaigns)
+    assert stats.block_interval(differences, block_campaigns) == pytest.approx(expected)
+
+
+def test_the_block_interval_needs_whole_blocks() -> None:
+    with pytest.raises(ValueError, match="do not split"):
+        stats.block_interval(np.zeros(10))
+
+
+def test_the_lower_tail_is_the_mean_of_the_worst_fifth_rounded_up() -> None:
+    twelve = np.array([5.0, -2.0, 9.0, 0.0, 3.0, 7.0, 1.0, 8.0, 6.0, 4.0, 10.0, 2.0])
+    mean, count = stats.lower_tail_mean(twelve)
+    assert count == 3
+    assert mean == pytest.approx((-2.0 + 0.0 + 1.0) / 3)
+    twenty_nine = np.arange(29.0)[::-1] * 2.0
+    mean, count = stats.lower_tail_mean(twenty_nine)
+    assert count == 6
+    assert mean == pytest.approx((0.0 + 2.0 + 4.0 + 6.0 + 8.0 + 10.0) / 6)
+    assert stats.lower_tail_mean(np.arange(10.0))[1] == 2
+
+
+OPTIMAL_OUTCOMES = OutcomeValues(
+    margin_usd_ha=500.0, deficit_mm=40.0, bare_days=30.0, bare_rain_mm=20.0, drainage_mm=10.0
+)
+RIVAL_OUTCOMES = OutcomeValues(
+    margin_usd_ha=400.0, deficit_mm=60.0, bare_days=30.0, bare_rain_mm=25.0, drainage_mm=5.0
+)
+
+
+def hand_built_policy(
+    policy_id: str,
+    scores: list[float],
+    mean_outcomes: OutcomeValues,
+    lower_tail_margin: float,
+    first_year: int = 2013,
+) -> PolicyResult:
+    campaigns = [
+        CampaignReplay(
+            campaign_start_year=first_year + index,
+            enso_june="neutral",
+            enso_august="neutral",
+            water_start_fraction=0.5,
+            itinerary=Itinerary(winter="fallow", summer="maize"),
+            score=score,
+            outcomes=mean_outcomes,
+        )
+        for index, score in enumerate(scores)
+    ]
+    split = SplitReplay(
+        first_year=first_year,
+        last_year=first_year + len(scores) - 1,
+        mean_score=float(np.mean(scores)),
+        mean_outcomes=mean_outcomes,
+        lower_tail_margin_usd_ha=lower_tail_margin,
+        lower_tail_campaigns=3,
+        campaigns=campaigns,
+    )
+    return PolicyResult(
+        policy_id=policy_id,
+        kind="optimal" if policy_id == "optimal" else "named",
+        label=policy_id,
+        is_current=False,
+        note=None,
+        sequence=None,
+        expected_score=0.0,
+        train=split,
+        test=split,
+    )
+
+
+# Multiples of a quarter, so that adding and subtracting them is exact.
+GAINS = np.array([0.5, 0.0, -0.25, 0.75, 0.25, 0.0, 0.5, 0.25, 1.0, 0.0, 0.25, 0.5])
+
+
+def compare_with_rival(differences: np.ndarray, first_year: int = 2013) -> HeldOutComparison:
+    rival_scores = [float(i) for i in range(len(differences))]
+    optimal_scores = (np.array(rival_scores) + differences).tolist()
+    optimal = hand_built_policy("optimal", optimal_scores, OPTIMAL_OUTCOMES, 450.0)
+    rival = hand_built_policy("named:rival", rival_scores, RIVAL_OUTCOMES, 300.0, first_year)
+    return pipeline._held_out(optimal, rival)
+
+
+def test_held_out_comparison_pairs_campaigns_and_counts_strict_wins() -> None:
+    comparison = compare_with_rival(GAINS)
+    assert comparison.baseline_policy_id == "named:rival"
+    assert comparison.mean_score_difference == pytest.approx(float(GAINS.mean()))
+    assert comparison.campaigns == 12
+    # Eight campaigns are won, three tie and one is lost: ties are not wins.
+    assert comparison.campaigns_won == 8
+    assert comparison.interval_low == pytest.approx(reference_interval(GAINS, 3)[0])
+    assert comparison.interval_high == pytest.approx(reference_interval(GAINS, 3)[1])
+    assert comparison.interval_low <= comparison.mean_score_difference <= comparison.interval_high
+    assert comparison.conclusion == "better"
+    assert comparison.lower_tail_margin_difference_usd_ha == 150.0
+    # Optimal minus the rival, outcome by outcome, in each outcome's own units.
+    assert comparison.outcome_differences == OutcomeValues(
+        margin_usd_ha=100.0, deficit_mm=-20.0, bare_days=0.0, bare_rain_mm=-5.0, drainage_mm=5.0
+    )
+
+
+def test_held_out_mean_is_the_difference_of_the_policies_test_means() -> None:
+    optimal = hand_built_policy("optimal", [1.0, 2.0, 4.0] * 4, OPTIMAL_OUTCOMES, 450.0)
+    rival = hand_built_policy("named:rival", [0.5, 2.5, 1.0] * 4, RIVAL_OUTCOMES, 300.0)
+    comparison = pipeline._held_out(optimal, rival)
+    assert comparison.mean_score_difference == pytest.approx(
+        optimal.test.mean_score - rival.test.mean_score
+    )
+    assert comparison.mean_score_difference == pytest.approx(7 / 3 - 4 / 3)
+
+
+@pytest.mark.parametrize(
+    ("differences", "conclusion", "won"),
+    [
+        (GAINS, "better", 8),
+        (-GAINS, "worse", 1),
+        (np.repeat([0.5, -0.5, 0.5, -0.5], 3), "inconclusive", 6),
+        (np.zeros(12), "identical", 0),
+    ],
+)
+def test_held_out_conclusion_follows_the_interval(
+    differences: np.ndarray, conclusion: str, won: int
+) -> None:
+    comparison = compare_with_rival(differences)
+    assert comparison.conclusion == conclusion
+    assert comparison.campaigns_won == won
+    if conclusion == "better":
+        assert comparison.interval_low > 0
+    if conclusion == "worse":
+        assert comparison.interval_high < 0
+    if conclusion == "identical":
+        assert (comparison.interval_low, comparison.interval_high) == (0.0, 0.0)
+
+
+def test_differences_below_the_tolerance_count_as_identical() -> None:
+    assert compare_with_rival(np.full(12, 1e-12)).conclusion == "identical"
+    assert compare_with_rival(np.full(12, 1e-6)).conclusion == "better"
+
+
+def test_held_out_comparison_needs_the_same_campaigns() -> None:
+    with pytest.raises(ValueError, match="same campaigns"):
+        compare_with_rival(GAINS, first_year=2014)
+
+
 # Named strategies --------------------------------------------------------------------------
 
 PERGAMINO_ITINERARIES: tuple[tuple[Action, Action], ...] = (
@@ -440,6 +685,42 @@ def test_replaying_a_fixed_rotation_equals_the_simulators_own_rotation() -> None
     assert 2013 + len(plan) - 1 <= TEST_YEARS[-1]
 
 
+@needs_simulator_data
+def test_latest_enso_is_the_newest_campaign_after_the_held_out_ones() -> None:
+    data = dataset()
+    field = next(f for f in data.fields if f.field_id == "pergamino")
+
+    def latest(readings: dict[tuple[str, int], float]) -> tuple[EnsoReading | None, ...]:
+        return kernel.RegionSimulator(replace(data, oni=Oni(readings)), field).latest_enso()
+
+    # 2026 is the newest campaign with a February-April value; its July-September is not out.
+    june, august = latest({("FMA", 2025): 0.2, ("JAS", 2025): 0.9, ("FMA", 2026): -0.7})
+    assert june == EnsoReading(season="FMA", year=2026, oni=-0.7, phase="la_nina")
+    assert august is None
+    # Both published, at the +-0.5 thresholds.
+    june, august = latest({("FMA", 2025): 0.5, ("JAS", 2025): -0.5})
+    assert june == EnsoReading(season="FMA", year=2025, oni=0.5, phase="el_nino")
+    assert august == EnsoReading(season="JAS", year=2025, oni=-0.5, phase="la_nina")
+    # A held-out campaign is never the answer.
+    assert latest({("FMA", 2024): 0.9, ("JAS", 2024): 0.9}) == (None, None)
+
+
+@needs_simulator_data
+def test_the_setup_describes_the_region_without_simulating_campaigns() -> None:
+    simulator = kernel.RegionSimulator.load("pergamino")
+    setup = pipeline.describe_setup("pergamino")
+    assert setup.region_id == "pergamino"
+    assert setup.soil_capacity_mm == simulator.field.taw_mm
+    assert setup.water_levels == kernel.N_WATER_LEVELS
+    assert setup.initial_water_fraction == simulator.initial_water_fraction
+    assert [(i.winter, i.summer) for i in setup.itineraries] == list(simulator.itineraries)
+    assert "cover-soy" in {u.strategy_id for u in setup.unavailable_strategies}
+    assert (setup.latest_enso_june, setup.latest_enso_august) == simulator.latest_enso()
+    assert {"nasa-power", "noaa-oni"} <= {s.source_id for s in setup.sources}
+    with pytest.raises(kernel.UnknownFieldError):
+        pipeline.describe_setup("nowhere")
+
+
 # Whole run ---------------------------------------------------------------------------------
 
 
@@ -483,6 +764,37 @@ def run_pipeline(
     return result, progress
 
 
+# States of one campaign layer: June states plus August states for the two winter options.
+STATES_PER_LAYER = kernel.N_WATER_LEVELS * mdp.N_PHASES * (1 + 2)
+
+
+def check_baselines_and_held_out(result: RotationPlanResult) -> None:
+    others = [p for p in result.policies if p.policy_id != "optimal"]
+    held_out = result.verdict.held_out
+    assert [c.baseline_policy_id for c in held_out] == [p.policy_id for p in others]
+    for comparison, baseline in zip(held_out, others, strict=True):
+        assert comparison.campaigns == len(baseline.test.campaigns) == len(TEST_YEARS)
+        assert (
+            comparison.interval_low - 1e-12
+            <= comparison.mean_score_difference
+            <= comparison.interval_high + 1e-12
+        )
+        assert 0 <= comparison.campaigns_won <= comparison.campaigns
+    assert result.bootstrap == BootstrapMethod(
+        confidence=0.95, block_campaigns=3, blocks=4, resamples=256
+    )
+    assert [(t.enso_june, t.enso_august) for t in result.enso_transitions] == [
+        (june, august) for june in kernel.ENSO_PHASES for august in kernel.ENSO_PHASES
+    ]
+    assert sum(t.training_campaigns for t in result.enso_transitions) == len(TRAIN_YEARS)
+    for policy in result.policies:
+        # 29 training campaigns put the worst 6 in the tail; 12 held-out ones, the worst 3.
+        for split, tail in ((policy.train, 6), (policy.test, 3)):
+            margins = sorted(c.outcomes.margin_usd_ha for c in split.campaigns)
+            assert split.lower_tail_campaigns == tail
+            assert split.lower_tail_margin_usd_ha == pytest.approx(np.mean(margins[:tail]))
+
+
 @needs_simulator_data
 @pytest.mark.parametrize(
     ("region_id", "horizon", "has_second_soybean"), [("pergamino", 2, True), ("charata", 3, False)]
@@ -507,16 +819,28 @@ def test_a_run_reports_every_stage_and_a_consistent_verdict(
     assert progress.totals["train_agent"] == result.episodes * seeds
     assert progress.optimal_score is not None
 
-    optimal, agent, best = result.policies[:3]
-    assert [p.policy_id for p in (optimal, agent, best)] == ["optimal", "agent", "best_fixed"]
+    by_id = {p.policy_id: p for p in result.policies}
+    optimal, agent, best = by_id["optimal"], by_id["agent"], by_id["best_fixed"]
+    # Adaptive policies first, then the best fixed rotation, its margin-only rival, the named ones.
+    assert [p.kind for p in result.policies[:5]] == [
+        "optimal",
+        "agent",
+        "myopic",
+        "best_fixed",
+        "margin_only",
+    ]
+    named = [p for p in result.policies if p.kind == "named"]
+    assert len(named) == len(result.policies) - 5
     assert optimal.expected_score == pytest.approx(progress.optimal_score)
     assert agent.expected_score <= optimal.expected_score + 1e-9
     assert all(p.expected_score <= optimal.expected_score + 1e-9 for p in result.policies)
-    assert all(p.expected_score <= best.expected_score + 1e-9 for p in result.policies[3:])
+    assert all(p.expected_score <= best.expected_score + 1e-9 for p in named)
     assert all(point.agent_score <= progress.optimal_score + 1e-9 for point in progress.checkpoints)
     assert result.verdict.optimal_minus_best_fixed_expected >= -1e-9
-    assert result.verdict.test_campaigns == len(TEST_YEARS)
     assert result.verdict.agent_agreement_share == reported[-1].agreement_share
+    # The extra solves count too: the horizon, one campaign, and the horizon for margin only.
+    assert progress.totals["solve_optimal"] == STATES_PER_LAYER * (2 * horizon + 1)
+    check_baselines_and_held_out(result)
     assert sum(result.weights.model_dump().values()) == pytest.approx(1.0)
     assert [(p.train.first_year, p.test.last_year) for p in result.policies] == [
         (TRAIN_YEARS[0], TEST_YEARS[-1])
@@ -527,3 +851,24 @@ def test_a_run_reports_every_stage_and_a_consistent_verdict(
     assert ("wheat-soy2-maize-soy" not in unavailable) is has_second_soybean
     assert any(p.is_current for p in result.policies if p.kind == "named")
     RotationPlanResult.model_validate_json(result.model_dump_json())
+
+
+@needs_simulator_data
+@pytest.mark.parametrize(
+    ("horizon", "margin_first"), [(1, True), (2, True), (1, False)], ids=["h1", "h2", "h1-mixed"]
+)
+def test_baselines_follow_the_horizon_and_the_weights(horizon: int, margin_first: bool) -> None:
+    weights = (
+        PriorityWeights(margin_usd_ha=1, deficit_mm=0, bare_days=0, bare_rain_mm=0, drainage_mm=0)
+        if margin_first
+        else PriorityWeights(
+            margin_usd_ha=0.6, deficit_mm=0, bare_days=0.4, bare_rain_mm=0, drainage_mm=0
+        )
+    )
+    result, progress = run_pipeline("pergamino", horizon, weights)
+    kinds = [p.kind for p in result.policies]
+    assert ("myopic" in kinds) is (horizon > 1)
+    assert ("margin_only" in kinds) is not margin_first
+    solves = horizon + (1 if horizon > 1 else 0) + (0 if margin_first else horizon)
+    assert progress.totals["solve_optimal"] == STATES_PER_LAYER * solves
+    check_baselines_and_held_out(result)

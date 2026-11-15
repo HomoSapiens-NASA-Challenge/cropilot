@@ -1,125 +1,165 @@
-import type { OutcomeValues, RotationPlanResult } from "@cropilot/api"
+import type { HeldOutComparison, RotationPlanResult } from "@cropilot/api"
+import type { ReactNode } from "react"
+import { ConclusionBadge } from "@/features/planner/conclusion-badge"
+import { OutcomeDeltas } from "@/features/planner/outcome-deltas"
 import {
-  formatOutcomeDelta,
+  campaignName,
+  formatInterval,
   formatScore,
   formatShare,
+  sourcesById,
 } from "@/features/planner/planner-format"
-import { OUTCOMES } from "@/features/planner/planner-outcomes"
+import {
+  confidencePercent,
+  heldOutAgainst,
+  heldOutAgainstKind,
+  policyOfKind,
+} from "@/features/planner/planner-results"
+import { ResultSection } from "@/features/planner/result-section"
 
-const TIE_TOLERANCE = 1e-9
-
-/** The optimum is itself the best fixed rotation: no gap to report, in any split. */
-function isFixedOptimum(result: RotationPlanResult): boolean {
-  const { verdict } = result
-  return (
-    Math.abs(verdict.optimal_minus_best_fixed_expected) < TIE_TOLERANCE &&
-    Math.abs(verdict.optimal_minus_best_fixed_train) < TIE_TOLERANCE &&
-    Math.abs(verdict.optimal_minus_best_fixed_test) < TIE_TOLERANCE
-  )
-}
+const HEADLINE_VERB = {
+  better: "beats",
+  worse: "scores below",
+  inconclusive: "cannot be told apart from",
+} as const
 
 /**
- * The sentence is composed from the verdict numbers of the run: when the optimal policy does
- * not beat the best fixed rotation, it says so instead of rounding the gap into a win.
+ * The sentence is composed from the held-out comparison of the run: when the optimum is not
+ * clearly better than the best fixed rotation, it says so instead of rounding the gap into a win.
  */
-function verdictSentence(result: RotationPlanResult): string {
-  const { verdict, policies } = result
-  const optimal = policies.find((policy) => policy.kind === "optimal")
-  const bestFixed = policies.find(
-    (policy) => policy.policy_id === verdict.best_fixed_policy_id
+function verdictSentence(
+  result: RotationPlanResult,
+  versusFixed: HeldOutComparison,
+  fixedLabel: string
+): string {
+  const fixedName = `the best fixed rotation (${fixedLabel})`
+  if (versusFixed.conclusion === "identical") {
+    return `With these priorities, the exact optimum is itself a fixed rotation: ${fixedLabel}, every campaign. Reading El Niño or soil water does not change the choice.`
+  }
+  const verb = HEADLINE_VERB[versusFixed.conclusion]
+  const interval = `${confidencePercent(result)} interval ${formatInterval(versusFixed.interval_low, versusFixed.interval_high)}`
+  return `On the ${versusFixed.campaigns} held-out campaigns, the exact optimum ${verb} ${fixedName}: ${formatScore(versusFixed.mean_score_difference)} per campaign (${interval}), better in ${versusFixed.campaigns_won} of ${versusFixed.campaigns}.`
+}
+
+function Tile({
+  label,
+  badge,
+  figure,
+  children,
+}: {
+  label: string
+  badge?: ReactNode
+  figure: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-2 rounded-xl border p-4">
+      <div className="flex min-h-5 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        {badge}
+      </div>
+      <span className="text-3xl font-light tracking-tight tabular-nums">
+        {figure}
+      </span>
+      <p className="text-xs text-muted-foreground">{children}</p>
+    </div>
   )
-  const fixedName = bestFixed
-    ? `the best fixed rotation (${bestFixed.label})`
-    : "the best fixed rotation"
-  if (isFixedOptimum(result)) {
-    return `With these priorities, the exact optimum is itself a fixed rotation: ${bestFixed?.label ?? "the best fixed rotation"}, every campaign. Reading El Niño or soil water does not change the choice.`
-  }
-  const fitted = optimal?.train.campaigns.length ?? 0
-  const heldOut = verdict.test_campaigns
-  const train = verdict.optimal_minus_best_fixed_train
-  const test = verdict.optimal_minus_best_fixed_test
-  const record = `won ${verdict.test_campaigns_won} of ${heldOut}`
-
-  const trainPart =
-    train > 0
-      ? `beats ${fixedName} by ${formatScore(train)} per campaign in the ${fitted} campaigns it was fitted on`
-      : `does not beat ${fixedName} in the ${fitted} campaigns it was fitted on (${formatScore(train)} per campaign)`
-
-  let testPart: string
-  if (test > 0) {
-    testPart =
-      train > 0
-        ? `, and by ${formatScore(test)} on the ${heldOut} held-out campaigns (${record}).`
-        : `. On the ${heldOut} held-out campaigns it beats it by ${formatScore(test)} per campaign (${record}).`
-  } else {
-    testPart =
-      train > 0
-        ? `, but it does not beat it on the ${heldOut} held-out campaigns (${formatScore(test)} per campaign; ${record}).`
-        : `. It does not beat it on the ${heldOut} held-out campaigns either (${formatScore(test)} per campaign; ${record}).`
-  }
-
-  return `With these priorities, the exact optimal policy ${trainPart}${testPart}`
 }
 
-function betterOrWorse(
-  id: keyof OutcomeValues,
-  delta: number
-): "better" | "worse" | "the same" {
-  if (delta === 0) return "the same"
-  const isHigherBetter = id === "margin_usd_ha"
-  return delta > 0 === isHigherBetter ? "better" : "worse"
-}
-
-/** The headline of a finished run: how the optimal policy fares against the best fixed rotation. */
+/** The headline of a finished run: how the optimum fares on the held-out campaigns, in four tiles. */
 export function VerdictBlock({ result }: { result: RotationPlanResult }) {
   const { verdict } = result
-  const heldOutDelta = verdict.optimal_minus_best_fixed_test_outcomes
+  const optimal = policyOfKind(result, "optimal")
+  const bestFixed = result.policies.find(
+    (policy) => policy.policy_id === verdict.best_fixed_policy_id
+  )
+  const versusFixed = heldOutAgainst(result, verdict.best_fixed_policy_id)
+  if (!optimal || !bestFixed || !versusFixed) {
+    throw new Error("The run has no optimum or no held-out best fixed rotation")
+  }
+  const versusMyopic = heldOutAgainstKind(result, "myopic")
+  const percent = confidencePercent(result)
+  const fitted = optimal.train.campaigns.length
+  const heldOut = `${campaignName(optimal.test.first_year)} to ${campaignName(optimal.test.last_year)}`
 
   return (
-    <section
-      aria-label="Verdict"
-      className="flex flex-col gap-6 rounded-xl border bg-card p-4 sm:p-6"
+    <ResultSection
+      title="Verdict"
+      lead={`Held-out campaigns ${heldOut}: never used to fit the plan or to choose the best fixed rotation.`}
+      aside={
+        <span className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">
+            Against best fixed
+          </span>
+          <ConclusionBadge conclusion={versusFixed.conclusion} />
+        </span>
+      }
+      sources={sourcesById(result.sources, ["nasa-power", "noaa-oni"])}
     >
       <p className="max-w-4xl text-xl/8 font-light tracking-tight text-balance sm:text-2xl/9">
-        {verdictSentence(result)}
+        {verdictSentence(result, versusFixed, bestFixed.label)}
       </p>
 
-      {!isFixedOptimum(result) && (
-        <div className="flex flex-col gap-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Tile
+          label="Optimum minus best fixed"
+          figure={formatScore(versusFixed.mean_score_difference)}
+        >
+          Mean score per campaign, {percent} interval{" "}
+          {formatInterval(versusFixed.interval_low, versusFixed.interval_high)}.
+        </Tile>
+        <Tile
+          label="Campaigns won"
+          figure={`${versusFixed.campaigns_won} of ${versusFixed.campaigns}`}
+        >
+          Held-out campaigns where the optimum scores strictly above the best
+          fixed rotation.
+        </Tile>
+        {versusMyopic ? (
+          <Tile
+            label="Planning ahead"
+            badge={<ConclusionBadge conclusion={versusMyopic.conclusion} />}
+            figure={formatScore(versusMyopic.mean_score_difference)}
+          >
+            Optimum minus one campaign at a time, {percent} interval{" "}
+            {formatInterval(
+              versusMyopic.interval_low,
+              versusMyopic.interval_high
+            )}
+            .
+          </Tile>
+        ) : (
+          <Tile label="Planning ahead" figure="n/a">
+            With one campaign planned ahead the optimum already plans one
+            campaign at a time. Plan two or more to compare.
+          </Tile>
+        )}
+        <Tile
+          label="Agent versus optimum"
+          figure={formatShare(verdict.agent_agreement_share)}
+        >
+          Of the states where the learning agent picks the optimal action. Its
+          expected score differs from the optimum by{" "}
+          {formatScore(verdict.agent_minus_optimal_expected)} per campaign.
+        </Tile>
+      </div>
+
+      {versusFixed.conclusion !== "identical" && (
+        <div className="flex flex-col gap-4 border-t pt-6">
           <h3 className="text-sm font-medium">
-            On the held-out campaigns, optimal minus best fixed, mean per
-            campaign
+            In real units: optimum minus best fixed, mean per held-out campaign
           </h3>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
-            {OUTCOMES.map((outcome) => (
-              <div key={outcome.id} className="flex flex-col gap-0.5">
-                <dt className="text-xs text-muted-foreground">
-                  {outcome.label}
-                </dt>
-                <dd className="text-lg font-light tracking-tight tabular-nums">
-                  {formatOutcomeDelta(outcome.id, heldOutDelta[outcome.id])}
-                </dd>
-                <dd className="text-xs text-muted-foreground">
-                  {betterOrWorse(outcome.id, heldOutDelta[outcome.id])}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <OutcomeDeltas deltas={versusFixed.outcome_differences} />
         </div>
       )}
 
-      <p className="max-w-3xl border-t pt-4 text-sm text-muted-foreground">
-        The learning agent (agent 1) picks the optimal action in{" "}
-        <span className="tabular-nums text-foreground">
-          {formatShare(verdict.agent_agreement_share)}
-        </span>{" "}
-        of the states, and its expected score differs from the optimum by{" "}
-        <span className="tabular-nums text-foreground">
-          {formatScore(verdict.agent_minus_optimal_expected)}
-        </span>{" "}
-        per campaign. The best fixed rotation was chosen on the fitted campaigns
-        only.
-      </p>
-    </section>
+      <div className="border-t pt-6">
+        <p className="max-w-3xl text-xs text-muted-foreground">
+          On the {fitted} fitted campaigns the optimum minus the best fixed
+          rotation was {formatScore(verdict.optimal_minus_best_fixed_train)} per
+          campaign. The best fixed rotation was chosen on those campaigns only.
+        </p>
+      </div>
+    </ResultSection>
   )
 }

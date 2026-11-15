@@ -13,13 +13,14 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 
-from app.modules.rotation_planner import pipeline
+from app.modules.rotation_planner import kernel, pipeline
 from app.modules.rotation_planner.schemas import (
     STAGE_IDS,
     ConvergencePoint,
     RotationPlanRequest,
     RotationPlanResult,
     RotationPlanRun,
+    RotationPlanSetup,
     RunStatus,
     StageId,
     StageProgress,
@@ -40,6 +41,11 @@ _latest_by_owner: dict[str, str] = {}
 class RunNotFoundError(Exception):
     def __init__(self, run_id: str) -> None:
         super().__init__(f"Unknown rotation plan run: {run_id}")
+
+
+class RegionNotSimulatedError(Exception):
+    def __init__(self, region_id: str) -> None:
+        super().__init__(f"The simulator has no field for region: {region_id}")
 
 
 class RunCancelledError(Exception):
@@ -172,6 +178,15 @@ def get_rotation_plan(owner_id: str, run_id: str) -> RotationPlanRun:
     if entry is None or entry[0] != owner_id:
         raise RunNotFoundError(run_id)
     return entry[1]
+
+
+def get_rotation_plan_setup(region_id: str) -> RotationPlanSetup:
+    """Raises `pipeline.SimulatorDataError` without inputs, `RegionNotSimulatedError` if unknown."""
+    pipeline.ensure_inputs()
+    try:
+        return pipeline.describe_setup(region_id)
+    except kernel.UnknownFieldError as error:
+        raise RegionNotSimulatedError(region_id) from error
 
 
 def _execute(run_id: str, region_id: str, request: RotationPlanRequest) -> None:

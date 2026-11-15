@@ -38,6 +38,18 @@ export const zBlockMeta = z.object({
 });
 
 /**
+ * BootstrapMethod
+ *
+ * Every ordered resample of the held-out blocks, with replacement; no random draws.
+ */
+export const zBootstrapMethod = z.object({
+    confidence: z.number().gt(0).lt(1),
+    block_campaigns: z.int().gte(1),
+    blocks: z.int().gte(1),
+    resamples: z.int().gte(1)
+});
+
+/**
  * CampaignNote
  */
 export const zCampaignNote = z.object({
@@ -360,6 +372,41 @@ export const zEnsoPhase = z.object({
 });
 
 /**
+ * EnsoReading
+ *
+ * One published NOAA ONI season value and the phase it implies (+-0.5 thresholds).
+ */
+export const zEnsoReading = z.object({
+    season: z.enum(['FMA', 'JAS']),
+    year: z.int(),
+    oni: z.number(),
+    phase: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ])
+});
+
+/**
+ * EnsoTransition
+ *
+ * How often a June El Niño phase was followed by each August phase in training.
+ */
+export const zEnsoTransition = z.object({
+    enso_june: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ]),
+    enso_august: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ]),
+    training_campaigns: z.int().gte(0)
+});
+
+/**
  * FarmCreate
  */
 export const zFarmCreate = z.object({
@@ -543,6 +590,28 @@ export const zCampaignReplay = z.object({
     itinerary: zItinerary,
     score: z.number(),
     outcomes: zOutcomeValues
+});
+
+/**
+ * HeldOutComparison
+ *
+ * Optimal policy minus one baseline on the held-out campaigns, paired campaign by campaign.
+ */
+export const zHeldOutComparison = z.object({
+    baseline_policy_id: z.string(),
+    mean_score_difference: z.number(),
+    interval_low: z.number(),
+    interval_high: z.number(),
+    conclusion: z.enum([
+        'better',
+        'worse',
+        'inconclusive',
+        'identical'
+    ]),
+    campaigns_won: z.int().gte(0),
+    campaigns: z.int().gte(1),
+    outcome_differences: zOutcomeValues,
+    lower_tail_margin_difference_usd_ha: z.number()
 });
 
 /**
@@ -769,6 +838,8 @@ export const zSplitReplay = z.object({
     last_year: z.int(),
     mean_score: z.number(),
     mean_outcomes: zOutcomeValues,
+    lower_tail_margin_usd_ha: z.number(),
+    lower_tail_campaigns: z.int().gte(1),
     campaigns: z.array(zCampaignReplay)
 });
 
@@ -780,6 +851,8 @@ export const zPolicyResult = z.object({
     kind: z.enum([
         'optimal',
         'agent',
+        'myopic',
+        'margin_only',
         'best_fixed',
         'named'
     ]),
@@ -877,6 +950,23 @@ export const zUnavailableStrategy = z.object({
 });
 
 /**
+ * RotationPlanSetup
+ *
+ * What the wizard needs before a run: the region as the simulator sees it.
+ */
+export const zRotationPlanSetup = z.object({
+    region_id: z.string(),
+    soil_capacity_mm: z.number(),
+    water_levels: z.int(),
+    initial_water_fraction: z.number().gte(0).lte(1),
+    itineraries: z.array(zItinerary),
+    unavailable_strategies: z.array(zUnavailableStrategy),
+    latest_enso_june: zEnsoReading.nullable(),
+    latest_enso_august: zEnsoReading.nullable(),
+    sources: z.array(zPlannerSource)
+});
+
+/**
  * UnharvestedRow
  *
  * Planted but not harvested area by ENSO phase known at the end of August.
@@ -916,18 +1006,15 @@ export const zHttpValidationError = z.object({
 /**
  * Verdict
  *
- * Optimal policy against the best fixed rotation, chosen on training campaigns only.
+ * Optimal policy against the baselines; the best fixed rotation is chosen on training only.
  */
 export const zVerdict = z.object({
     best_fixed_policy_id: z.string(),
     optimal_minus_best_fixed_expected: z.number(),
     optimal_minus_best_fixed_train: z.number(),
-    optimal_minus_best_fixed_test: z.number(),
-    optimal_minus_best_fixed_test_outcomes: zOutcomeValues,
-    test_campaigns_won: z.int().gte(0),
-    test_campaigns: z.int().gte(0),
     agent_minus_optimal_expected: z.number(),
-    agent_agreement_share: z.number().gte(0).lte(1)
+    agent_agreement_share: z.number().gte(0).lte(1),
+    held_out: z.array(zHeldOutComparison)
 });
 
 /**
@@ -944,6 +1031,8 @@ export const zRotationPlanResult = z.object({
     decisions: z.array(zDecisionCell),
     unavailable_strategies: z.array(zUnavailableStrategy),
     verdict: zVerdict,
+    bootstrap: zBootstrapMethod,
+    enso_transitions: z.array(zEnsoTransition),
     sources: z.array(zPlannerSource)
 });
 
@@ -1290,6 +1379,11 @@ export const zStartRotationPlanBody = zRotationPlanRequest;
  * Successful Response
  */
 export const zStartRotationPlanResponse = zRotationPlanRun;
+
+/**
+ * Successful Response
+ */
+export const zGetRotationPlanSetupResponse = zRotationPlanSetup;
 
 export const zGetRotationPlanPath = z.object({
     run_id: z.string()

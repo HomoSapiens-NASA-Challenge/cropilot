@@ -126,6 +126,16 @@ def greedy(tables: Tables) -> Policy:
     return Policy(winter=tables.june.argmax(axis=-1), itinerary=tables.august.argmax(axis=-1))
 
 
+def repeat_policy(policy: Policy, horizon: int) -> Policy:
+    """The tables of a one-campaign policy, applied at every campaign of a longer horizon."""
+    if policy.winter.shape[0] != 1 or policy.itinerary.shape[0] != 1:
+        raise ValueError("Only a one-campaign policy can be repeated")
+    return Policy(
+        winter=np.repeat(policy.winter, horizon, axis=0),
+        itinerary=np.repeat(policy.itinerary, horizon, axis=0),
+    )
+
+
 def enumerate_cycles(
     n_itineraries: int, max_length: int = MAX_CYCLE_LENGTH
 ) -> list[tuple[int, ...]]:
@@ -210,6 +220,11 @@ class Process:
     @property
     def n_states(self) -> int:
         return self.horizon * self.states_per_layer
+
+    def phase_transitions(self) -> IntArray:
+        """Training campaigns by (June phase, August phase): the true counts, zeros included."""
+        pairs = self.kernel.june_phase * N_PHASES + self.kernel.august_phase
+        return np.bincount(pairs, minlength=N_PHASES * N_PHASES).reshape(N_PHASES, N_PHASES)
 
     def solve(self, on_layer: Callable[[int], None] | None = None) -> Solution:
         """Backward induction. `on_layer(done)` is called after each of the H campaign layers."""

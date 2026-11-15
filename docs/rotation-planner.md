@@ -8,10 +8,10 @@ Each run is computed live from the team's rotation simulator (`apps/backend/vend
 
 1. **Simulate.** For every training campaign (1984/85-2012/13), every itinerary the region allows and 11 soil water levels (0 to 100 % of capacity), run the simulator. One batched call covers the 11 levels, so a run simulates years x itineraries x 11 campaign-states.
 2. **Build the decision process** (a tabular MDP, `mdp.py`) from those results.
-3. **Solve** it exactly by backward induction.
+3. **Solve** it exactly by backward induction. Two more processes on the same kernel are solved for baselines: the one-campaign horizon (when the horizon is above 1) and the margin-only weights (when the priorities are not already margin only). The stage counts the states of every process it solves.
 4. **Train** five tabular Q-learning agents, one after another, each from its own random seed (30,000 x horizon episodes each). At 40 checkpoints per agent, report its **exact** policy value and the share of decision states where its greedy action is optimal. Nothing is estimated from noisy returns. The first agent is the one reported as "agent"; the other four show that reaching the optimum does not hinge on one seed.
 5. **Score fixed rotations**: every repeating cycle of 1 to 3 campaigns, and the region's named strategies from the demo case.
-6. **Backtest**: replay every policy through the real simulator on 1984-2012 (train) and 2013/14-2024/25 (held out), as one continuous chain per split.
+6. **Backtest**: replay every policy through the real simulator on 1984-2012 (train) and 2013/14-2024/25 (held out), as one continuous chain per split, then compare the optimum with every other policy on the held-out campaigns (see below).
 
 ## The decision process
 
@@ -21,6 +21,33 @@ Each run is computed live from the team's rotation simulator (`apps/backend/vend
 - **Score** of a campaign: `sum(weight x sign x outcome / scale)`. Weights are normalised to sum 1. Margin counts up; water deficit, bare-soil days, rain on bare soil and drainage count down. The scale is each outcome's standard deviation over the training kernel, so scores are unitless; outcomes are always shown in their own units beside them. No discounting; the value after the last campaign is 0.
 - **Fixed rotations** are valued exactly, as open-loop plans over the horizon. Each cycle is entered at the campaign that suits it best, chosen on training campaigns only. The verdict compares the optimal policy with the best of them.
 - **Backtest of adaptive policies** re-plans every June with its first-campaign table (receding horizon). Fixed ones cycle their sequence from the first campaign.
+
+## Policies and the held-out comparison
+
+The result lists policies in this order; clients find one by `policy_id` or `kind`, never by position.
+
+- `optimal`: the exact optimum for the user's weights and horizon.
+- `agent`: the first Q-learning agent.
+- `myopic`, "One campaign at a time (greedy)", only when the horizon is above 1: the exact optimum of the same process with a one-campaign horizon (same kernel and weights), applied again at every campaign. It reads soil water and El Niño phase like the optimum and differs only in ignoring the campaigns after the next one. Its expected score is evaluated on the user's process by repeating its one-campaign tables across the horizon. At horizon 1 it equals the optimum and is left out.
+- `best_fixed`: the best repeating cycle on training campaigns.
+- `margin_only`, "Margin only", only when the weights are not already margin only: the exact optimum of the same horizon with all weight on gross margin. It is replayed and scored (expected, train, held-out) with the **user's** weights, so its differences from the optimum are comparable and show what the other priorities change.
+- `named`: the region's case strategies.
+
+`verdict.held_out` has one entry per policy other than `optimal`, in that order. Each is the optimum minus the baseline, paired campaign by campaign over the 12 held-out campaigns:
+
+- the mean score difference, the campaigns won (strictly higher score), the difference of mean outcomes in their own units, and the difference of bad-year margin;
+- **interval:** the 12 campaigns are cut into 4 consecutive blocks of 3. The mean difference is recomputed for every ordered resample of 4 blocks with replacement (4^4 = 256, no random draws), and the interval is the 2.5th to 97.5th percentile of those means. `bootstrap` in the result states the confidence, block size, blocks and resamples, computed from the split length;
+- **conclusion:** `identical` when the two policies differ by less than 1e-9 on every campaign (they played the same crops), `better` when the whole interval is above 0, `worse` when it is below 0, otherwise `inconclusive`.
+
+**Bad-year margin** is the mean gross margin of the worst `ceil(n / 5)` campaigns of a split: 3 of 12 held-out campaigns, 6 of 29 training campaigns. It is a plain lower-tail mean, not a CVaR.
+
+The training campaigns of each June phase followed by each August phase are reported as `enso_transitions`, all nine pairs with zeros included, so a client can say how often each August phase followed a given June phase.
+
+Protocol credit: the held-out split, the paired block resample and the greedy baseline come from the team's RL research: Martín B.'s rotation lab (`research/rl/design.md`, hub branch `docs/rl-research`) and Joaquín C.'s national resilience lab (hub branch `docs/rl-resilience-national`), which enumerates the same 4^4 block resamples and also reports a lower-tail measure and the effect of changing the objective. This planner reimplements them on the live simulator; none of their numbers are shown. See `../submission.md`.
+
+## Region setup
+
+`GET /api/rotation-plans/setup` describes the workspace region before any run, without simulating a campaign: soil water capacity, the 11 water levels, the simulator's declared starting soil water (an assumption, not a measurement), the itineraries the simulator can play, the case strategies it cannot (with the reason), the sources, and the latest NOAA readings. The latest readings are the newest campaign after the held-out ones with a published February-April ONI, and its July-September value if published; a missing one is null. Both phases use the same +-0.5 rule as the decision process. With the NOAA file installed on 2026-11-15 they are Feb-Apr 2026 +0.11 (neutral) and Jul-Sep 2026 +2.16 (El Niño).
 
 ## Assumptions
 
@@ -40,7 +67,7 @@ The simulator data is not in git. From a simulator checkout with prepared data:
 scripts/rotation_sim/install.sh ../simulator
 ```
 
-This copies `fields.json`, the NASA POWER weather and the ONI file into `apps/backend/data/rotation-sim`. Without it, `POST /api/rotation-plans` answers 503.
+This copies `fields.json`, the NASA POWER weather and the ONI file into `apps/backend/data/rotation-sim`. Without it, `POST /api/rotation-plans` and `GET /api/rotation-plans/setup` answer 503.
 
 ## Limits
 
@@ -48,4 +75,5 @@ This copies `fields.json`, the NASA POWER weather and the ONI file into `apps/ba
 - Cover crops are not modelled. Second soybean is only available where MAGyP has a usable record. Strategies that need either are listed as unavailable with the reason.
 - ENSO is the only signal the policy reads besides soil water. Many regions show little gain over a good fixed rotation; the verdict reports exactly that.
 - Training campaigns are 29. A policy chosen on them can lose on the held-out campaigns, and the planner shows when it does.
+- The held-out interval rests on 4 blocks, which is coarse: "better" needs nearly every block to agree. The campaigns are one continuous chain (soil water carries over), so blocks are not independent restarts. The interval describes these 12 campaigns, not future ones.
 - Runs live in the memory of one API process; a restart drops them.

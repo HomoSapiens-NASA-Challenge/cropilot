@@ -26,7 +26,7 @@ from rotation_sim.weather import campaign_label
 
 from app.core.config import RotationSimSettings
 from app.modules.rotation_planner import mdp
-from app.modules.rotation_planner.schemas import Action, EnsoPhase
+from app.modules.rotation_planner.schemas import Action, EnsoPhase, EnsoReading, EnsoSeason
 
 N_WATER_LEVELS = 11
 ENSO_PHASES: tuple[EnsoPhase, ...] = ("la_nina", "neutral", "el_nino")
@@ -95,6 +95,10 @@ class RegionSimulator:
     def __init__(self, dataset: Dataset, field: Field) -> None:
         if COMPONENTS != mdp.COMPONENT_NAMES:
             raise ValueError(f"The simulator's outcomes changed: {COMPONENTS}")
+        if (JUNE_SEASON, AUGUST_SEASON) != ("FMA", "JAS"):
+            raise ValueError(
+                f"The simulator's decision seasons changed: {JUNE_SEASON}, {AUGUST_SEASON}"
+            )
         self._dataset = dataset
         self.field = field
         self._weather = dataset.weather[field.field_id]
@@ -143,6 +147,29 @@ class RegionSimulator:
         return (
             enso_phase_index(oni.anomaly(JUNE_SEASON, year)),
             enso_phase_index(oni.anomaly(AUGUST_SEASON, year)),
+        )
+
+    def latest_enso(self) -> tuple[EnsoReading | None, EnsoReading | None]:
+        """The newest campaign after the held-out ones with a published February-April ONI.
+
+        Returns that reading and the July-September one of the same campaign; a reading NOAA has
+        not published is None.
+        """
+        latest: EnsoReading | None = None
+        year = self.test_years[-1] + 1
+        while (reading := self._enso_reading("FMA", year)) is not None:
+            latest, year = reading, year + 1
+        if latest is None:
+            return None, None
+        return latest, self._enso_reading("JAS", latest.year)
+
+    def _enso_reading(self, season: EnsoSeason, year: int) -> EnsoReading | None:
+        try:
+            anomaly = self._dataset.oni.anomaly(season, year)
+        except KeyError:
+            return None
+        return EnsoReading(
+            season=season, year=year, oni=anomaly, phase=ENSO_PHASES[enso_phase_index(anomaly)]
         )
 
     def build_kernel(self, on_call: Callable[[int], None]) -> mdp.Kernel:

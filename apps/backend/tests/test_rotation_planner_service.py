@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.modules.rotation_planner import pipeline, service
+from app.modules.rotation_planner import kernel, pipeline, service
 from app.modules.rotation_planner.schemas import (
     STAGE_IDS,
     ConvergencePoint,
@@ -15,6 +15,7 @@ from app.modules.rotation_planner.schemas import (
     RotationPlanRequest,
     RotationPlanResult,
     RotationPlanRun,
+    RotationPlanSetup,
     RunStatus,
 )
 
@@ -130,3 +131,14 @@ def test_missing_simulator_inputs_are_reported(
 
     with pytest.raises(pipeline.SimulatorDataError, match=r"install\.sh"):
         pipeline.ensure_inputs()
+
+
+@pytest.mark.usefixtures("inputs_present")
+def test_a_region_without_a_simulator_field_has_no_setup(monkeypatch: pytest.MonkeyPatch) -> None:
+    def unknown(region_id: str) -> RotationPlanSetup:
+        raise kernel.UnknownFieldError(region_id)
+
+    monkeypatch.setattr(pipeline, "describe_setup", unknown)
+
+    with pytest.raises(service.RegionNotSimulatedError, match="nowhere"):
+        service.get_rotation_plan_setup("nowhere")

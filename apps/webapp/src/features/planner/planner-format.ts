@@ -1,6 +1,12 @@
-import type { Itinerary, OutcomeValues } from "@cropilot/api"
+import type {
+  EnsoReading,
+  Itinerary,
+  OutcomeValues,
+  PlannerSource,
+} from "@cropilot/api"
 import type {
   Action,
+  Conclusion,
   EnsoPhase,
   PolicyKind,
 } from "@/features/planner/planner-types"
@@ -54,16 +60,46 @@ export const ENSO_ORDER = [
 export const POLICY_KIND_LABEL = {
   optimal: "Exact optimum",
   agent: "Learning agent",
+  myopic: "One campaign at a time",
   best_fixed: "Best fixed rotation",
+  margin_only: "Margin only",
   named: "Named strategy",
 } as const satisfies Record<PolicyKind, string>
 
 export const POLICY_KIND_ORDER = [
   "optimal",
   "agent",
+  "myopic",
   "best_fixed",
+  "margin_only",
   "named",
 ] as const satisfies ReadonlyArray<PolicyKind>
+
+/** The held-out conclusion of the optimum against one baseline, as a word. */
+export const CONCLUSION_LABEL = {
+  better: "Better",
+  worse: "Worse",
+  inconclusive: "Inconclusive",
+  identical: "Identical",
+} as const satisfies Record<Conclusion, string>
+
+const ENSO_SEASON_LABEL = {
+  FMA: "Feb-Apr",
+  JAS: "Jul-Sep",
+} as const satisfies Record<EnsoReading["season"], string>
+
+/** `NOAA ONI Feb-Apr 2026: +0.11 (Neutral)`, the reading a default phase comes from. */
+export function describeEnsoReading(reading: EnsoReading): string {
+  return `NOAA ONI ${ENSO_SEASON_LABEL[reading.season]} ${reading.year}: ${formatSigned(reading.oni)} (${ENSO_LABEL[reading.phase]})`
+}
+
+/** The sources a card draws on, picked from the run's own list by id. */
+export function sourcesById(
+  sources: ReadonlyArray<PlannerSource>,
+  ids: ReadonlyArray<string>
+): PlannerSource[] {
+  return sources.filter((source) => ids.includes(source.source_id))
+}
 
 const WHOLE_NUMBER = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
@@ -87,6 +123,11 @@ export function formatScore(value: number): string {
 
 export function formatShare(fraction: number): string {
   return `${Math.round(fraction * 100)}%`
+}
+
+/** An interval as plain words: `-0.31 to +0.10`. */
+export function formatInterval(low: number, high: number): string {
+  return `${formatScore(low)} to ${formatScore(high)}`
 }
 
 /** Measured wall time: milliseconds below a second, one decimal of seconds above. */

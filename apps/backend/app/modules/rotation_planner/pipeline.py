@@ -8,12 +8,16 @@ import numpy as np
 
 from app.core.config import RotationSimSettings
 from app.modules.cases import service as cases_service
-from app.modules.rotation_planner import kernel, mdp
+from app.modules.rotation_planner import kernel, mdp, stats
 from app.modules.rotation_planner.schemas import (
     Action,
+    BootstrapMethod,
     CampaignReplay,
+    Conclusion,
     ConvergencePoint,
     DecisionCell,
+    EnsoTransition,
+    HeldOutComparison,
     Itinerary,
     OutcomeValues,
     PlannerSource,
@@ -22,6 +26,7 @@ from app.modules.rotation_planner.schemas import (
     PriorityWeights,
     RotationPlanRequest,
     RotationPlanResult,
+    RotationPlanSetup,
     SplitReplay,
     StageId,
     UnavailableStrategy,
@@ -42,6 +47,11 @@ CHECKPOINTS = 40
 # Independent agents, trained one after another: the spread of their curves shows that
 # reaching the optimum does not depend on one lucky random seed.
 AGENT_SEEDS = (2026, 2027, 2028, 2029, 2030)
+
+# Two policies play alike when their scores differ by less than this on every held-out campaign.
+IDENTICAL_TOLERANCE = 1e-9
+# The baseline that plans for gross margin alone.
+MARGIN_ONLY_WEIGHTS: mdp.FloatArray = np.array([1.0, 0.0, 0.0, 0.0, 0.0])
 
 # The case labels the simulator can play, as (winter, summer) itineraries.
 SEQUENCE_ITINERARIES: dict[str, tuple[Action, Action]] = {
@@ -107,6 +117,24 @@ def ensure_inputs() -> None:
         )
 
 
+def describe_setup(region_id: str) -> RotationPlanSetup:
+    """The region as the simulator sees it. Raises `kernel.UnknownFieldError` without a field."""
+    sim = kernel.RegionSimulator.load(region_id)
+    _, unavailable = _named_strategies(region_id, sim)
+    june, august = sim.latest_enso()
+    return RotationPlanSetup(
+        region_id=region_id,
+        soil_capacity_mm=sim.field.taw_mm,
+        water_levels=kernel.N_WATER_LEVELS,
+        initial_water_fraction=sim.initial_water_fraction,
+        itineraries=[_itinerary(pair) for pair in sim.itineraries],
+        unavailable_strategies=unavailable,
+        latest_enso_june=june,
+        latest_enso_august=august,
+        sources=_sources(sim),
+    )
+
+
 def resolve_sequence(
     sequence: list[str], itineraries: tuple[tuple[Action, Action], ...], department: str
 ) -> tuple[int, ...] | Unavailable:
@@ -156,10 +184,39 @@ def run(
     progress.start_stage("build_mdp", process.n_states, STAGE_UNITS["build_mdp"])
     progress.finish_stage("build_mdp")
 
-    progress.start_stage("solve_optimal", process.n_states, STAGE_UNITS["solve_optimal"])
-    optimum = process.solve(
-        lambda layers: progress.advance("solve_optimal", layers * process.states_per_layer)
+    # Two baselines are optima of other processes on the same kernel: planning one campaign at
+    # a time, and planning the whole horizon for margin alone.
+    margin_only = bool(np.array_equal(weights, MARGIN_ONLY_WEIGHTS))
+    one_campaign = (
+        mdp.Process(training, weights, outcome_scales, 1, sim.initial_level)
+        if horizon > 1
+        else None
     )
+    margin_process = (
+        None
+        if margin_only
+        else mdp.Process(training, MARGIN_ONLY_WEIGHTS, outcome_scales, horizon, sim.initial_level)
+    )
+    solved = [p for p in (process, one_campaign, margin_process) if p is not None]
+    progress.start_stage(
+        "solve_optimal", sum(p.n_states for p in solved), STAGE_UNITS["solve_optimal"]
+    )
+    states_solved = 0
+
+    def solve(target: mdp.Process) -> mdp.Solution:
+        nonlocal states_solved
+        before = states_solved
+        solution = target.solve(
+            lambda layers: progress.advance(
+                "solve_optimal", before + layers * target.states_per_layer
+            )
+        )
+        states_solved += target.n_states
+        return solution
+
+    optimum = solve(process)
+    one_campaign_solution = None if one_campaign is None else solve(one_campaign)
+    margin_solution = None if margin_process is None else solve(margin_process)
     progress.finish_stage("solve_optimal")
     optimal_expected = process.optimal_value(optimum) / horizon
     progress.set_optimal_score(optimal_expected)
@@ -206,6 +263,38 @@ def run(
         progress.advance("score_fixed", done)
     progress.finish_stage("score_fixed")
 
+    myopic_candidates: list[Candidate] = []
+    if one_campaign_solution is not None:
+        one_campaign_policy = mdp.greedy(one_campaign_solution.q)
+        myopic_candidates.append(
+            Candidate(
+                "myopic",
+                "myopic",
+                "One campaign at a time (greedy)",
+                False,
+                "Plans only the coming campaign: the exact optimum for a one-campaign horizon, "
+                "applied again at every campaign.",
+                None,
+                process.evaluate(mdp.repeat_policy(one_campaign_policy, horizon)) / horizon,
+                adaptive_policy(one_campaign_policy),
+            )
+        )
+    margin_candidates: list[Candidate] = []
+    if margin_solution is not None:
+        margin_policy = mdp.greedy(margin_solution.q)
+        margin_candidates.append(
+            Candidate(
+                "margin_only",
+                "margin_only",
+                "Margin only",
+                False,
+                "The optimum for the same horizon when only gross margin counts, scored here "
+                "with your priorities.",
+                None,
+                process.evaluate(margin_policy) / horizon,
+                adaptive_policy(margin_policy),
+            )
+        )
     candidates = [
         Candidate(
             "optimal",
@@ -227,6 +316,7 @@ def run(
             process.evaluate(mdp.greedy(agent)) / horizon,
             adaptive_policy(mdp.greedy(agent)),
         ),
+        *myopic_candidates,
         Candidate(
             "best_fixed",
             "best_fixed",
@@ -238,6 +328,7 @@ def run(
             best_expected,
             fixed_policy(best_cycle, sim.itinerary_winter),
         ),
+        *margin_candidates,
         *(
             Candidate(
                 f"named:{strategy.strategy_id}",
@@ -285,32 +376,25 @@ def run(
     ]
     progress.finish_stage("backtest")
 
-    optimal_result, agent_result, best_result = policies[0], policies[1], policies[2]
-    won = sum(
-        optimal_campaign.score > fixed_campaign.score
-        for optimal_campaign, fixed_campaign in zip(
-            optimal_result.test.campaigns, best_result.test.campaigns, strict=True
-        )
+    by_id = {policy.policy_id: policy for policy in policies}
+    optimal_result, agent_result, best_result = (
+        by_id["optimal"],
+        by_id["agent"],
+        by_id["best_fixed"],
     )
-    optimal_test, fixed_test = optimal_result.test.mean_outcomes, best_result.test.mean_outcomes
     verdict = Verdict(
         best_fixed_policy_id=best_result.policy_id,
         optimal_minus_best_fixed_expected=optimal_result.expected_score
         - best_result.expected_score,
         optimal_minus_best_fixed_train=optimal_result.train.mean_score
         - best_result.train.mean_score,
-        optimal_minus_best_fixed_test=optimal_result.test.mean_score - best_result.test.mean_score,
-        optimal_minus_best_fixed_test_outcomes=OutcomeValues(
-            margin_usd_ha=optimal_test.margin_usd_ha - fixed_test.margin_usd_ha,
-            deficit_mm=optimal_test.deficit_mm - fixed_test.deficit_mm,
-            bare_days=optimal_test.bare_days - fixed_test.bare_days,
-            bare_rain_mm=optimal_test.bare_rain_mm - fixed_test.bare_rain_mm,
-            drainage_mm=optimal_test.drainage_mm - fixed_test.drainage_mm,
-        ),
-        test_campaigns_won=won,
-        test_campaigns=len(optimal_result.test.campaigns),
         agent_minus_optimal_expected=agent_result.expected_score - optimal_result.expected_score,
         agent_agreement_share=final_agreement,
+        held_out=[
+            _held_out(optimal_result, policy)
+            for policy in policies
+            if policy.policy_id != optimal_result.policy_id
+        ],
     )
     return RotationPlanResult(
         horizon_campaigns=horizon,
@@ -329,6 +413,8 @@ def run(
         decisions=_decision_cells(process, sim, optimum, agent),
         unavailable_strategies=unavailable,
         verdict=verdict,
+        bootstrap=_bootstrap_method(len(sim.test_years)),
+        enso_transitions=_enso_transitions(process),
         sources=_sources(sim),
     )
 
@@ -402,11 +488,15 @@ def _replay_split(
     replayed = sim.replay(years[0], len(years), policy, on_campaign)
     scores = [float(mdp.scalarize(r.outcomes, weights, outcome_scales)) for r in replayed]
     mean_outcomes = np.mean([r.outcomes for r in replayed], axis=0)
+    margins = np.array([r.outcomes[0] for r in replayed])  # outcome 0 is the gross margin
+    lower_tail_margin, lower_tail_campaigns = stats.lower_tail_mean(margins)
     return SplitReplay(
         first_year=years[0],
         last_year=years[-1],
         mean_score=float(np.mean(scores)),
         mean_outcomes=_outcome_values(mean_outcomes),
+        lower_tail_margin_usd_ha=lower_tail_margin,
+        lower_tail_campaigns=lower_tail_campaigns,
         campaigns=[
             CampaignReplay(
                 campaign_start_year=r.year,
@@ -420,6 +510,63 @@ def _replay_split(
             for r, score in zip(replayed, scores, strict=True)
         ],
     )
+
+
+def _held_out(optimal: PolicyResult, baseline: PolicyResult) -> HeldOutComparison:
+    """Optimal minus `baseline` on the held-out campaigns, paired campaign by campaign."""
+    pairs = list(zip(optimal.test.campaigns, baseline.test.campaigns, strict=True))
+    if any(a.campaign_start_year != b.campaign_start_year for a, b in pairs):
+        raise ValueError("The two policies were not replayed over the same campaigns")
+    differences = np.array([a.score - b.score for a, b in pairs])
+    low, high = stats.block_interval(differences)
+    conclusion: Conclusion
+    if np.abs(differences).max() < IDENTICAL_TOLERANCE:
+        conclusion = "identical"
+    elif low > 0:
+        conclusion = "better"
+    elif high < 0:
+        conclusion = "worse"
+    else:
+        conclusion = "inconclusive"
+    ours, theirs = optimal.test.mean_outcomes, baseline.test.mean_outcomes
+    return HeldOutComparison(
+        baseline_policy_id=baseline.policy_id,
+        mean_score_difference=optimal.test.mean_score - baseline.test.mean_score,
+        interval_low=low,
+        interval_high=high,
+        conclusion=conclusion,
+        campaigns_won=int((differences > 0).sum()),
+        campaigns=len(pairs),
+        outcome_differences=OutcomeValues(
+            margin_usd_ha=ours.margin_usd_ha - theirs.margin_usd_ha,
+            deficit_mm=ours.deficit_mm - theirs.deficit_mm,
+            bare_days=ours.bare_days - theirs.bare_days,
+            bare_rain_mm=ours.bare_rain_mm - theirs.bare_rain_mm,
+            drainage_mm=ours.drainage_mm - theirs.drainage_mm,
+        ),
+        lower_tail_margin_difference_usd_ha=optimal.test.lower_tail_margin_usd_ha
+        - baseline.test.lower_tail_margin_usd_ha,
+    )
+
+
+def _bootstrap_method(n_campaigns: int) -> BootstrapMethod:
+    blocks = stats.n_blocks(n_campaigns)
+    return BootstrapMethod(
+        confidence=stats.CONFIDENCE,
+        block_campaigns=stats.BLOCK_CAMPAIGNS,
+        blocks=blocks,
+        resamples=blocks**blocks,
+    )
+
+
+def _enso_transitions(process: mdp.Process) -> list[EnsoTransition]:
+    """All nine June x August phase pairs with their training campaigns, zeros included."""
+    counts = process.phase_transitions()
+    return [
+        EnsoTransition(enso_june=june, enso_august=august, training_campaigns=int(counts[j, a]))
+        for j, june in enumerate(kernel.ENSO_PHASES)
+        for a, august in enumerate(kernel.ENSO_PHASES)
+    ]
 
 
 def _decision_cells(

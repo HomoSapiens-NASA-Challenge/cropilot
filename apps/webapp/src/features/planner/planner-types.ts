@@ -1,5 +1,6 @@
 import type {
   DecisionCell,
+  HeldOutComparison,
   Itinerary,
   PolicyResult,
   StageProgress,
@@ -11,3 +12,4 @@ export type Action = Itinerary["winter"]
 export type EnsoPhase = DecisionCell["enso"]
 export type PolicyKind = PolicyResult["kind"]
 export type StageId = StageProgress["stage_id"]
+export type Conclusion = HeldOutComparison["conclusion"]

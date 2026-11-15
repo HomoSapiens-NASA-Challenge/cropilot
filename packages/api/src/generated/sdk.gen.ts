@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetRotationPlanData, GetRotationPlanErrors, GetRotationPlanResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses, StartRotationPlanData, StartRotationPlanErrors, StartRotationPlanResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetCaseData, GetCaseErrors, GetCaseIndexData, GetCaseIndexResponses, GetCaseResponses, GetCropFieldMapData, GetCropFieldMapErrors, GetCropFieldMapResponses, GetHealthData, GetHealthResponses, GetRotationPlanData, GetRotationPlanErrors, GetRotationPlanResponses, GetRotationPlanSetupData, GetRotationPlanSetupResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses, StartRotationPlanData, StartRotationPlanErrors, StartRotationPlanResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -136,6 +136,17 @@ export const startRotationPlan = <ThrowOnError extends boolean = false>(options:
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get Rotation Plan Setup
+ *
+ * The caller's region as the simulator sees it, and the latest El Niño readings.
+ */
+export const getRotationPlanSetup = <ThrowOnError extends boolean = false>(options?: Options<GetRotationPlanSetupData, ThrowOnError>): RequestResult<GetRotationPlanSetupResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetRotationPlanSetupResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/rotation-plans/setup',
+    ...options
 });
 
 /**

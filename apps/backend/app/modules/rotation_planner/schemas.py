@@ -18,8 +18,11 @@ StageId = Literal[
 ]
 StageStatus = Literal["pending", "running", "done"]
 RunStatus = Literal["queued", "running", "done", "failed", "cancelled"]
-PolicyKind = Literal["optimal", "agent", "best_fixed", "named"]
+PolicyKind = Literal["optimal", "agent", "myopic", "margin_only", "best_fixed", "named"]
 Decision = Literal["june", "august"]
+# How the optimal policy compares with a baseline on the held-out campaigns.
+Conclusion = Literal["better", "worse", "inconclusive", "identical"]
+EnsoSeason = Literal["FMA", "JAS"]
 
 # Execution order of a run; `RotationPlanRun.stages` always lists them in this order.
 STAGE_IDS: tuple[StageId, ...] = (
@@ -119,6 +122,9 @@ class SplitReplay(PlannerModel):
     last_year: int
     mean_score: float
     mean_outcomes: OutcomeValues
+    # Bad-year margin: mean gross margin of the worst ceil(n/5) campaigns of the split.
+    lower_tail_margin_usd_ha: float
+    lower_tail_campaigns: int = Field(ge=1)
     campaigns: list[CampaignReplay]
 
 
@@ -156,18 +162,48 @@ class UnavailableStrategy(PlannerModel):
     reason: str
 
 
+class HeldOutComparison(PlannerModel):
+    """Optimal policy minus one baseline on the held-out campaigns, paired campaign by campaign."""
+
+    baseline_policy_id: str
+    mean_score_difference: float
+    # Paired block-bootstrap interval of the mean difference (see `BootstrapMethod`).
+    interval_low: float
+    interval_high: float
+    conclusion: Conclusion
+    campaigns_won: int = Field(ge=0)
+    campaigns: int = Field(ge=1)
+    outcome_differences: OutcomeValues
+    lower_tail_margin_difference_usd_ha: float
+
+
+class BootstrapMethod(PlannerModel):
+    """Every ordered resample of the held-out blocks, with replacement; no random draws."""
+
+    confidence: float = Field(gt=0, lt=1)
+    block_campaigns: int = Field(ge=1)
+    blocks: int = Field(ge=1)
+    resamples: int = Field(ge=1)
+
+
+class EnsoTransition(PlannerModel):
+    """How often a June El Niño phase was followed by each August phase in training."""
+
+    enso_june: EnsoPhase
+    enso_august: EnsoPhase
+    training_campaigns: int = Field(ge=0)
+
+
 class Verdict(PlannerModel):
-    """Optimal policy against the best fixed rotation, chosen on training campaigns only."""
+    """Optimal policy against the baselines; the best fixed rotation is chosen on training only."""
 
     best_fixed_policy_id: str
     optimal_minus_best_fixed_expected: float
     optimal_minus_best_fixed_train: float
-    optimal_minus_best_fixed_test: float
-    optimal_minus_best_fixed_test_outcomes: OutcomeValues
-    test_campaigns_won: int = Field(ge=0)
-    test_campaigns: int = Field(ge=0)
     agent_minus_optimal_expected: float
     agent_agreement_share: float = Field(ge=0, le=1)
+    # One comparison per policy other than "optimal", in the order of `policies`.
+    held_out: list[HeldOutComparison]
 
 
 class PlannerSource(PlannerModel):
@@ -194,6 +230,34 @@ class RotationPlanResult(PlannerModel):
     decisions: list[DecisionCell]
     unavailable_strategies: list[UnavailableStrategy]
     verdict: Verdict
+    bootstrap: BootstrapMethod
+    # All nine June x August phase pairs, zeros included.
+    enso_transitions: list[EnsoTransition]
+    sources: list[PlannerSource]
+
+
+class EnsoReading(PlannerModel):
+    """One published NOAA ONI season value and the phase it implies (+-0.5 thresholds)."""
+
+    season: EnsoSeason
+    year: int
+    oni: float
+    phase: EnsoPhase
+
+
+class RotationPlanSetup(PlannerModel):
+    """What the wizard needs before a run: the region as the simulator sees it."""
+
+    region_id: str
+    soil_capacity_mm: float
+    water_levels: int
+    # The simulator's declared starting soil water, as a fraction of capacity (an assumption).
+    initial_water_fraction: float = Field(ge=0, le=1)
+    itineraries: list[Itinerary]
+    unavailable_strategies: list[UnavailableStrategy]
+    # Latest campaign after the held-out ones with a published Feb-Apr value; Jul-Sep if published.
+    latest_enso_june: EnsoReading | None
+    latest_enso_august: EnsoReading | None
     sources: list[PlannerSource]
 
 
