@@ -11,7 +11,7 @@ import {
 import { CaseState } from "@/features/case/case-state"
 import { CaseReferencesProvider } from "@/features/case/evidence-chip"
 import { InfoButton } from "@/features/case/info-button"
-import { caseHref, methodHref } from "@/features/case/routes"
+import { askHref, caseHref, methodHref } from "@/features/case/routes"
 import { useCaseBundle, useCaseIndex } from "@/features/case/use-case"
 import { DEFAULT_ZONE_ID } from "@/features/case/zone"
 
@@ -60,6 +60,13 @@ export default function OverviewScreen() {
             <ListRow
               title="Pergamino"
               onPress={() => router.push(caseHref(DEFAULT_ZONE_ID))}
+            />
+          </ListSection>
+          <ListSection>
+            <ListRow
+              title="Ask Cropilot"
+              subtitle="Explore the evidence, with sources"
+              onPress={() => router.push(askHref(DEFAULT_ZONE_ID))}
             />
           </ListSection>
         </View>

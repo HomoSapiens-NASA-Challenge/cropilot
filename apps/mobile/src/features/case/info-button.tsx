@@ -8,11 +8,17 @@ import { Sheet } from "@/components/ui/sheet"
 export function InfoButton({
   title,
   children,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   title: string
   children: ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = controlledOpen ?? internalOpen
+  const setOpen = onOpenChange ?? setInternalOpen
   return (
     <>
       <Pressable
