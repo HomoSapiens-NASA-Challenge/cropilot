@@ -13,7 +13,8 @@
       "!packages/api/openapi.json",
       "!apps/backend/app/modules/cases/resources",
       "!apps/mobile/assets",
-      "!apps/backend/vendor"
+      "!apps/backend/vendor",
+      "!prototypes"
     ]
   },
   "formatter": {
