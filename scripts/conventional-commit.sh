@@ -1,6 +1,14 @@
 #!/bin/sh
 # Validates a commit subject or a PR title. Used by the commit-msg hook and by CI.
-subject=$1
+#   conventional-commit.sh "<subject>"         (CI: the PR title)
+#   conventional-commit.sh --file <msg-file>   (hook: the first line of the commit message)
+# The hook passes a path instead of "$(head ...)": lefthook on Windows wraps the job in
+# sh -c "...", and nested double quotes break it.
+if [ "$1" = "--file" ]; then
+  subject=$(head -n 1 "$2")
+else
+  subject=$1
+fi
 pattern='^((feat|fix|docs|refactor|test|chore)(\([a-z0-9-]+\))?: .+|(Merge|Revert) .+)'
 
 if ! printf '%s' "$subject" | grep -Eq "$pattern" || [ "${#subject}" -gt 72 ]; then
