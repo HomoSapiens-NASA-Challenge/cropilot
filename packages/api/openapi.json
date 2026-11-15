@@ -5,6 +5,95 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/assistant/messages": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Ask Case Assistant",
+        "description": "Opt-in, rate-limited public demonstration using only released case evidence.",
+        "operationId": "ask_case_assistant",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assistant/planner-messages": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Ask Planner Assistant",
+        "description": "Explain only a run owned by the authenticated caller; never start or modify a run.",
+        "operationId": "ask_planner_assistant",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlannerAssistantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "tags": [
@@ -608,6 +697,157 @@
           "phase_rule"
         ],
         "title": "AnalogMethod"
+      },
+      "AnswerClaim": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1800,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Source Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "source_ids"
+        ],
+        "title": "AnswerClaim"
+      },
+      "AssistantRequest": {
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[a-z0-9-]+$",
+            "title": "Zone Id"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryMessage"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "History"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "zone_id",
+          "message"
+        ],
+        "title": "AssistantRequest"
+      },
+      "AssistantResponse": {
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerClaim"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 1,
+            "title": "Claims"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Limitations"
+          },
+          "suggested_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Suggested Questions"
+          },
+          "zone_id": {
+            "type": "string",
+            "title": "Zone Id"
+          },
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          },
+          "generated_utc": {
+            "type": "string",
+            "title": "Generated Utc"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceRef"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCard"
+            },
+            "type": "array",
+            "title": "Cards"
+          },
+          "tools_used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tools Used"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "claims",
+          "limitations",
+          "suggested_questions",
+          "zone_id",
+          "campaign",
+          "generated_utc",
+          "model",
+          "run_id",
+          "sources",
+          "cards",
+          "tools_used"
+        ],
+        "title": "AssistantResponse"
       },
       "BlockMeta": {
         "properties": {
@@ -2187,6 +2427,75 @@
         "title": "EnsoTransition",
         "description": "How often a June El Ni\u00f1o phase was followed by each August phase in training."
       },
+      "EvidenceCard": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "rows": {
+            "items": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "provenance": {
+            "type": "string",
+            "title": "Provenance"
+          },
+          "scale": {
+            "type": "string",
+            "title": "Scale"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "columns",
+          "rows",
+          "provenance",
+          "scale",
+          "note",
+          "source_ids"
+        ],
+        "title": "EvidenceCard"
+      },
       "FarmCreate": {
         "properties": {
           "name": {
@@ -2577,6 +2886,31 @@
         ],
         "title": "HeldOutComparison",
         "description": "Optimal policy minus one baseline on the held-out campaigns, paired campaign by campaign."
+      },
+      "HistoryMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 6000,
+            "minLength": 1,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "HistoryMessage"
       },
       "Itinerary": {
         "properties": {
@@ -3047,6 +3381,45 @@
           "water_end_mm"
         ],
         "title": "PairedDifference"
+      },
+      "PlannerAssistantRequest": {
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[a-z0-9-]+$",
+            "title": "Zone Id"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryMessage"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "History"
+          },
+          "run_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "zone_id",
+          "message",
+          "run_id"
+        ],
+        "title": "PlannerAssistantRequest"
       },
       "PlannerSource": {
         "properties": {

@@ -68,6 +68,10 @@ services:
       DATABASE_URL: *database-url
       BETTER_AUTH_URL: https://${DOMAIN}
       AUTH_JWKS_URL: http://auth:3000/api/auth/jwks
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
+      ASSISTANT_PUBLIC_ENABLED: ${ASSISTANT_PUBLIC_ENABLED:-false}
+      ASSISTANT_REQUESTS_PER_HOUR: ${ASSISTANT_REQUESTS_PER_HOUR:-60}
     volumes:
       # Released crop-map files (docs/crop-map.md); missing files only make that endpoint 503.
       - ./apps/backend/data/crops:/app/data/crops:ro

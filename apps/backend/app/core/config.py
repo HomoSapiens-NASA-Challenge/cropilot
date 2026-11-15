@@ -2,6 +2,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,6 +30,19 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 # `.parent` instead of `parents[4]`: in the container the backend is `/app` and has no
 # grandparent, so `parents[4]` raised at import. There the path is `/.env`, which never exists.
 ROOT_ENV_FILE = BACKEND_DIR.parent.parent / ".env"
+
+
+class AssistantSettings(BaseSettings):
+    """Server-only credentials; local overrides never enter the frontend bundle."""
+
+    model_config = SettingsConfigDict(
+        env_file=(ROOT_ENV_FILE, ROOT_ENV_FILE.with_name(".env.local")), extra="ignore"
+    )
+
+    openai_api_key: SecretStr | None = None
+    openai_model: str = "gpt-5.4-mini"
+    assistant_public_enabled: bool = False
+    assistant_requests_per_hour: int = Field(default=60, ge=1, le=1000)
 
 
 class WaterModelSettings(BaseSettings):

@@ -5,6 +5,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute
 
 from app.core.db import engine
+from app.modules.assistant.router import router as assistant_router
 from app.modules.cases.router import router as cases_router
 from app.modules.crops.router import router as crops_router
 from app.modules.farms.router import router as farms_router
@@ -16,6 +17,7 @@ from app.modules.workspaces.router import router as workspaces_router
 
 # Every module router is registered here, under the `/api` prefix.
 ROUTERS: list[APIRouter] = [
+    assistant_router,
     health_router,
     farms_router,
     regions_router,
