@@ -18,6 +18,7 @@ import {
   formatShare,
   formatSigned,
   formatWhole,
+  pluralize,
 } from "@/features/case/case-format"
 import { EvidenceChip } from "@/features/case/evidence-chip"
 import { Term } from "@/features/case/glossary-term"
@@ -26,7 +27,13 @@ import {
   NdviChart,
   type NdviSeries,
 } from "@/features/case/ndvi-chart"
-import { CROPS, cropOf, LOT_STATUS, LOT_STATUS_IDS } from "@/lib/data-colors"
+import {
+  CROP_IDS,
+  CROPS,
+  cropOf,
+  LOT_STATUS,
+  LOT_STATUS_IDS,
+} from "@/lib/data-colors"
 
 const SOURCE_LABEL = { INTA: "INTA map", model: "Team model" } as const
 
@@ -55,7 +62,8 @@ export function hasLotData(lot: Lot): boolean {
 /** Legend of the map: the crops that are on it and what each outline means. */
 export function FieldLegend({ lots }: { lots: ReadonlyArray<Lot> }) {
   const withData = lots.filter(hasLotData)
-  const cropIds = [...new Set(withData.map((lot) => cropOf(lot.latest_crop)))]
+  const onMap = new Set(withData.map((lot) => cropOf(lot.latest_crop)))
+  const cropIds = CROP_IDS.filter((crop) => onMap.has(crop))
   return (
     <div className="flex flex-wrap gap-x-8 gap-y-3 text-xs text-muted-foreground">
       <div className="flex flex-col gap-1.5">
@@ -260,7 +268,19 @@ export function LotPanel({
   )
 }
 
-/** The lots that carry data as a list: the made-up farm first, worst status first. */
+/** List order of the statuses: the ones that need attention first, `ok` last. */
+const LIST_ORDER: ReadonlyArray<NonNullable<Lot["status"]>> = [
+  "alert",
+  "watch",
+  "check",
+  "bare",
+  "ok",
+]
+
+/**
+ * The farm's lots that carry data as a list, worst status first. When the zone has no
+ * farm lots, every lot with data is listed instead.
+ */
 export function LotList({
   lots,
   farmName,
@@ -271,22 +291,25 @@ export function LotList({
   onSelect: (fieldId: string) => void
 }) {
   const severity = (lot: Lot) =>
-    lot.status ? LOT_STATUS_IDS.indexOf(lot.status) : LOT_STATUS_IDS.length
+    lot.status ? LIST_ORDER.indexOf(lot.status) : LIST_ORDER.length
   const withData = lots.filter(hasLotData)
-  const ordered = [...withData].sort(
+  const farmLots = withData.filter((lot) => lot.is_demo_farm)
+  const listed = farmLots.length > 0 ? farmLots : withData
+  const ordered = [...listed].sort(
     (a, b) =>
-      Number(b.is_demo_farm) - Number(a.is_demo_farm) ||
-      severity(b) - severity(a) ||
-      a.name.localeCompare(b.name)
+      severity(a) - severity(b) ||
+      a.name.localeCompare(b.name, undefined, { numeric: true })
   )
   const shown = ordered.slice(0, LIST_LIMIT)
+  const unlistedWithData = withData.length - listed.length
   const contextCount = lots.length - withData.length
 
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
         Select a lot on the map or in the list to see its crops, NDVI and
-        status. These are the lots of {farmName}.
+        status.
+        {farmLots.length > 0 && ` These are the lots of ${farmName}.`}
       </p>
       <ul className="flex flex-col gap-1">
         {shown.map((lot) => (
@@ -314,6 +337,13 @@ export function LotList({
       {ordered.length > shown.length && (
         <p className="text-xs text-muted-foreground">
           Showing {shown.length} of {ordered.length} lots.
+        </p>
+      )}
+      {unlistedWithData > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {pluralize(unlistedWithData, "more field")} of the zone{" "}
+          {unlistedWithData === 1 ? "has" : "have"} the same data: select one on
+          the map.
         </p>
       )}
       {contextCount > 0 && (

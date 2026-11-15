@@ -35,21 +35,37 @@ export function FieldMapBlock({
   if (bundle.modules.field === "not_available" || field === null) {
     return (
       <BlockSection id={id} title="The field">
-        <NotAvailable description="Lots and the reference footprint are mapped for Pergamino only." />
+        <NotAvailable description="Lots are mapped for Pergamino and Paraná only." />
       </BlockSection>
     )
   }
 
   const selectedLot = field.lots.find((lot) => lot.field_id === selectedLotId)
-  const lotsWithData = field.lots.filter(hasLotData).length
+  const lotsWithData = field.lots.filter(hasLotData)
+  const farmLots = lotsWithData.filter((lot) => lot.is_demo_farm).length
+  const zoneLots = lotsWithData.length - farmLots
+  const contextOnly = field.lots.length - lotsWithData.length
+  const lead =
+    lotsWithData.length === 0
+      ? `${pluralize(contextOnly, "outline")} of ${bundle.zone_name} ${contextOnly === 1 ? "is" : "are"} on the map for context, with no crop, status or NDVI. They come from satellite imagery.`
+      : [
+          farmLots > 0 && `${pluralize(farmLots, "lot")} of ${field.farm_name}`,
+          zoneLots > 0 &&
+            (farmLots > 0
+              ? `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`
+              : `${pluralize(zoneLots, "field")} of ${bundle.zone_name}`),
+          farmLots + zoneLots === 1 ? "carries" : "carry",
+          "a crop, a status and an NDVI curve.",
+          contextOnly > 0 &&
+            `${pluralize(contextOnly, "more outline")} ${contextOnly === 1 ? "gives" : "give"} context.`,
+          "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
+        ]
+          .filter(Boolean)
+          .join(" ")
 
   return (
     <CaseReferencesProvider sources={bundle.sources} glossary={bundle.glossary}>
-      <BlockSection
-        id={id}
-        title="The field"
-        lead={`${pluralize(lotsWithData, "lot")} of ${field.farm_name} carry a crop, a status and an NDVI curve, and ${field.lots.length - lotsWithData} more outlines of ${bundle.zone_name} give context. All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.`}
-      >
+      <BlockSection id={id} title="The field" lead={lead}>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">
             Farm: <span className="font-medium">{field.farm_name}</span>
