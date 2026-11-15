@@ -31,7 +31,7 @@ export function StartBlock({
       <BlockSection
         id={id}
         title={`${bundle.zone_name}: how ${current.campaign} starts`}
-        lead={`${bundle.zone_name}, ${bundle.province}. Two signals known at the end of August decide which past campaigns look like this one.`}
+        lead={`${bundle.zone_name}, ${bundle.province}. Two signals decide which past campaigns look like this one: El Niño in July to September (NOAA publishes it in early October) and soil wetness at the end of August.`}
       >
         {current.outside_historical_range && (
           <Callout icon={TriangleAlert} title="Outside the historical range">

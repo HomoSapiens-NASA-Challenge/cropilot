@@ -151,9 +151,10 @@ export function NationalBlock({
         title={headline(index, sinceYear)}
         lead={
           <>
-            <Term term="ONI">Oceanic Niño Index</Term> for July to September,
-            known at the end of August: {ENSO_PHASE_LABEL[index.enso_phase]}.
-            The highest before was {formatSigned(index.highest_past_oni_jas)} in{" "}
+            <Term term="ONI">Oceanic Niño Index</Term> for July to September, as
+            NOAA publishes it in early October:{" "}
+            {ENSO_PHASE_LABEL[index.enso_phase]}. The highest before was{" "}
+            {formatSigned(index.highest_past_oni_jas)} in{" "}
             {index.highest_past_oni_campaign}. Markers show how wet the soil was
             in each zone.
           </>

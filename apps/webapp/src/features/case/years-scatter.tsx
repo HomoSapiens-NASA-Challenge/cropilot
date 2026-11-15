@@ -102,10 +102,13 @@ function placeLabel(
   return free ?? candidates[0]
 }
 
+/** Round multiples of `step` inside [min, max], so a label always sits on its own value. */
 function ticks(min: number, max: number, step: number): number[] {
   const values: number[] = []
-  for (let value = min; value <= max + step / 2; value += step) {
-    values.push(Number(value.toFixed(2)))
+  const first = Math.ceil(min / step - 1e-9)
+  const last = Math.floor(max / step + 1e-9)
+  for (let index = first; index <= last; index += 1) {
+    values.push(Number((index * step).toFixed(2)))
   }
   return values
 }

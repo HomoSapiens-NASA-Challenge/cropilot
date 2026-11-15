@@ -308,13 +308,13 @@ export function MarginRows({
   )
 }
 
-/** Planted but not harvested area, by crop and by the phase known at the end of August. */
+/** Planted but not harvested area, by crop and by the July-to-September ENSO phase. */
 export function UnharvestedRow({ compare }: { compare: Compare }) {
   const { unharvested, unharvested_meta: meta } = compare
   return (
     <ComparisonRow
       title="Planted but not harvested"
-      description="Share of the planted area that was never harvested, by the ENSO phase known at the end of August. It is an area loss, not a yield."
+      description="Share of the planted area that was never harvested, by the El Niño phase of July to September. It is an area loss, not a yield."
       evidence={
         <EvidenceChip meta={meta} horizon="Each campaign of the phase" />
       }

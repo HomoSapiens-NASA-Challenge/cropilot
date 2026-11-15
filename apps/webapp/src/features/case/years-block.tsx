@@ -252,7 +252,7 @@ export function YearsBlock({
       <BlockSection
         id={id}
         title="Years like this"
-        lead={`Every past campaign at ${bundle.zone_name}, placed by the two signals known at the end of August. The ${pluralize(analogs.length, "analog")} closest to ${current.campaign} are ringed and ranked.`}
+        lead={`Every past campaign at ${bundle.zone_name}, placed by El Niño in July to September and soil wetness at the end of August. The ${pluralize(analogs.length, "analog")} closest to ${current.campaign} are ringed and ranked.`}
       >
         <Panel className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">

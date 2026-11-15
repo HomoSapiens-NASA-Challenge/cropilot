@@ -692,8 +692,8 @@ GLOSSARY = [
     GlossaryTerm(
         term="Analog campaign",
         definition=(
-            "A real past campaign, such as 1997/98, whose two signals at the end of August (ONI "
-            "Jul-Sep and soil wetness) were among the closest to this year's. It is a named "
+            "A real past campaign, such as 1997/98, whose two signals (ONI Jul-Sep and soil "
+            "wetness at the end of August) were among the closest to this year's. It is a named "
             "case, not a forecast."
         ),
     ),
@@ -773,7 +773,7 @@ def campaign_notes(
     add(
         strongest.campaign,
         "strongest_start",
-        f"Strongest El Niño signal at the end of August among the candidate campaigns "
+        f"Strongest El Niño signal in July to September among the candidate campaigns "
         f"({first} to {last}): ONI Jul-Sep {strongest.oni_jas:+.2f}.",
         ["noaa_oni"],
     )

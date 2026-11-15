@@ -57,19 +57,19 @@ function CountsBar({ counts }: { counts: PairedCounts }) {
   const parts = [
     {
       key: "lower",
-      label: "Lower",
+      label: "Less unmet water in",
       count: counts.lower_count,
       className: "bg-primary",
     },
     {
       key: "equal",
-      label: "Equal",
+      label: "same in",
       count: counts.equal_count,
       className: "bg-border",
     },
     {
       key: "higher",
-      label: "Higher",
+      label: "more in",
       count: counts.higher_count,
       className: "bg-foreground",
     },
