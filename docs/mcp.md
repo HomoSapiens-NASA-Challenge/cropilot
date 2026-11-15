@@ -151,6 +151,15 @@ Do not strip source/scale metadata to narrate only a number. Voice-only consumer
 UI resource; an Apps-capable conversational host can show the same tool's card. Microphone,
 speech recognition, language-model turns and speech synthesis belong to that future agent.
 
+## Visual style for client-drawn views
+
+The server instructions carry the web app's visual system (colors from
+`apps/webapp/src/index.css` and `lib/data-colors.ts`, Geist, weights, radii, flat cards, one
+accent), so a chart or dashboard an AI client draws from these results reads like Cropilot.
+The prompt `cropilot_dashboard` (argument `zone_id`, default `pergamino`) asks for a case
+dashboard with the same style; in claude.ai it is offered from the connector's menu.
+Whether a host follows server instructions is up to the host.
+
 ## Tools and selections
 
 Every tool declares `readOnlyHint`, `idempotentHint`, `destructiveHint=false` and

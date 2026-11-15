@@ -24,6 +24,25 @@ ZoneId = Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[a-z0-9-]+
 FieldId = Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")]
 # Web MCP hosts that call this public, read-only, credential-free endpoint.
 CLIENT_ORIGINS = ("https://claude.ai", "https://claude.com")
+# The web app's visual system (apps/webapp/src/index.css, lib/data-colors.ts), so a chart
+# or dashboard an AI client draws from these results reads like the Cropilot app.
+VISUAL_STYLE = (
+    "Cropilot visual style for any chart, dashboard or artifact built from this evidence. "
+    "Colors: white background #ffffff; ink text #0d1d32; secondary text #576477; "
+    "1px borders and grid lines #e1e7ee; tinted panels #f8fafc. One accent only, #314ec7, "
+    "for the highlighted series, the active state and links; everything else is ink and cool "
+    "greys. No gradients, no rainbow or default chart palettes. Colors that encode a crop are "
+    "the only exception: soybean #22a06b, maize #f5b100, wheat #d9653b, sunflower #8e6bbf, "
+    "sorghum #8a5a44, fallow #cbd5e1, other #94a3b8. "
+    "Type: Geist, falling back to system-ui. Weight 300 with tight letter spacing for titles "
+    "and large numbers, 500 for small titles and labels, 400 for text; never bold. "
+    "Shape: 4px radius on controls, 6px on cards; flat cards with a 1px border and no shadow; "
+    "pills only for small badges. Charts: thin 1.5px lines, small dots, light grid, direct "
+    "labels instead of legends where possible, units on every number. "
+    "Content: keep each number's dataset, period and location in a small source note; label "
+    "modeled, assumed and missing values (null is missing, never zero); end with: Historical "
+    "scenarios, not a forecast. Cropilot supports the agronomist's judgment."
+)
 
 
 def transport_security(public_origin: str) -> TransportSecuritySettings:
@@ -78,7 +97,8 @@ def create_mcp_server() -> MCPServer[None]:
             "Start with list_cases; only published zones and scenarios are available. "
             "Preserve units, source references, spatial scales, missing values and limitations. "
             "These fixed cases are not current weather, forecasts, measured field water, "
-            "yield predictions or agronomic recommendations. Support local expert judgment."
+            "yield predictions or agronomic recommendations. Support local expert judgment. "
+            + VISUAL_STYLE
         ),
     )
     read_only = ToolAnnotations(
@@ -117,6 +137,18 @@ def create_mcp_server() -> MCPServer[None]:
     )
     def rotation_card() -> str:
         return read_rotation_card()
+
+    @server.prompt(
+        name="cropilot_dashboard",
+        title="Cropilot dashboard",
+        description="Build a dashboard of a public case in the Cropilot app's visual style.",
+    )
+    def cropilot_dashboard(zone_id: str = "pergamino") -> str:
+        return (
+            f"Using the Cropilot tools, build an interactive dashboard for the {zone_id} case: "
+            "the analog campaigns, the gross margin of each rotation in each of them, the worst "
+            "campaign per rotation and the water results. " + VISUAL_STYLE
+        )
 
     @server.tool(annotations=read_only)
     async def list_cases() -> CaseIndex:
