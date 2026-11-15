@@ -3,6 +3,7 @@
 from app.modules.cases.schemas import (
     AnalogMargins,
     BlockMeta,
+    CampaignPoint,
     CaseModel,
     Decision,
     GlossaryTerm,
@@ -44,6 +45,7 @@ class WaterSelection(CaseModel):
 
 class RotationComparison(CaseModel):
     context: EvidenceContext
+    analog_campaigns: list[CampaignPoint]
     strategies: list[Strategy]
     margins_meta: BlockMeta
     margin_assumptions: list[str]

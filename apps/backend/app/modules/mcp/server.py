@@ -16,6 +16,7 @@ from starlette.concurrency import run_in_threadpool
 from app.modules.cases import service as cases_service
 from app.modules.cases.schemas import CaseIndex
 from app.modules.mcp import service
+from app.modules.mcp.app_view import RESOURCE_MIME, RESOURCE_URI, read_rotation_card
 from app.modules.mcp.schemas import AnalogEvidence, FieldEvidence, RotationComparison
 
 MAX_RESULT_BYTES = 128 * 1024
@@ -105,6 +106,16 @@ def create_mcp_server() -> MCPServer[None]:
 
     server.middleware.append(reject_unknown_arguments)
 
+    @server.resource(
+        RESOURCE_URI,
+        name="cropilot-rotation-card",
+        title="Cropilot historical rotation comparison",
+        mime_type=RESOURCE_MIME,
+        meta={"ui": {"csp": {"connectDomains": [], "resourceDomains": []}}},
+    )
+    def rotation_card() -> str:
+        return read_rotation_card()
+
     @server.tool(annotations=read_only)
     async def list_cases() -> CaseIndex:
         """List public zones, fixed decision date, available modules and data sources."""
@@ -115,7 +126,7 @@ def create_mcp_server() -> MCPServer[None]:
         """Read published analog years for a zone, with ranks, method, signals and sources."""
         return await _read(service.find_analog_years, zone_id)
 
-    @server.tool(annotations=read_only)
+    @server.tool(annotations=read_only, meta={"ui": {"resourceUri": RESOURCE_URI}})
     async def compare_rotations(
         zone_id: ZoneId,
         depth_m: Annotated[float, Field(strict=True, gt=0, le=2)] = 1.0,

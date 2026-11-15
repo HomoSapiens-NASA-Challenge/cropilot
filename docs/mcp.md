@@ -14,6 +14,17 @@ recommendations. The agronomist and farmer retain local judgment.
 
 ## Connect a client
 
+Build the optional interactive card once before starting the backend:
+
+```sh
+pnpm --filter @cropilot/webapp build:mcp
+```
+
+Rebuild after changing its source. The output is generated and ignored by Git. `pnpm build`
+also builds the card; the production backend Dockerfile builds and copies it into the Python
+image. A Python-only checkout still serves all four voice/text tools; `resources/read` gives
+an explicit operator error until the card is built.
+
 Run the normal application with the root `.env` configured, or start only the backend:
 
 ```sh
@@ -77,6 +88,68 @@ Example client prompt: “List Cropilot's public cases, then show the analog yea
 Compare its three published rotations at 1 m depth, 50% initial reserve and a seven-day later
 summer sowing date. Explain missing data, closest rotation matches and local review needs,
 with the returned source URLs. Do not describe the scenarios as a forecast.”
+
+The same example is runnable without copying code, from `apps/backend`:
+
+```sh
+uv run python ../../scripts/mcp/client.py --shift 7 --check-card
+```
+
+Pass `--url https://YOUR-ORIGIN/api/mcp` for a deployed server. It prints the complete structured
+evidence to stdout and checks the optional UI resource; it does not require an LLM or voice key.
+
+## Interactive rotation card
+
+An MCP Apps host discovers `compare_rotations`'s `_meta.ui.resourceUri`, reads
+`ui://cropilot/rotation-card.html` (`text/html;profile=mcp-app`), and renders it in its sandbox.
+The card uses the official Apps SDK's `App` bridge. Plain MCP clients continue receiving the
+same structured/text evidence, with one additive `analog_campaigns` field; that field retains
+all seven published analogs, including the two without water runs.
+
+The card shows three simulated water rotations and two explicitly uncomputed rotations.
+Users can change depth, initial reserve and summer sowing shift through `compare_rotations`,
+select a historical start campaign, inspect crop dates/stress/deficit and open source links
+through the host. Bars represent unmet demand over **three continuous historical campaigns**,
+not one season. The reference rotation remains unconfirmed, and a closest-phase match is
+labeled. Changing depth or reserve when a shifted run is unavailable explicitly requests the
+default calendar; controls always display the last successful selection. A failed request
+keeps prior evidence with an error and retry. Malformed or unsupported-version results are
+rejected. An error or invalid result pushed by the host clears the card because it may refer
+to a new comparison; newer host results supersede pending card calls. A host without
+tool-call support gets a static card.
+
+The fixed decision date, reference footprint, units and research limitations remain visible.
+There is no model execution or recomputation in the browser. Campaign changes only filter the
+returned evidence. Card interactions do not send an unsolicited message or start an LLM turn;
+an orchestrator that wants narration of later selections should use its tool-call results.
+
+The HTML contains its own JS, CSS and fonts. Resource CSP metadata allows no external
+connection or asset domains; all tool calls and source-opening requests go through the host.
+It requests no camera, microphone or geolocation permission. The host owns sandbox isolation
+and enforcement; this server does not implement a general-purpose MCP Apps host.
+
+Use a client supporting the [MCP Apps extension](https://modelcontextprotocol.io/extensions/apps/overview).
+Actual rendering and remote-connector setup depend on the host. Local validation used the
+official `AppBridge` and `PostMessageTransport`, a sandboxed iframe with direct network access
+blocked, real backend tools, Chromium at 1200×1000 and 390×844. It does **not** establish that
+Claude, a physical mobile device or a public deployment has been tested.
+
+## Voice handoff
+
+The published Tomás proposal is
+[research/ui-agente.md on hub/toto](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/ca784c5e4bec021e7a97edf6dc3fd2da48a417a6/research/ui-agente.md).
+It mentions Pipecat UI's audio visualizer and Vercel AI SDK chat components, but explicitly
+does not require a Pipecat backend. As checked on 2026-11-15 across the published Cropilot,
+hub and simulator branches, no executable voice agent, audio transport or selected voice
+provider was present. This PR therefore supplies a working MCP connection contract and SDK
+client; it does not claim a live voice connection.
+
+The future voice orchestrator should connect once using Streamable HTTP, discover the four
+tools, execute calls server-side and return both the evidence and its limits to the model.
+Keep `structuredContent`, interpret `isError` as a tool failure, and retain null/missing data.
+Do not strip source/scale metadata to narrate only a number. Voice-only consumers ignore the
+UI resource; an Apps-capable conversational host can show the same tool's card. Microphone,
+speech recognition, language-model turns and speech synthesis belong to that future agent.
 
 ## Tools and selections
 
@@ -157,6 +230,10 @@ The tests exercise the official client over ASGI Streamable HTTP and legacy
 initialize/list/call requests, preserve published numeric values and provenance, check exact
 scenario selection and cached-bundle immutability, reject invalid inputs and hostile
 Host/Origin headers, check request limits and verify private routes still require auth.
+They also check UI metadata, HTML MIME/CSP, and continued tool availability when the UI build
+is absent. After building, run `python3 scripts/mcp/check-built-card.py`; CI checks that the
+card has no external scripts, styles or assets. Deployment smoke checks read the actual
+resource, so an image without its card cannot pass deployment validation.
 
 The integration follows the official SDK's
 [ASGI lifecycle guidance](https://py.sdk.modelcontextprotocol.io/run/asgi/),
@@ -168,3 +245,9 @@ Middleware is a provisional SDK API; rerun the protocol tests when upgrading the
 
 No new scientific dataset or model is introduced. Scientific sources and their limitations
 come directly from the existing case-v1 bundles, preserved in every detailed tool response.
+
+The view follows the official [MCP Apps build guide](https://modelcontextprotocol.io/extensions/apps/build)
+and [SDK API](https://apps.extensions.modelcontextprotocol.io/api/). Added libraries are
+`@modelcontextprotocol/ext-apps` 2.0.4 (MIT), `@modelcontextprotocol/client` 2.4.0 (Apache-2.0,
+locked version), and `vite-plugin-singlefile` 2.3.4 (MIT). The card is project code, not a
+copied third-party dashboard; dependency versions and notices remain in the package metadata.

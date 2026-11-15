@@ -112,6 +112,10 @@ def compare_rotations(
             raise cases_service.CaseDataError("The selected analog water episodes are missing")
     return RotationComparison(
         context=_context(bundle),
+        analog_campaigns=sorted(
+            (point for point in bundle.years_like_this.campaigns if point.is_analog),
+            key=lambda point: point.analog_rank or 0,
+        ),
         strategies=compare.strategies,
         margins_meta=compare.margins_meta,
         margin_assumptions=compare.margin_assumptions,

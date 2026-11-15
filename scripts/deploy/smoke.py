@@ -140,6 +140,14 @@ def smoke(origin: str) -> None:
         comparison.get("water_status") == "available" and bool(comparison.get("water")),
         "MCP Pergamino rotation comparison has no water evidence",
     )
+    card = rpc(origin, "resources/read", {"uri": "ui://cropilot/rotation-card.html"})
+    contents = card.get("contents", [])
+    require(
+        len(contents) == 1
+        and contents[0].get("mimeType") == "text/html;profile=mcp-app"
+        and 'id="root"' in contents[0].get("text", ""),
+        "MCP Apps card is missing; rebuild the backend image",
+    )
     print(
         f"PASS: app routes, {len(zones)} cases, auth, private API boundary and MCP at {origin}"
     )

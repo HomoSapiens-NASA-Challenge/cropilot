@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && pnpm build:mcp",
+    "build:mcp": "vite build --config vite.mcp.config.ts",
     "lint": "node scripts/check-design-rules.mjs",
     "typecheck": "tsc -b"
   },
@@ -12,6 +13,8 @@
     "@base-ui/react": "^1.9.0",
     "@cropilot/api": "workspace:*",
     "@fontsource-variable/geist": "^5.3.0",
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@modelcontextprotocol/ext-apps": "2.0.4",
     "@tailwindcss/vite": "^4",
     "@tanstack/react-form": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -37,6 +40,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^6",
     "typescript": "catalog:",
-    "vite": "^8"
+    "vite": "^8",
+    "vite-plugin-singlefile": "2.3.4"
   }
 }

@@ -13,6 +13,7 @@ from mcp.types import CallToolResult, ListToolsResult
 from app.main import create_app
 from app.modules.cases import service as cases_service
 from app.modules.cases.schemas import CaseIndex
+from app.modules.mcp import app_view
 from app.modules.mcp.schemas import AnalogEvidence, FieldEvidence, RotationComparison
 from app.modules.mcp.server import MAX_RESULT_BYTES, transport_security
 
@@ -20,6 +21,75 @@ HEADERS = {
     "Accept": "application/json, text/event-stream",
     "MCP-Protocol-Version": "2025-11-25",
 }
+
+
+def test_comparison_declares_interactive_resource(client: TestClient) -> None:
+    response = client.post(
+        "/api/mcp",
+        headers=HEADERS,
+        json={"jsonrpc": "2.0", "id": 7, "method": "tools/list"},
+    )
+    tools = response.json()["result"]["tools"]
+    comparison = next(tool for tool in tools if tool["name"] == "compare_rotations")
+    assert comparison["_meta"]["ui"]["resourceUri"] == "ui://cropilot/rotation-card.html"
+    assert len(tools) == 4
+
+
+def test_comparison_keeps_analogs_without_water(client: TestClient) -> None:
+    result = call_tool(client, "compare_rotations", {"zone_id": "pergamino"})
+    assert result.structured_content is not None
+    campaigns = result.structured_content["analog_campaigns"]
+    assert isinstance(campaigns, list)
+    assert len(campaigns) == 7
+    assert any(point["campaign"] == "2023/24" for point in campaigns)
+
+
+def test_app_resource_preserves_html_mime_and_csp(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    html = "<!doctype html><html><body>Built rotation card</body></html>"
+    path = tmp_path / "mcp-app.html"
+    path.write_text(html, encoding="utf-8")
+    monkeypatch.setattr(app_view, "HTML_PATH", path)
+    listed = client.post(
+        "/api/mcp",
+        headers=HEADERS,
+        json={"jsonrpc": "2.0", "id": 8, "method": "resources/list"},
+    ).json()["result"]["resources"]
+    assert len(listed) == 1
+    assert listed[0]["uri"] == app_view.RESOURCE_URI
+    response = client.post(
+        "/api/mcp",
+        headers=HEADERS,
+        json={
+            "jsonrpc": "2.0",
+            "id": 9,
+            "method": "resources/read",
+            "params": {"uri": app_view.RESOURCE_URI},
+        },
+    ).json()["result"]["contents"][0]
+    assert response["text"] == html
+    assert response["mimeType"] == app_view.RESOURCE_MIME
+    assert response["_meta"]["ui"]["csp"] == {"connectDomains": [], "resourceDomains": []}
+
+
+def test_missing_card_does_not_break_voice_tools(
+    client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(app_view, "HTML_PATH", tmp_path / "absent.html")
+    response = client.post(
+        "/api/mcp",
+        headers=HEADERS,
+        json={
+            "jsonrpc": "2.0",
+            "id": 10,
+            "method": "resources/read",
+            "params": {"uri": app_view.RESOURCE_URI},
+        },
+    )
+    assert "not built" in response.json()["error"]["message"]
+    assert str(tmp_path) not in response.text
+    assert not call_tool(client, "compare_rotations", {"zone_id": "pergamino"}).is_error
 
 
 @pytest.fixture

@@ -26,6 +26,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - run: python3 scripts/mcp/check-built-card.py
       - name: Generated API client is up to date
         run: pnpm generate && git diff --exit-code
       - name: Production configuration and deployment scripts

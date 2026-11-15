@@ -63,6 +63,8 @@ Web and mobile share the water-scenario selector. Choose a historical campaign, 
 
 The same public evidence is available at `/api/mcp` through the official Python MCP SDK: `list_cases`, `find_analog_years`, `compare_rotations` and `get_field_evidence`. Tools are read-only and retain sources, units, missing data and research limitations. They do not expose private farms or run models. See [client setup, examples and boundaries](docs/mcp.md).
 
+`compare_rotations` also provides an interactive MCP Apps card with historical water bars, scenario controls, crop dates and source links. Run `pnpm --filter @cropilot/webapp build:mcp` for local use; production images include it automatically. Voice/text clients can use the tools without displaying the card. See the [interactive card and voice handoff](docs/mcp.md#interactive-rotation-card).
+
 ## Deploy
 
 One VPS, Docker Compose, Traefik with automatic TLS.
@@ -83,4 +85,5 @@ See the [integration verification record and screenshots](docs/integration-verif
 - Claude Fable 5.2 (Anthropic), in Claude Code: the public landing page with its navigation menus and menu pages, the visual system shared with the app, and the lint check that enforces it. The landing's line art is vector geometry drawn in code, not a generated image.
 - Codex (OpenAI): frozen model packaging, isolated Python runtime, backend service, integrity/inference tests and model integration documentation; regional soil-wetness training and evaluation; Pergamino rotation/stage/sensitivity/calendar calculations, authenticated API, reproducibility tests and handoff documentation. No new frontend or generated field observations.
 - Codex (OpenAI), subsequent integration: shared web/mobile water selection and historical crop details, explicit demo entry, public MCP tools, deployment preparation and browser verification. This integration reuses the existing case bundles and frozen results; no new model or field observation was generated.
+- Codex (OpenAI), MCP Apps extension: interactive historical rotation card, SDK bridge, resource metadata, self-contained production build, protocol/browser checks and executable voice-client handoff. The extension preserves existing scientific results and does not include a working voice agent.
 - Claude Opus 5.5 (Anthropic), in Claude Code: the `crops` module (crop-map endpoint, contract, tests) and `docs/crop-map.md`; the crop-type models, their evaluation and the per-field summaries it serves, built in the team hub (`research/crop-map/`). The team chose the problem, the zones and the approach.
