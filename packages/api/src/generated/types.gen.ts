@@ -20,6 +20,92 @@ export type CalendarEffect = {
 };
 
 /**
+ * CampaignRecord
+ */
+export type CampaignRecord = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Source
+     */
+    source: 'INTA' | 'model';
+    /**
+     * Crop Code
+     */
+    crop_code: number | null;
+    /**
+     * Crop
+     */
+    crop: string;
+    /**
+     * Purity
+     */
+    purity: number;
+    /**
+     * Curve
+     */
+    curve: [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+    ];
+    /**
+     * Phase Code
+     */
+    phase_code: 'nino' | 'nina' | 'neutral' | null;
+    /**
+     * Phase
+     */
+    phase: string | null;
+    /**
+     * Oni
+     */
+    oni: number | null;
+    /**
+     * Vigor
+     */
+    vigor: number;
+    /**
+     * Zone Vigor
+     */
+    zone_vigor: number | null;
+    /**
+     * Gap
+     */
+    gap: number | null;
+    /**
+     * Lag
+     */
+    lag: number | null;
+    /**
+     * Even
+     */
+    even: number | null;
+    /**
+     * Zone Curve
+     */
+    zone_curve: [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+    ] | null;
+};
+
+/**
  * CampaignWater
  */
 export type CampaignWater = {
@@ -39,6 +125,18 @@ export type CampaignWater = {
      * Crop Et Deficit Mm
      */
     crop_et_deficit_mm: number;
+};
+
+/**
+ * CropField
+ */
+export type CropField = {
+    /**
+     * Type
+     */
+    type: 'Feature';
+    geometry: PolygonGeometry;
+    properties: FieldProperties;
 };
 
 /**
@@ -158,6 +256,32 @@ export type CropStage = {
 };
 
 /**
+ * CurrentSeason
+ */
+export type CurrentSeason = {
+    /**
+     * Campaign
+     */
+    campaign: string;
+    /**
+     * Phase Code
+     */
+    phase_code: 'nino' | 'nina' | 'neutral';
+    /**
+     * Phase
+     */
+    phase: string;
+    /**
+     * Strength
+     */
+    strength: string;
+    /**
+     * Oni
+     */
+    oni: number;
+};
+
+/**
  * DailyWater
  */
 export type DailyWater = {
@@ -258,6 +382,24 @@ export type DifferenceDistribution = {
 };
 
 /**
+ * EnsoPhase
+ */
+export type EnsoPhase = {
+    /**
+     * Phase Code
+     */
+    phase_code: 'nino' | 'nina' | 'neutral';
+    /**
+     * Phase
+     */
+    phase: string;
+    /**
+     * Oni
+     */
+    oni: number;
+};
+
+/**
  * FarmCreate
  */
 export type FarmCreate = {
@@ -283,6 +425,112 @@ export type FarmRead = {
      * Created At
      */
     created_at: string;
+};
+
+/**
+ * FieldMap
+ */
+export type FieldMap = {
+    /**
+     * Type
+     */
+    type: 'FeatureCollection';
+    meta: FieldMapMeta;
+    /**
+     * Features
+     */
+    features: Array<CropField>;
+};
+
+/**
+ * FieldMapMeta
+ */
+export type FieldMapMeta = {
+    /**
+     * Zone
+     */
+    zone: 'pergamino' | 'parana';
+    /**
+     * Lang
+     */
+    lang: 'en';
+    /**
+     * Campaigns
+     */
+    campaigns: Array<string>;
+    /**
+     * Latest
+     */
+    latest: string;
+    /**
+     * Farm
+     */
+    farm: string;
+    /**
+     * Farm Is Synthetic
+     */
+    farm_is_synthetic: true;
+    /**
+     * Enso
+     */
+    enso: {
+        [key: string]: unknown | EnsoPhase;
+    };
+    current: CurrentSeason;
+    /**
+     * Sources
+     */
+    sources: Array<string>;
+};
+
+/**
+ * FieldProperties
+ */
+export type FieldProperties = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Own
+     */
+    own: boolean;
+    /**
+     * Farm
+     */
+    farm?: string | null;
+    /**
+     * Ha
+     */
+    ha: number;
+    /**
+     * Status Code
+     */
+    status_code: 'ok' | 'watch' | 'alert' | 'check' | 'bare';
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Reason
+     */
+    reason: string;
+    /**
+     * Crop
+     */
+    crop: string;
+    /**
+     * Confidence
+     */
+    confidence: number | null;
+    /**
+     * History
+     */
+    history: Array<CampaignRecord>;
 };
 
 /**
@@ -313,6 +561,23 @@ export type PairedDifference = {
      * Water End Mm
      */
     water_end_mm: number;
+};
+
+/**
+ * PolygonGeometry
+ */
+export type PolygonGeometry = {
+    /**
+     * Type
+     */
+    type: 'Polygon';
+    /**
+     * Coordinates
+     */
+    coordinates: Array<Array<[
+        number,
+        number
+    ]>>;
 };
 
 /**
@@ -820,3 +1085,33 @@ export type GetWaterStrategyRunResponses = {
 };
 
 export type GetWaterStrategyRunResponse = GetWaterStrategyRunResponses[keyof GetWaterStrategyRunResponses];
+
+export type GetCropFieldMapData = {
+    body?: never;
+    path: {
+        /**
+         * Zone
+         */
+        zone: 'pergamino' | 'parana';
+    };
+    query?: never;
+    url: '/api/crops/zones/{zone}/fields';
+};
+
+export type GetCropFieldMapErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCropFieldMapError = GetCropFieldMapErrors[keyof GetCropFieldMapErrors];
+
+export type GetCropFieldMapResponses = {
+    /**
+     * Successful Response
+     */
+    200: FieldMap;
+};
+
+export type GetCropFieldMapResponse = GetCropFieldMapResponses[keyof GetCropFieldMapResponses];

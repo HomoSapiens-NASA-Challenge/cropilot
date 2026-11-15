@@ -3,6 +3,51 @@
 import * as z from 'zod';
 
 /**
+ * CampaignRecord
+ */
+export const zCampaignRecord = z.object({
+    campaign: z.string().regex(/^\d{2}\/\d{2}$/),
+    source: z.enum(['INTA', 'model']),
+    crop_code: z.int().gte(0).lte(8).nullable(),
+    crop: z.string(),
+    purity: z.number().gte(0).lte(1),
+    curve: z.tuple([
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number()
+    ]),
+    phase_code: z.enum([
+        'nino',
+        'nina',
+        'neutral'
+    ]).nullable(),
+    phase: z.string().nullable(),
+    oni: z.number().nullable(),
+    vigor: z.number(),
+    zone_vigor: z.number().nullable(),
+    gap: z.number().nullable(),
+    lag: z.int().nullable(),
+    even: z.number().gte(0).lte(1).nullable(),
+    zone_curve: z.tuple([
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number(),
+        z.number()
+    ]).nullable()
+});
+
+/**
  * CampaignWater
  */
 export const zCampaignWater = z.object({
@@ -56,6 +101,21 @@ export const zCropResult = z.object({
 });
 
 /**
+ * CurrentSeason
+ */
+export const zCurrentSeason = z.object({
+    campaign: z.string().regex(/^\d{2}\/\d{2}$/),
+    phase_code: z.enum([
+        'nino',
+        'nina',
+        'neutral'
+    ]),
+    phase: z.string(),
+    strength: z.string(),
+    oni: z.number()
+});
+
+/**
  * DailyWater
  */
 export const zDailyWater = z.object({
@@ -99,6 +159,19 @@ export const zCalendarEffect = z.object({
 });
 
 /**
+ * EnsoPhase
+ */
+export const zEnsoPhase = z.object({
+    phase_code: z.enum([
+        'nino',
+        'nina',
+        'neutral'
+    ]),
+    phase: z.string(),
+    oni: z.number()
+});
+
+/**
  * FarmCreate
  */
 export const zFarmCreate = z.object({
@@ -114,6 +187,44 @@ export const zFarmRead = z.object({
     created_at: z.iso.datetime()
 });
 
+/**
+ * FieldMapMeta
+ */
+export const zFieldMapMeta = z.object({
+    zone: z.enum(['pergamino', 'parana']),
+    lang: z.literal('en'),
+    campaigns: z.array(z.string().regex(/^\d{2}\/\d{2}$/)),
+    latest: z.string().regex(/^\d{2}\/\d{2}$/),
+    farm: z.string(),
+    farm_is_synthetic: z.literal(true),
+    enso: z.record(z.string(), z.unknown()),
+    current: zCurrentSeason,
+    sources: z.array(z.string())
+});
+
+/**
+ * FieldProperties
+ */
+export const zFieldProperties = z.object({
+    id: z.string().regex(/^[LN]\d+$/),
+    name: z.string(),
+    own: z.boolean(),
+    farm: z.string().nullish(),
+    ha: z.number().gt(0),
+    status_code: z.enum([
+        'ok',
+        'watch',
+        'alert',
+        'check',
+        'bare'
+    ]),
+    status: z.string(),
+    reason: z.string(),
+    crop: z.string(),
+    confidence: z.number().gte(0).lte(1).nullable(),
+    history: z.array(zCampaignRecord).min(1)
+});
+
 export const zJsonValue = z.unknown();
 
 /**
@@ -123,6 +234,32 @@ export const zPairedDifference = z.object({
     reference_run_id: z.string().regex(/^[a-f0-9]{20}$/),
     crop_et_deficit_mm: z.number(),
     water_end_mm: z.number()
+});
+
+/**
+ * PolygonGeometry
+ */
+export const zPolygonGeometry = z.object({
+    type: z.literal('Polygon'),
+    coordinates: z.array(z.array(z.tuple([z.number(), z.number()])))
+});
+
+/**
+ * CropField
+ */
+export const zCropField = z.object({
+    type: z.literal('Feature'),
+    geometry: zPolygonGeometry,
+    properties: zFieldProperties
+});
+
+/**
+ * FieldMap
+ */
+export const zFieldMap = z.object({
+    type: z.literal('FeatureCollection'),
+    meta: zFieldMapMeta,
+    features: z.array(zCropField)
 });
 
 /**
@@ -314,3 +451,12 @@ export const zGetWaterStrategyRunPath = z.object({
  * Successful Response
  */
 export const zGetWaterStrategyRunResponse = zWaterRunDetail;
+
+export const zGetCropFieldMapPath = z.object({
+    zone: z.enum(['pergamino', 'parana'])
+});
+
+/**
+ * Successful Response
+ */
+export const zGetCropFieldMapResponse = zFieldMap;
