@@ -1,6 +1,10 @@
 #!/bin/sh
 # Validates a commit subject or a PR title. Used by the commit-msg hook and by CI.
-subject=$1
+if [ "$1" = "--file" ]; then
+  IFS= read -r subject < "$2"
+else
+  subject=$1
+fi
 pattern='^((feat|fix|docs|refactor|test|chore)(\([a-z0-9-]+\))?: .+|(Merge|Revert) .+)'
 
 if ! printf '%s' "$subject" | grep -Eq "$pattern" || [ "${#subject}" -gt 72 ]; then

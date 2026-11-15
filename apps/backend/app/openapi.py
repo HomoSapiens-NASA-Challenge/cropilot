@@ -5,5 +5,5 @@ import sys
 
 from app.main import app
 
-json.dump(app.openapi(), sys.stdout, indent=2)
-sys.stdout.write("\n")
+# Binary output keeps the generated contract identical on Windows and Linux.
+sys.stdout.buffer.write((json.dumps(app.openapi(), indent=2) + "\n").encode("utf-8"))
