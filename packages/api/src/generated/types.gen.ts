@@ -86,6 +86,10 @@ export type AssistantRequest = {
      * History
      */
     history?: Array<HistoryMessage>;
+    /**
+     * Speak
+     */
+    speak?: boolean;
 };
 
 /**
@@ -136,6 +140,11 @@ export type AssistantResponse = {
      * Tools Used
      */
     tools_used: Array<string>;
+    speech?: SpeechAudio | null;
+    /**
+     * Speech Error
+     */
+    speech_error?: string | null;
 };
 
 /**
@@ -1581,6 +1590,10 @@ export type PlannerAssistantRequest = {
      */
     history?: Array<HistoryMessage>;
     /**
+     * Speak
+     */
+    speak?: boolean;
+    /**
      * Run Id
      */
     run_id: string;
@@ -2084,6 +2097,28 @@ export type SourceRef = {
 };
 
 /**
+ * SpeechAudio
+ */
+export type SpeechAudio = {
+    /**
+     * Audio Base64
+     */
+    audio_base64: string;
+    /**
+     * Mime Type
+     */
+    mime_type?: 'audio/wav';
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Model
+     */
+    model: string;
+};
+
+/**
  * SplitReplay
  */
 export type SplitReplay = {
@@ -2305,6 +2340,34 @@ export type StrategyMargin = {
      * Gross Margin After Rent Usd Ha
      */
     gross_margin_after_rent_usd_ha: number | null;
+};
+
+/**
+ * TranscriptionRequest
+ */
+export type TranscriptionRequest = {
+    /**
+     * Audio Base64
+     */
+    audio_base64: string;
+    /**
+     * Mime Type
+     */
+    mime_type: 'audio/webm' | 'audio/mp4' | 'audio/ogg' | 'audio/wav';
+};
+
+/**
+ * TranscriptionResponse
+ */
+export type TranscriptionResponse = {
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Model
+     */
+    model: string;
 };
 
 /**
@@ -2850,6 +2913,56 @@ export type AskPlannerAssistantResponses = {
 };
 
 export type AskPlannerAssistantResponse = AskPlannerAssistantResponses[keyof AskPlannerAssistantResponses];
+
+export type TranscribeCaseQuestionData = {
+    body: TranscriptionRequest;
+    path?: never;
+    query?: never;
+    url: '/api/assistant/transcriptions';
+};
+
+export type TranscribeCaseQuestionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type TranscribeCaseQuestionError = TranscribeCaseQuestionErrors[keyof TranscribeCaseQuestionErrors];
+
+export type TranscribeCaseQuestionResponses = {
+    /**
+     * Successful Response
+     */
+    200: TranscriptionResponse;
+};
+
+export type TranscribeCaseQuestionResponse = TranscribeCaseQuestionResponses[keyof TranscribeCaseQuestionResponses];
+
+export type TranscribePrivateQuestionData = {
+    body: TranscriptionRequest;
+    path?: never;
+    query?: never;
+    url: '/api/assistant/private-transcriptions';
+};
+
+export type TranscribePrivateQuestionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type TranscribePrivateQuestionError = TranscribePrivateQuestionErrors[keyof TranscribePrivateQuestionErrors];
+
+export type TranscribePrivateQuestionResponses = {
+    /**
+     * Successful Response
+     */
+    200: TranscriptionResponse;
+};
+
+export type TranscribePrivateQuestionResponse = TranscribePrivateQuestionResponses[keyof TranscribePrivateQuestionResponses];
 
 export type GetHealthData = {
     body?: never;

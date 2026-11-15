@@ -10,7 +10,14 @@ from openai import APIError, OpenAI
 from openai.types.responses import ResponseInputParam
 
 from app.core.config import AssistantSettings
-from app.modules.assistant.schemas import AssistantRequest, AssistantResponse, ModelAnswer
+from app.modules.assistant import voice
+from app.modules.assistant.schemas import (
+    AssistantRequest,
+    AssistantResponse,
+    ModelAnswer,
+    TranscriptionRequest,
+    TranscriptionResponse,
+)
 from app.modules.assistant.tools import EvidenceError, EvidenceSession, tool_definitions
 from app.modules.cases import service as cases_service
 
@@ -84,6 +91,23 @@ class UsageGate:
 usage_gate = UsageGate()
 
 
+def configured_settings(owner_id: str | None) -> AssistantSettings:
+    settings = AssistantSettings()
+    if owner_id is None and not settings.assistant_public_enabled:
+        raise AssistantUnavailableError("Public assistant is disabled")
+    if settings.openai_api_key is None or not settings.openai_api_key.get_secret_value().strip():
+        raise AssistantUnavailableError("Assistant is not configured; contact the operator")
+    return settings
+
+
+def transcribe_message(
+    request: TranscriptionRequest, owner_id: str | None = None
+) -> TranscriptionResponse:
+    settings = configured_settings(owner_id)
+    with usage_gate.enter(settings.assistant_requests_per_hour):
+        return voice.transcribe_audio(request, settings)
+
+
 def validate_answer(answer: ModelAnswer, evidence: EvidenceSession) -> None:
     cited = {source for claim in answer.claims for source in claim.source_ids}
     if cited - evidence.sources.keys():
@@ -95,11 +119,10 @@ def validate_answer(answer: ModelAnswer, evidence: EvidenceSession) -> None:
 def answer_message(
     request: AssistantRequest, owner_id: str | None = None, run_id: str | None = None
 ) -> AssistantResponse:
-    settings = AssistantSettings()
-    if owner_id is None and not settings.assistant_public_enabled:
-        raise AssistantUnavailableError("Public assistant is disabled")
-    if settings.openai_api_key is None or not settings.openai_api_key.get_secret_value().strip():
-        raise AssistantUnavailableError("Assistant is not configured; contact the operator")
+    settings = configured_settings(owner_id)
+    assert settings.openai_api_key is not None
+    speech = None
+    speech_error = None
     evidence = EvidenceSession(request.zone_id, owner_id, run_id)
     context = evidence.context()
     # Authorize before sending any run information to the provider, even if it never calls a tool.
@@ -112,6 +135,15 @@ def answer_message(
                 answer = _respond(
                     client, settings.openai_model, request, evidence, context, planner_context
                 )
+                validate_answer(answer, evidence)
+                if request.speak:
+                    excerpt = answer.claims[0].text
+                    if answer.limitations:
+                        excerpt += "\n" + answer.limitations[0]
+                    try:
+                        speech = voice.read_aloud(excerpt, settings)
+                    except voice.VoiceError as error:
+                        speech_error = str(error)
         except APIError as error:
             # Provider exceptions can include request content; do not expose or log their body.
             raise AssistantUnavailableError(
@@ -132,6 +164,8 @@ def answer_message(
         sources=[evidence.sources[s] for s in sorted(source_ids)],
         cards=[card for card in evidence.cards if card.rows][:6],
         tools_used=evidence.tools_used,
+        speech=speech,
+        speech_error=speech_error,
     )
 
 

@@ -41,6 +41,8 @@ class AssistantSettings(BaseSettings):
 
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-6.1-sol"
+    openai_transcription_model: str = "gpt-transcribe"
+    openai_speech_model: str = "gpt-realtime-2.1-mini"
     assistant_public_enabled: bool = False
     assistant_requests_per_hour: int = Field(default=60, ge=1, le=1000)
 

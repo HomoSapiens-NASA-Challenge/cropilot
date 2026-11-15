@@ -18,6 +18,7 @@ class AssistantRequest(AssistantModel):
     zone_id: str = Field(min_length=1, max_length=80, pattern=r"^[a-z0-9-]+$")
     message: str = Field(min_length=1, max_length=2000)
     history: list[HistoryMessage] = Field(default_factory=list, max_length=8)
+    speak: bool = False
 
 
 class PlannerAssistantRequest(AssistantRequest):
@@ -45,6 +46,23 @@ class EvidenceCard(AssistantModel):
     source_ids: list[str]
 
 
+class SpeechAudio(AssistantModel):
+    audio_base64: str
+    mime_type: Literal["audio/wav"] = "audio/wav"
+    text: str
+    model: str
+
+
+class TranscriptionRequest(AssistantModel):
+    audio_base64: str = Field(min_length=4, max_length=5_600_000)
+    mime_type: Literal["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"]
+
+
+class TranscriptionResponse(AssistantModel):
+    text: str
+    model: str
+
+
 class AssistantResponse(ModelAnswer):
     zone_id: str
     campaign: str
@@ -54,3 +72,5 @@ class AssistantResponse(ModelAnswer):
     sources: list[SourceRef]
     cards: list[EvidenceCard]
     tools_used: list[str]
+    speech: SpeechAudio | None = None
+    speech_error: str | None = None

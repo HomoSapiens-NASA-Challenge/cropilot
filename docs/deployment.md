@@ -57,7 +57,27 @@ docker compose -f compose.prod.yml logs --tail 100 backend auth traefik
 
 Then open the site on desktop and a real phone, follow the Pergamino case through Years, Strategies and Map, and compare rotation/water views. Set the mobile build's `EXPO_PUBLIC_API_URL` to this same HTTPS origin before building it. If login is enabled, sign in with a real test account and inspect `/api/water/strategies` and one returned run ID with that account's JWT. Do not paste tokens into logs or this repository. The automated check deliberately tests the unauthenticated boundary; the container verification covers the mounted water payload.
 
-Automatic deployment is opt-in: set repository variables `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_KNOWN_HOSTS` and secret `DEPLOY_SSH_KEY` only after a successful manual deployment. CI waits for application and scientific checks, refuses tracked/staged changes and non-ignored untracked files before checkout, fetches the tested commit, checks out that exact SHA and runs the same deployment script. The script repeats the clean-source check before provisioning and building. Neither check deletes files; ignored `.env` and installed assets remain allowed. An existing installation is verified without downloading again; retain release read access for future versions. Take a database backup before a push that changes migrations: CI does not make one automatically. During the judging week, leave automatic deployment disabled unless an update is needed.
+Automatic deployment is opt-in: set repository variables `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_KNOWN_HOSTS` and secrets `DEPLOY_SSH_KEY` and `OPENAI_API_KEY` only after a successful manual deployment. CI waits for application and scientific checks, refuses tracked/staged changes and non-ignored untracked files before checkout, fetches the tested commit, checks out that exact SHA and runs the same deployment script. The script repeats the clean-source check before provisioning and building. Neither check deletes files; ignored `.env` and installed assets remain allowed. An existing installation is verified without downloading again; retain release read access for future versions. Take a database backup before a push that changes migrations: CI does not make one automatically. During the judging week, leave automatic deployment disabled unless an update is needed.
+
+### Assistant and voice credentials
+
+`OPENAI_API_KEY` is a repository Actions secret, shared by text, transcription and speech.
+It is not a `VITE_` or `EXPO_PUBLIC_` variable and is not used by PR checks or image builds.
+The deployment job sends it through encrypted SSH standard input and writes the ignored
+`~/cropilot/.env.openai` with mode `600`. `deploy.sh` loads `.env`, then this optional
+secret file, and Compose passes the key only to the backend. Environment variables take
+precedence. Never run an unredacted `docker compose config` or enable shell tracing.
+
+For the first manual deployment, securely provision `OPENAI_API_KEY` in the host's `.env`
+or `.env.openai`; do not put its value in shell history. Set `ASSISTANT_PUBLIC_ENABLED=true`
+in `.env` to enable the paid public demo. Model defaults and request budget are documented
+in [assistant.md](assistant.md). After rotation, update the Actions secret and redeploy;
+updating a GitHub secret alone does not change a running container. The public smoke test
+does not incur paid model calls: separately verify one text and one voice turn on HTTPS.
+
+As of the local verification on 2026-11-15, the OpenAI repository secret is configured;
+no deployment host or `DEPLOY_*` variables were configured. These changes do not provision
+a VPS, domain or publicly reachable service.
 
 ## Seven days and rollback
 

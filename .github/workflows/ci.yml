@@ -20,6 +20,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - uses: astral-sh/setup-uv@v10.3.3
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: cp .env.example .env
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
@@ -77,19 +78,32 @@ jobs:
           DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_COMMIT: ${{ github.sha }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           install -d -m 700 ~/.ssh
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           install -m 600 /dev/null ~/.ssh/id_deploy
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy
-          ssh -i ~/.ssh/id_deploy "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$DEPLOY_COMMIT'" <<'REMOTE'
+          # Send the key through encrypted SSH stdin, never argv or shell tracing.
+          : "${OPENAI_API_KEY:?Set the OPENAI_API_KEY repository secret}"
+          {
+          printf 'export OPENAI_API_KEY=%q\n' "$OPENAI_API_KEY"
+          cat <<'REMOTE'
           set -euo pipefail
           cd cropilot
+          if [[ ! "$OPENAI_API_KEY" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            printf '%s\n' 'Invalid OpenAI key format; deployment stopped.' >&2
+            exit 1
+          fi
           if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
             printf '%s\n' 'Deployment refused: resolve tracked changes and non-ignored untracked files in the checkout first.' >&2
             exit 1
           fi
           git fetch origin "$1"
           git checkout --detach "$1"
+          umask 077
+          printf 'OPENAI_API_KEY=%s\n' "$OPENAI_API_KEY" > .env.openai
+          chmod 600 .env.openai
           scripts/deploy/deploy.sh
           REMOTE
+          } | ssh -i ~/.ssh/id_deploy "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$DEPLOY_COMMIT'"
