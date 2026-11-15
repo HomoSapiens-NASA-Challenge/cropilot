@@ -1,4 +1,5 @@
 import {
+  BrainCircuit,
   CalendarSearch,
   LayoutDashboard,
   type LucideIcon,
@@ -9,7 +10,7 @@ import {
 export type AppSection = {
   title: string
   description: string
-  href: "/overview" | "/map" | "/years" | "/strategies"
+  href: "/overview" | "/map" | "/years" | "/strategies" | "/planner"
   icon: LucideIcon
   isAvailable: boolean
 }
@@ -45,6 +46,14 @@ export const appSections = {
     href: "/strategies",
     isAvailable: true,
     icon: Sprout,
+  },
+  rotationPlanner: {
+    title: "Rotation planner",
+    description:
+      "Set what matters on this farm. The simulator, an exact solver and a learning agent search for the best rotation, then replay it on past campaigns.",
+    href: "/planner",
+    isAvailable: true,
+    icon: BrainCircuit,
   },
 } as const satisfies Record<string, AppSection>
 export const sectionGroups = [
