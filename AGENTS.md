@@ -25,7 +25,7 @@ Desde la raíz:
 | --------------------------- | -------------------------------------------------------------- |
 | `pnpm dev`                  | Levanta la base, migra y corre backend, auth y web con recarga |
 | `pnpm mobile`               | Corre Expo                                                     |
-| `pnpm lint` · `pnpm format` | Biome (TypeScript) y Ruff (Python)                             |
+| `pnpm lint` · `pnpm format` | Biome, Ruff (Python) y las reglas visuales de la web           |
 | `pnpm typecheck`            | `tsc` y `ty`                                                   |
 | `pnpm test`                 | `pytest` y `node --test`                                       |
 | `pnpm generate`             | Regenera `packages/api` desde el backend                       |
@@ -33,7 +33,7 @@ Desde la raíz:
 
 - Migración nueva: `cd apps/backend && uv run alembic revision --autogenerate -m "<qué cambia>"`.
 - Dependencias: `pnpm --filter @cropilot/<paquete> add <lib>`, `uv add <lib>` en `apps/backend`, `pnpm exec expo install <lib>` en `apps/mobile`.
-- Componente de UI: `pnpm dlx shadcn@latest add <componente>` en `apps/webapp`.
+- Componente de UI: `pnpm dlx shadcn@latest add <componente>` en `apps/webapp`, y se adapta al sistema visual antes de usarlo.
 
 ## Reglas de código
 
@@ -48,7 +48,7 @@ Valen para todo el repo. El linter, el type checker y los hooks cubren el format
 - **Comentarios.** En inglés, solo para explicar el porqué.
 - **Datos.** Nunca un número inventado. Lo mock o sintético lo dice en el nombre y en la interfaz. Cada indicador que se muestra lleva su fuente: dataset, período y ubicación.
 - **Interfaz en inglés.**
-- **No se editan a mano:** `packages/api/src/generated/`, `packages/api/openapi.json`, `routeTree.gen.ts`, `apps/webapp/src/components/ui/`, `pnpm-lock.yaml`, `uv.lock`.
+- **No se editan a mano:** `packages/api/src/generated/`, `packages/api/openapi.json`, `routeTree.gen.ts`, `pnpm-lock.yaml`, `uv.lock`.
 - **Hooks.** No se saltean con `--no-verify`.
 
 ## Backend · `apps/backend/app`
@@ -75,17 +75,29 @@ main.py        registra los routers en ROUTERS
 ```
 routes/          rutas por archivo (TanStack Router). Finas: loader y composición
 features/<x>/    componentes, hooks y lógica de un dominio
-components/ui/   shadcn. Se agrega con el CLI
+components/ui/   shadcn. Se agrega con el CLI y se adapta al sistema visual
 lib/             clientes y utilidades sin dominio
 ```
 
-- Las rutas bajo `routes/_authenticated/` exigen sesión.
+- Las rutas bajo `routes/_authenticated/` exigen sesión. Las de `routes/_site/` son el sitio público: la landing y las páginas de sus menús, que salen del catálogo `features/landing/site-content.ts`.
 - **Estado de servidor solo con TanStack Query**, con las options generadas (`listFarmsOptions()`, `createFarmMutation()`). Nada de `fetch` ni `useEffect` para traer datos. La ruta precarga con `loader` y `ensureQueryData`; el componente lee con `useSuspenseQuery`.
 - **Formularios** con TanStack Form, los schemas Zod generados (`zFarmCreate`) y los componentes `Field`.
 - Estado local con `useState`. No se agrega un store global.
 - **Estilos** con clases de Tailwind y los tokens del tema (`text-muted-foreground`). Sin colores sueltos ni archivos CSS nuevos. Clases condicionales con `cn`.
 - Un feature no importa de otro. Lo compartido sube a `components/` o `lib/`.
 - Imports internos con el alias `@/`.
+
+### Sistema visual
+
+Vale para la landing, la plataforma y todo componente de shadcn, nuevo o existente. La referencia es la landing.
+
+- **Color 90/10.** Tinta, grises fríos y blanco. `--primary` es el único acento: acción principal, links, foco, estado activo y resaltados chicos de datos. Sin degradés de color ni otros tonos. La excepción son los colores que codifican un dato, como el cultivo en el mapa, declarados en un solo lugar.
+- **Tipografía.** Geist. `font-light tracking-tight` en títulos de página y cifras grandes (desde `text-xl`); `font-medium` en títulos chicos y etiquetas; `font-normal` en texto y botones. Nunca `font-semibold` ni más.
+- **Forma.** Los radios salen de `--radius`: 4px en controles (`rounded-lg`), un paso más en tarjetas y paneles (`rounded-xl`). Píldora solo en badges y avatares.
+- **Superficies planas.** Lo que está en el flujo de la página lleva borde fino y no lleva sombra. La sombra es para lo que flota: menús, popovers, paneles sobre el mapa. La escala `shadow-*` está redefinida en el tema, así que no se escriben sombras propias.
+- **Glass**, solo para capas sobre contenido. Panel: `bg-background/75 backdrop-blur-lg`. Fondo de un modal, sheet o menú: `bg-background/40 backdrop-blur-xs`.
+- **Componente nuevo de shadcn.** Después de `shadcn add` se revisa el archivo antes de usarlo: pesos según la regla de arriba, solo tokens de color (se reemplazan `black`, `white` y la paleta de Tailwind) y el fondo de los modales pasa a la receta de glass. No se le agregan radios ni sombras: vienen del tema.
+- `pnpm lint` falla si aparece un peso mayor a `font-medium` o un color fuera del tema (`apps/webapp/scripts/check-design-rules.mjs`).
 
 ## Mobile · `apps/mobile/src`
 

@@ -61,3 +61,4 @@ To deploy on every push to `main`, set the repository variables `DEPLOY_HOST`, `
 ## AI use
 
 - Claude Fable 5.2 (Anthropic), in Claude Code: scaffolding of this repository, including project structure, tooling and CI configuration, deployment files, the example `farms` module and these docs.
+- Claude Fable 5.2 (Anthropic), in Claude Code: the public landing page with its navigation menus and menu pages, the visual system shared with the app, and the lint check that enforces it. The landing's line art is vector geometry drawn in code, not a generated image.
