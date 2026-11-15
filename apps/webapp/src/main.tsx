@@ -17,11 +17,17 @@ const router = createRouter({
   defaultPreload: "intent",
   // Loaders read through TanStack Query, which owns freshness.
   defaultPreloadStaleTime: 0,
+  // A new page opens at the top; going back restores where the reader was.
+  scrollRestoration: true,
 })
 
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router
+  }
+  interface StaticDataRouteOption {
+    /** Shown in the breadcrumb of the app shell. */
+    title?: string
   }
 }
 

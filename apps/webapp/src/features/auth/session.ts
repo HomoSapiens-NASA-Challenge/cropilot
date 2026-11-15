@@ -19,7 +19,7 @@ export const sessionOptions = queryOptions({
 export async function signInWithGoogle(): Promise<void> {
   const { error } = await authClient.signIn.social({
     provider: "google",
-    callbackURL: "/farms",
+    callbackURL: "/overview",
   })
   if (error) {
     throw new Error(error.message ?? "Could not sign in")

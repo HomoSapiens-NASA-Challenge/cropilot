@@ -9,67 +9,189 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as SiteRouteImport } from './routes/_site'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedAnalogYearsRouteImport } from './routes/_authenticated/analog-years'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedFarmsRouteImport } from './routes/_authenticated/farms'
+import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
+import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
+import { Route as AuthenticatedStrategiesRouteImport } from './routes/_authenticated/strategies'
+import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteSectionSlugPageSlugRouteImport } from './routes/_site/$sectionSlug.$pageSlug'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SiteRoute = SiteRouteImport.update({
+  id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAnalogYearsRoute =
+  AuthenticatedAnalogYearsRouteImport.update({
+    id: '/analog-years',
+    path: '/analog-years',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedFarmsRoute = AuthenticatedFarmsRouteImport.update({
   id: '/farms',
   path: '/farms',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedStrategiesRoute = AuthenticatedStrategiesRouteImport.update({
+  id: '/strategies',
+  path: '/strategies',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const SiteIndexRoute = SiteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteSectionSlugPageSlugRoute = SiteSectionSlugPageSlugRouteImport.update({
+  id: '/$sectionSlug/$pageSlug',
+  path: '/$sectionSlug/$pageSlug',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof SiteIndexRoute
+  '/login': typeof LoginRoute
+  '/analog-years': typeof AuthenticatedAnalogYearsRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/farms': typeof AuthenticatedFarmsRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/overview': typeof AuthenticatedOverviewRoute
+  '/strategies': typeof AuthenticatedStrategiesRoute
+  '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof SiteIndexRoute
+  '/login': typeof LoginRoute
+  '/analog-years': typeof AuthenticatedAnalogYearsRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/farms': typeof AuthenticatedFarmsRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/overview': typeof AuthenticatedOverviewRoute
+  '/strategies': typeof AuthenticatedStrategiesRoute
+  '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_site': typeof SiteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authenticated/analog-years': typeof AuthenticatedAnalogYearsRoute
+  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/farms': typeof AuthenticatedFarmsRoute
+  '/_authenticated/map': typeof AuthenticatedMapRoute
+  '/_authenticated/overview': typeof AuthenticatedOverviewRoute
+  '/_authenticated/strategies': typeof AuthenticatedStrategiesRoute
+  '/_site/': typeof SiteIndexRoute
+  '/_site/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farms'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/analog-years'
+    | '/assistant'
+    | '/farms'
+    | '/map'
+    | '/overview'
+    | '/strategies'
+    | '/$sectionSlug/$pageSlug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farms'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/farms'
+  to:
+    | '/'
+    | '/login'
+    | '/analog-years'
+    | '/assistant'
+    | '/farms'
+    | '/map'
+    | '/overview'
+    | '/strategies'
+    | '/$sectionSlug/$pageSlug'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/_site'
+    | '/login'
+    | '/_authenticated/analog-years'
+    | '/_authenticated/assistant'
+    | '/_authenticated/farms'
+    | '/_authenticated/map'
+    | '/_authenticated/overview'
+    | '/_authenticated/strategies'
+    | '/_site/'
+    | '/_site/$sectionSlug/$pageSlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  SiteRoute: typeof SiteRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/analog-years': {
+      id: '/_authenticated/analog-years'
+      path: '/analog-years'
+      fullPath: '/analog-years'
+      preLoaderRoute: typeof AuthenticatedAnalogYearsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/farms': {
       id: '/_authenticated/farms'
@@ -78,24 +200,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFarmsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/map': {
+      id: '/_authenticated/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof AuthenticatedMapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/overview': {
+      id: '/_authenticated/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof AuthenticatedOverviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/strategies': {
+      id: '/_authenticated/strategies'
+      path: '/strategies'
+      fullPath: '/strategies'
+      preLoaderRoute: typeof AuthenticatedStrategiesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_site/': {
+      id: '/_site/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/$sectionSlug/$pageSlug': {
+      id: '/_site/$sectionSlug/$pageSlug'
+      path: '/$sectionSlug/$pageSlug'
+      fullPath: '/$sectionSlug/$pageSlug'
+      preLoaderRoute: typeof SiteSectionSlugPageSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAnalogYearsRoute: typeof AuthenticatedAnalogYearsRoute
+  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedFarmsRoute: typeof AuthenticatedFarmsRoute
+  AuthenticatedMapRoute: typeof AuthenticatedMapRoute
+  AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
+  AuthenticatedStrategiesRoute: typeof AuthenticatedStrategiesRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAnalogYearsRoute: AuthenticatedAnalogYearsRoute,
+  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedFarmsRoute: AuthenticatedFarmsRoute,
+  AuthenticatedMapRoute: AuthenticatedMapRoute,
+  AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
+  AuthenticatedStrategiesRoute: AuthenticatedStrategiesRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface SiteRouteChildren {
+  SiteIndexRoute: typeof SiteIndexRoute
+  SiteSectionSlugPageSlugRoute: typeof SiteSectionSlugPageSlugRoute
+}
+
+const SiteRouteChildren: SiteRouteChildren = {
+  SiteIndexRoute: SiteIndexRoute,
+  SiteSectionSlugPageSlugRoute: SiteSectionSlugPageSlugRoute,
+}
+
+const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  SiteRoute: SiteRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
