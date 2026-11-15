@@ -58,7 +58,7 @@ export function SiteScreen({ children }: { children: ReactNode }) {
       const y = positions.current[anchor]
       if (y === undefined) {
         router.navigate({
-          pathname: "/",
+          pathname: "/tour",
           params: { section: anchor, at: String(Date.now()) },
         })
         return
@@ -72,8 +72,6 @@ export function SiteScreen({ children }: { children: ReactNode }) {
         scrollToY(y)
       }
     },
-    scrollToTop: () =>
-      scroll.current?.scrollTo({ y: 0, animated: !reduceMotion }),
   }
 
   return (

@@ -45,6 +45,7 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="tour" options={{ headerShown: false }} />
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen
             name="site/[sectionSlug]/[pageSlug]"

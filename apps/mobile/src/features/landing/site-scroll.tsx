@@ -21,7 +21,6 @@ export function isLandingAnchor(
 export type SiteScroll = {
   goTo: (anchor: LandingAnchor) => void
   register: (anchor: LandingAnchor, y: number) => void
-  scrollToTop: () => void
 }
 
 export const SiteScrollContext = createContext<SiteScroll | null>(null)
@@ -34,13 +33,9 @@ function useSiteScroll(): SiteScroll {
   return context
 }
 
-/** Jumps to a landing section; from a sub-page it opens the landing there. */
+/** Jumps to a section of the tour; from a sub-page it opens the tour there. */
 export function useGoToAnchor(): (anchor: LandingAnchor) => void {
   return useSiteScroll().goTo
-}
-
-export function useScrollToTop(): () => void {
-  return useSiteScroll().scrollToTop
 }
 
 /** Marks where a landing section starts. Must be a direct child of SiteScreen. */

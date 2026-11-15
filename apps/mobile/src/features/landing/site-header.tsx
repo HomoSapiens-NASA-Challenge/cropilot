@@ -1,4 +1,4 @@
-import { router, usePathname } from "expo-router"
+import { router } from "expo-router"
 import { Menu } from "lucide-react-native"
 import { useState } from "react"
 import { Pressable, View } from "react-native"
@@ -6,16 +6,11 @@ import { BrandMark } from "@/components/brand-mark"
 import { Icon } from "@/components/ui/icon"
 import { AppEntryLink } from "@/features/landing/cta-link"
 import { SiteMobileNav } from "@/features/landing/site-mobile-nav"
-import {
-  SITE_HEADER_HEIGHT,
-  useScrollToTop,
-} from "@/features/landing/site-scroll"
+import { SITE_HEADER_HEIGHT } from "@/features/landing/site-scroll"
 
 /** Sticky header of the public site, as the web shows it below `lg`. */
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const scrollToTop = useScrollToTop()
-  const pathname = usePathname()
 
   return (
     <View className="border-b border-border/70 bg-background/95 px-2">
@@ -26,9 +21,7 @@ export function SiteHeader() {
         <Pressable
           accessibilityRole="link"
           accessibilityLabel="Cropilot home"
-          onPress={() =>
-            pathname === "/" ? scrollToTop() : router.navigate("/")
-          }
+          onPress={() => router.navigate("/")}
           className="mr-2 rounded-lg"
         >
           <BrandMark />
