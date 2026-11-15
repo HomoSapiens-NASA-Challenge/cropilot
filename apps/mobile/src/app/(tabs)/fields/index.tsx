@@ -7,11 +7,11 @@ import { FIELDS, STUDY_AREA } from "@/features/fields/field-data"
 
 export default function FieldsScreen() {
   return (
-    <SafeAreaView
-      edges={["bottom", "left", "right"]}
-      className="flex-1 bg-secondary"
-    >
-      <ScrollView contentContainerClassName="gap-4 p-6">
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-4 p-6"
+      >
         {/* Header block */}
         <View className="gap-1">
           <PageHeader

@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router"
+import { router, Stack, useLocalSearchParams } from "expo-router"
 import { View } from "react-native"
 import { Text } from "@/components/ui/text"
 import { ArrowLink } from "@/features/landing/cta-link"
@@ -15,6 +15,9 @@ export default function SitePageRoute() {
 
   return (
     <SiteScreen>
+      <Stack.Screen
+        options={{ title: match ? match.page.title : "Not found" }}
+      />
       {match ? (
         <SitePageView
           menu={match.menu}

@@ -15,9 +15,9 @@ export type AppSection = {
     | "/overview"
     | "/map"
     | "/fields"
-    | "/analog-years"
-    | "/strategies"
-    | "/assistant"
+    | "/analysis/analog-years"
+    | "/analysis/strategies"
+    | "/analysis/assistant"
   icon: LucideIcon
   isAvailable: boolean
 }
@@ -50,7 +50,7 @@ export const appSections = {
     title: "Years like this",
     description:
       "Past campaigns that started like this one, matched by El Niño phase and soil moisture.",
-    href: "/analog-years",
+    href: "/analysis/analog-years",
     isAvailable: false,
     icon: CalendarSearch,
   },
@@ -58,7 +58,7 @@ export const appSections = {
     title: "Strategies",
     description:
       "At least three crop rotations side by side, the current one included.",
-    href: "/strategies",
+    href: "/analysis/strategies",
     isAvailable: false,
     icon: Sprout,
   },
@@ -66,7 +66,7 @@ export const appSections = {
     title: "Assistant",
     description:
       "Ask about a strategy and get answers that cite their dataset, period and location.",
-    href: "/assistant",
+    href: "/analysis/assistant",
     isAvailable: false,
     icon: MessagesSquare,
   },

@@ -32,7 +32,7 @@ export function SiteHeader() {
             accessibilityRole="button"
             accessibilityLabel="Open menu"
             onPress={() => setIsMenuOpen(true)}
-            className="size-10 items-center justify-center rounded-lg active:bg-muted"
+            className="size-11 items-center justify-center rounded-lg active:bg-muted"
           >
             <Icon as={Menu} size={18} className="text-foreground" />
           </Pressable>

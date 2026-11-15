@@ -6,11 +6,11 @@ import { appSections } from "@/features/shell/sections"
 
 export default function StrategiesScreen() {
   return (
-    <SafeAreaView
-      edges={["bottom", "left", "right"]}
-      className="flex-1 bg-secondary"
-    >
-      <ScrollView contentContainerClassName="gap-8 p-6">
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-8 p-6"
+      >
         <PageHeader
           title={appSections.strategies.title}
           description={appSections.strategies.description}

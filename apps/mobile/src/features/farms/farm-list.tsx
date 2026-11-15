@@ -28,6 +28,7 @@ export function FarmList() {
 
   return (
     <FlatList
+      showsVerticalScrollIndicator={false}
       data={farms.data}
       keyExtractor={(farm) => farm.id}
       contentContainerClassName="gap-0 p-4"

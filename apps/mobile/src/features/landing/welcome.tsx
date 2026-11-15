@@ -38,13 +38,17 @@ export function Welcome() {
           accessibilityRole="button"
           accessibilityLabel="Open menu"
           onPress={() => setIsMenuOpen(true)}
-          className="size-10 items-center justify-center rounded-lg active:bg-muted"
+          className="size-11 items-center justify-center rounded-lg active:bg-muted"
         >
           <Icon as={Menu} size={18} className="text-foreground" />
         </Pressable>
       </View>
       <SiteMobileNav open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <ScrollView className="flex-1" contentContainerClassName="pt-6">
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pt-6"
+      >
         <View className="px-6">
           <Text className="text-sm font-medium">
             Evidence for the agronomist,{" "}

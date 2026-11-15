@@ -1,9 +1,8 @@
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { Stack, useLocalSearchParams } from "expo-router"
 import { useState } from "react"
 import { Linking, Pressable, ScrollView, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -38,18 +37,12 @@ export default function FarmScreen() {
   const farm = SYNTHETIC_DEMO_FARMS.find((item) => item.farmId === farmId)
   if (!farm)
     return (
-      <SafeAreaView
-        edges={["bottom", "left", "right"]}
-        className="flex-1 bg-secondary"
-      >
+      <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
         <Stack.Screen options={{ title: "Farm" }} />
         <View className="items-start gap-4 p-6">
           <Text className="text-muted-foreground">
             This demo farm does not exist.
           </Text>
-          <Button variant="ghost" onPress={() => router.back()}>
-            <Text>Back</Text>
-          </Button>
         </View>
       </SafeAreaView>
     )
@@ -62,12 +55,12 @@ export default function FarmScreen() {
   )
   const lastFullYear = new Date().getFullYear() - 1
   return (
-    <SafeAreaView
-      edges={["bottom", "left", "right"]}
-      className="flex-1 bg-secondary"
-    >
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
       <Stack.Screen options={{ title: farm.name }} />
-      <ScrollView contentContainerClassName="gap-6 p-6">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-6 p-6"
+      >
         <SyntheticNotice />
         <Card>
           <CardContent>

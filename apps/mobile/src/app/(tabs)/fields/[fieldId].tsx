@@ -1,8 +1,7 @@
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { Stack, useLocalSearchParams } from "expo-router"
 import { ScrollView, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -31,15 +30,12 @@ export default function FieldDetailScreen() {
   if (!field) {
     return (
       <SafeAreaView
-        edges={["bottom", "left", "right"]}
+        edges={["left", "right"]}
         className="flex-1 bg-secondary justify-center items-center p-4 gap-4"
       >
         <Text className="text-muted-foreground text-center">
           No local diagnostics for this field ID.
         </Text>
-        <Button variant="ghost" onPress={() => router.back()}>
-          <Text>Back to fields</Text>
-        </Button>
       </SafeAreaView>
     )
   }
@@ -65,12 +61,12 @@ export default function FieldDetailScreen() {
   const lastMonth = ndviSeries[ndviSeries.length - 1]?.month ?? ""
 
   return (
-    <SafeAreaView
-      edges={["bottom", "left", "right"]}
-      className="flex-1 bg-secondary"
-    >
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
       <Stack.Screen options={{ title: field.label }} />
-      <ScrollView contentContainerClassName="gap-4 p-6">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-4 p-6"
+      >
         {/* 1. Overview */}
         <Card>
           <CardHeader>

@@ -1,24 +1,21 @@
 import { router, useLocalSearchParams } from "expo-router"
 import { type ComponentRef, type ReactNode, useEffect, useRef } from "react"
-import { ScrollView } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { AnnouncementBar } from "@/features/landing/announcement-bar"
-import { SiteFooter } from "@/features/landing/site-footer"
-import { SiteHeader } from "@/features/landing/site-header"
+import { ScrollView, View } from "react-native"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
+import { Text } from "@/components/ui/text"
 import {
   isLandingAnchor,
   type LandingAnchor,
-  SITE_HEADER_HEIGHT,
   type SiteScroll,
   SiteScrollContext,
 } from "@/features/landing/site-scroll"
 import { useReduceMotion } from "@/lib/use-reduce-motion"
 
 /**
- * Chrome of the public site: the announcement bar scrolls away, the header
- * sticks to the top like the web's glass header, the footer closes the page.
+ * Pushed screen of the public site under a native header.
  */
 export function SiteScreen({ children }: { children: ReactNode }) {
+  const insets = useSafeAreaInsets()
   const reduceMotion = useReduceMotion()
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null)
   const positions = useRef<Partial<Record<LandingAnchor, number>>>({})
@@ -31,7 +28,7 @@ export function SiteScreen({ children }: { children: ReactNode }) {
 
   const scrollToY = (y: number) =>
     scroll.current?.scrollTo({
-      y: Math.max(0, y - SITE_HEADER_HEIGHT),
+      y: Math.max(0, y),
       animated: !reduceMotion,
     })
 
@@ -48,7 +45,7 @@ export function SiteScreen({ children }: { children: ReactNode }) {
       return
     }
     scroll.current?.scrollTo({
-      y: Math.max(0, y - SITE_HEADER_HEIGHT),
+      y: Math.max(0, y),
       animated: !reduceMotion,
     })
   }, [section, at, reduceMotion])
@@ -76,15 +73,23 @@ export function SiteScreen({ children }: { children: ReactNode }) {
 
   return (
     <SiteScrollContext.Provider value={value}>
-      <SafeAreaView
-        edges={["top", "left", "right"]}
-        className="flex-1 bg-background"
-      >
-        <ScrollView ref={scroll} stickyHeaderIndices={[1]}>
-          <AnnouncementBar />
-          <SiteHeader />
+      <SafeAreaView edges={["left", "right"]} className="flex-1 bg-background">
+        <ScrollView ref={scroll} showsVerticalScrollIndicator={false}>
           {children}
-          <SiteFooter />
+          <View
+            className="border-t border-border/70 px-6 pt-8 pb-12"
+            style={
+              insets.bottom > 0
+                ? { paddingBottom: 48 + insets.bottom }
+                : undefined
+            }
+          >
+            <Text className="text-xs text-muted-foreground">
+              Built for the NASA Space Apps Challenge 2026 · Field Shift:
+              Adapting Farms with NASA Data. Cropilot supports the agronomist's
+              judgment and never replaces it.
+            </Text>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </SiteScrollContext.Provider>

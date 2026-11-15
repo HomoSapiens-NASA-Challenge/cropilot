@@ -19,11 +19,11 @@ import { SyntheticNotice } from "@/features/farm-map/synthetic-notice"
 
 export default function FarmMapScreen() {
   return (
-    <SafeAreaView
-      edges={["bottom", "left", "right"]}
-      className="flex-1 bg-secondary"
-    >
-      <ScrollView contentContainerClassName="gap-6 p-6">
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-secondary">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-6 p-6"
+      >
         <PageHeader
           title="Farm map"
           description="Demo farms on the map. Tap a lot to inspect it, open a farm to see its data."

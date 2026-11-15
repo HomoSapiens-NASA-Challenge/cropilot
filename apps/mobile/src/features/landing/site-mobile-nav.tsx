@@ -40,12 +40,15 @@ export function SiteMobileNav({
               accessibilityRole="button"
               accessibilityLabel="Close menu"
               onPress={onClose}
-              className="size-9 items-center justify-center rounded-lg active:bg-muted"
+              className="size-11 items-center justify-center rounded-lg active:bg-muted"
             >
               <Icon as={X} size={16} className="text-muted-foreground" />
             </Pressable>
           </View>
-          <ScrollView contentContainerClassName="gap-8 px-4 pt-2 pb-8">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerClassName="gap-8 px-4 pt-2 pb-8"
+          >
             {SITE_MENUS.map((menu) => (
               <View key={menu.sectionSlug} className="gap-3">
                 <Text className="border-b border-border pb-2 text-sm text-muted-foreground">

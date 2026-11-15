@@ -1,5 +1,5 @@
 import { router } from "expo-router"
-import { ArrowLeft, ArrowRight } from "lucide-react-native"
+import { ArrowRight, ChevronLeft } from "lucide-react-native"
 import { Pressable, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { BrandMark } from "@/components/brand-mark"
@@ -18,7 +18,9 @@ import { Text } from "@/components/ui/text"
 import { HeroWash } from "@/features/landing/decor"
 
 // Demo build: the sign-in is decorative. Any press on the screen goes in.
+// The tabs become the only screen, so Back does not lead out to the welcome.
 function enterDemo() {
+  if (router.canDismiss()) router.dismissAll()
   router.replace("/overview")
 }
 
@@ -33,15 +35,18 @@ export default function SignInScreen() {
         onPress={enterDemo}
       >
         <View className="flex-row items-center justify-between px-6 py-5">
-          <BrandMark />
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.replace("/")}
-            className="flex-row items-center gap-1 rounded-lg"
+            accessibilityLabel="Back to home"
+            onPress={() =>
+              router.canGoBack() ? router.back() : router.replace("/")
+            }
+            className="size-11 items-center justify-center rounded-full active:bg-muted"
           >
-            <Icon as={ArrowLeft} size={16} className="text-muted-foreground" />
-            <Text className="text-sm text-muted-foreground">Back to home</Text>
+            <Icon as={ChevronLeft} size={24} className="text-foreground" />
           </Pressable>
+          <BrandMark />
+          <View className="size-11" />
         </View>
         <View className="flex-1 justify-center px-6 pb-20">
           <Card className="w-full max-w-md gap-6 self-center border border-background/80 bg-background/75 py-10 shadow-2xl">

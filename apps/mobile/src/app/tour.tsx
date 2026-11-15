@@ -1,3 +1,5 @@
+import { Stack } from "expo-router"
+import { BrandMark } from "@/components/brand-mark"
 import { AgronomistSection } from "@/features/landing/agronomist-section"
 import { CampaignSection } from "@/features/landing/campaign-section"
 import { ClosingSection } from "@/features/landing/closing-section"
@@ -12,6 +14,7 @@ import { StatsSection } from "@/features/landing/stats-section"
 export default function TourScreen() {
   return (
     <SiteScreen>
+      <Stack.Screen options={{ headerTitle: () => <BrandMark /> }} />
       <SourceStrip />
       <AnchorTarget anchor="features">
         <FeatureGridSection />

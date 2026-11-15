@@ -4,7 +4,7 @@ import { DefaultTheme, type Theme } from "expo-router/react-navigation"
 export const NAV_THEME: Theme = {
   ...DefaultTheme,
   colors: {
-    background: "hsl(214 47% 98.1%)",
+    background: "hsl(0 0% 100%)",
     border: "hsl(214 28.6% 90.8%)",
     card: "hsl(0 0% 100%)",
     notification: "hsl(348.5 78% 49.1%)",
