@@ -52,3 +52,12 @@ class CropMapSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, extra="ignore")
 
     crop_map_dir: Path = BACKEND_DIR / "data/crops"
+
+
+class RotationSimSettings(BaseSettings):
+    """Rotation simulator inputs (scripts/rotation_sim/install.sh) and its vendored tables."""
+
+    model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, extra="ignore")
+
+    rotation_sim_data_dir: Path = BACKEND_DIR / "data/rotation-sim"
+    rotation_sim_config_dir: Path = BACKEND_DIR / "vendor/rotation-sim/configs"

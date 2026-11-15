@@ -1,4 +1,5 @@
 import {
+  BrainCircuit,
   CalendarSearch,
   LayoutDashboard,
   type LucideIcon,
@@ -57,6 +58,14 @@ export const appSections = {
     icon: Sprout,
     isAvailable: true,
   },
+  rotationPlanner: {
+    title: "Rotation planner",
+    description:
+      "Set what matters on this farm. The simulator, an exact solver and a learning agent search for the best rotation, then replay it on past campaigns.",
+    to: "/planner",
+    icon: BrainCircuit,
+    isAvailable: true,
+  },
 } as const satisfies Record<string, AppSectionDefinition>
 
 export type AppSection = (typeof appSections)[keyof typeof appSections]
@@ -71,6 +80,10 @@ export const sectionGroups: ReadonlyArray<{
   },
   {
     label: "Analysis",
-    sections: [appSections.analogYears, appSections.strategies],
+    sections: [
+      appSections.analogYears,
+      appSections.strategies,
+      appSections.rotationPlanner,
+    ],
   },
 ]

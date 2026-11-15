@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
+import { createFarm, getCase, getCaseIndex, getCropFieldMap, getHealth, getRotationPlan, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace, startRotationPlan } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetCaseData, GetCaseError, GetCaseIndexData, GetCaseIndexResponse, GetCaseResponse, GetCropFieldMapData, GetCropFieldMapError, GetCropFieldMapResponse, GetHealthData, GetHealthResponse, GetRotationPlanData, GetRotationPlanError, GetRotationPlanResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse, StartRotationPlanData, StartRotationPlanError, StartRotationPlanResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -247,4 +247,43 @@ export const getCaseOptions = (options: Options<GetCaseData>) => queryOptions<Ge
         return data;
     },
     queryKey: getCaseQueryKey(options)
+});
+
+/**
+ * Start Rotation Plan
+ *
+ * Queue a planner run for the caller's workspace region; poll it with `get_rotation_plan`.
+ */
+export const startRotationPlanMutation = (options?: Partial<Options<StartRotationPlanData>>): UseMutationOptions<StartRotationPlanResponse, StartRotationPlanError, Options<StartRotationPlanData>> => {
+    const mutationOptions: UseMutationOptions<StartRotationPlanResponse, StartRotationPlanError, Options<StartRotationPlanData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await startRotationPlan({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getRotationPlanQueryKey = (options: Options<GetRotationPlanData>) => createQueryKey('getRotationPlan', options);
+
+/**
+ * Get Rotation Plan
+ *
+ * The latest snapshot of one of the caller's runs: stages, convergence and the result.
+ */
+export const getRotationPlanOptions = (options: Options<GetRotationPlanData>) => queryOptions<GetRotationPlanResponse, GetRotationPlanError, GetRotationPlanResponse, ReturnType<typeof getRotationPlanQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getRotationPlan({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getRotationPlanQueryKey(options)
 });

@@ -6,8 +6,10 @@ dependencies = [
     "alembic>=1.20.1",
     "asyncpg>=0.32.0",
     "fastapi>=0.163.0",
+    "numpy>=2.5.4",
     "pydantic-settings>=2.16.3",
     "pyjwt[crypto]>=2.15.1",
+    "rotation-sim",
     "sqlalchemy[asyncio]>=2.1.8",
     "uvicorn[standard]>=0.54.0",
 ]
@@ -22,6 +24,8 @@ dev = [
 
 [tool.ruff]
 line-length = 100
+# Vendored third-party code keeps its own style (scripts/rotation_sim/install.sh).
+extend-exclude = ["vendor"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM", "ANN", "ASYNC", "PT", "PTH", "T20", "RUF"]
@@ -49,3 +53,6 @@ name = "ruff-format"
 type = "module"
 module = "ruff"
 options = "format --quiet REVISION_SCRIPT_FILENAME"
+
+[tool.uv.sources]
+rotation-sim = { path = "vendor/rotation-sim" }

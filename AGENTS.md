@@ -68,6 +68,7 @@ main.py        registra los routers en ROUTERS
 - **Nombres de endpoints.** El nombre de la función es el nombre en el cliente TypeScript (`list_farms` → `listFarms`): con verbo y único en todo el API.
 - **Modelos de ML.** Misma estructura de módulo. El trabajo de CPU (inferencia) nunca corre dentro de un `async def`: va en un endpoint `def` o en `run_in_threadpool`. Los pesos y los datos no van a git: un script los deja en `apps/backend/models/` y `apps/backend/data/`.
 - **Casos de demo.** `modules/cases` sirve, sin login y de solo lectura, el contrato `case-v1` (`schemas.py`): un índice nacional y un caso por región. Los JSON de `resources/` se arman offline con `scripts/demo_case/` desde lo que ya calcularon los modelos del equipo; HTTP no calcula nada. Para regenerarlos, ver `scripts/demo_case/README.md`.
+- **Planificador de rotaciones.** `modules/rotation_planner` corre en vivo el simulador `rotation_sim`, vendorizado en `apps/backend/vendor/rotation-sim` (copia byte a byte del repo `simulator`, commit 672a222; no se edita a mano, se refresca como dice `scripts/rotation_sim/install.sh`). Sus entradas van a `apps/backend/data/rotation-sim` con ese script. Las corridas viven en memoria y las ejecuta un único hilo: el backend tiene que correr en un solo proceso. El detalle del modelo está en `docs/rotation-planner.md`.
 - **Schema.** Solo cambia por migración de Alembic autogenerada y revisada. Nunca `create_all`.
 - **Tests** en `tests/`, donde un número mal calculado engañaría a un agrónomo (transformaciones, scoring) y en seguridad.
 

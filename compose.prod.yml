@@ -71,6 +71,8 @@ services:
     volumes:
       # Released crop-map files (docs/crop-map.md); missing files only make that endpoint 503.
       - ./apps/backend/data/crops:/app/data/crops:ro
+      # Rotation simulator inputs (scripts/rotation_sim/install.sh); missing files make the planner 503.
+      - ./apps/backend/data/rotation-sim:/app/data/rotation-sim:ro
     depends_on:
       db:
         condition: service_healthy

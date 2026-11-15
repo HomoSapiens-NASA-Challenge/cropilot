@@ -1,0 +1,5 @@
+crop,slot,physiology,price_key,cost_key,magyp_crop,note
+wheat,winter,spring_wheat,wheat_srw,spring_wheat,trigo total,FAO-56 spring wheat rows; MAGyP reports total wheat
+soybean_first,summer_first,soybean,soybean,soybean,soja 1ra,Full-season soybean after a winter fallow
+soybean_second,summer_second,soybean,soybean,soybean,soja 2da,Double-crop soybean sown after the winter crop
+maize,summer_first,maize,maize,maize,maíz,Early-sown maize after a winter fallow

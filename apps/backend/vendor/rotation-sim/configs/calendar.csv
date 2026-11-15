@@ -1,0 +1,13 @@
+band,crop,month,day,source_url,status,low,high
+lt30,soybean_first,11,8,,ASSUMPTION,06-02,12-31
+lt30,soybean_second,12,18,,ASSUMPTION,06-02,12-31
+lt30,maize,10,21,,ASSUMPTION,06-02,12-31
+lt30,wheat,6,10,,ASSUMPTION,06-02,12-31
+30_35,soybean_first,11,8,https://repositorio.inta.gob.ar/bitstream/handle/20.500.12123/23121/INTA_CRBsAsNorte_EEAPergamino_Introna_Jimena_Evaluaci%C3%B3n_de_cultivares_comerciales_de_soja_de_primera_y_de_segunda_en_la_EEA_INTA_Pergamino.pdf?isAllowed=y&sequence=1,SOURCED,11-08,11-08
+30_35,soybean_second,12,18,https://repositorio.inta.gob.ar/bitstream/handle/20.500.12123/23121/INTA_CRBsAsNorte_EEAPergamino_Introna_Jimena_Evaluaci%C3%B3n_de_cultivares_comerciales_de_soja_de_primera_y_de_segunda_en_la_EEA_INTA_Pergamino.pdf?isAllowed=y&sequence=1,SOURCED,12-18,12-18
+30_35,maize,10,21,https://repositorio.inta.gob.ar/bitstream/handle/20.500.12123/24683/INTA_CRBANorte_EEAPergamino_Galizia_Luciana_Informe_Final_Red__h%C3%ADbrido_Ma%C3%ADz_norte_Buenos_Aires_octubre-2025.pdf?isAllowed=y&sequence=1,SOURCED,10-21,10-21
+30_35,wheat,6,10,https://repositorio.inta.gob.ar/xmlui/bitstream/handle/20.500.12123/7182/INTA_CRBsAsNorte_EEAPergamino_Fraschina_Jorge_Evaluaci%C3%B3n_cultivares_trigo_campo_productores_durante_el_a%C3%B1o_2019.pdf?isAllowed=y&sequence=1,SOURCED,06-10,06-10
+gt35,soybean_first,11,8,,ASSUMPTION,06-02,12-31
+gt35,soybean_second,12,18,,ASSUMPTION,06-02,12-31
+gt35,maize,10,21,,ASSUMPTION,06-02,12-31
+gt35,wheat,6,10,,ASSUMPTION,06-02,12-31

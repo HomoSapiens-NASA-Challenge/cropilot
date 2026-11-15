@@ -400,6 +400,101 @@
           }
         }
       }
+    },
+    "/api/rotation-plans": {
+      "post": {
+        "tags": [
+          "rotation-planner"
+        ],
+        "summary": "Start Rotation Plan",
+        "description": "Queue a planner run for the caller's workspace region; poll it with `get_rotation_plan`.",
+        "operationId": "start_rotation_plan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RotationPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RotationPlanRun"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/rotation-plans/{run_id}": {
+      "get": {
+        "tags": [
+          "rotation-planner"
+        ],
+        "summary": "Get Rotation Plan",
+        "description": "The latest snapshot of one of the caller's runs: stages, convergence and the result.",
+        "operationId": "get_rotation_plan",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RotationPlanRun"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -925,6 +1020,61 @@
         ],
         "title": "CampaignRecord"
       },
+      "CampaignReplay": {
+        "properties": {
+          "campaign_start_year": {
+            "type": "integer",
+            "title": "Campaign Start Year"
+          },
+          "enso_june": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Enso June"
+          },
+          "enso_august": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Enso August"
+          },
+          "water_start_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Water Start Fraction"
+          },
+          "itinerary": {
+            "$ref": "#/components/schemas/Itinerary"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "outcomes": {
+            "$ref": "#/components/schemas/OutcomeValues"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign_start_year",
+          "enso_june",
+          "enso_august",
+          "water_start_fraction",
+          "itinerary",
+          "score",
+          "outcomes"
+        ],
+        "title": "CampaignReplay",
+        "description": "One real campaign replayed through the simulator under one policy."
+      },
       "CampaignWater": {
         "properties": {
           "start_year": {
@@ -1272,6 +1422,40 @@
           "not_computed"
         ],
         "title": "Compare"
+      },
+      "ConvergencePoint": {
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seed"
+          },
+          "episodes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Episodes"
+          },
+          "agent_score": {
+            "type": "number",
+            "title": "Agent Score"
+          },
+          "agreement_share": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Agreement Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seed",
+          "episodes",
+          "agent_score",
+          "agreement_share"
+        ],
+        "title": "ConvergencePoint",
+        "description": "One training checkpoint, scored exactly on the decision process, not by noisy returns."
       },
       "CropField": {
         "properties": {
@@ -1701,6 +1885,96 @@
         ],
         "title": "Decision"
       },
+      "DecisionCell": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "june",
+              "august"
+            ],
+            "title": "Decision"
+          },
+          "winter": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fallow",
+                  "wheat",
+                  "soybean_first",
+                  "soybean_second",
+                  "maize"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winter"
+          },
+          "water_fraction": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Water Fraction"
+          },
+          "enso": {
+            "type": "string",
+            "enum": [
+              "la_nina",
+              "neutral",
+              "el_nino"
+            ],
+            "title": "Enso"
+          },
+          "optimal_action": {
+            "type": "string",
+            "enum": [
+              "fallow",
+              "wheat",
+              "soybean_first",
+              "soybean_second",
+              "maize"
+            ],
+            "title": "Optimal Action"
+          },
+          "agent_action": {
+            "type": "string",
+            "enum": [
+              "fallow",
+              "wheat",
+              "soybean_first",
+              "soybean_second",
+              "maize"
+            ],
+            "title": "Agent Action"
+          },
+          "agrees": {
+            "type": "boolean",
+            "title": "Agrees"
+          },
+          "training_campaigns": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Training Campaigns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision",
+          "winter",
+          "water_fraction",
+          "enso",
+          "optimal_action",
+          "agent_action",
+          "agrees",
+          "training_campaigns"
+        ],
+        "title": "DecisionCell",
+        "description": "What the first campaign's policy does in one state. August cells also carry the winter."
+      },
       "DifferenceDistribution": {
         "properties": {
           "count": {
@@ -2105,6 +2379,39 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "Itinerary": {
+        "properties": {
+          "winter": {
+            "type": "string",
+            "enum": [
+              "fallow",
+              "wheat",
+              "soybean_first",
+              "soybean_second",
+              "maize"
+            ],
+            "title": "Winter"
+          },
+          "summer": {
+            "type": "string",
+            "enum": [
+              "fallow",
+              "wheat",
+              "soybean_first",
+              "soybean_second",
+              "maize"
+            ],
+            "title": "Summer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "winter",
+          "summer"
+        ],
+        "title": "Itinerary"
+      },
       "JsonValue": {},
       "Limit": {
         "properties": {
@@ -2415,6 +2722,41 @@
         ],
         "title": "NotComputed"
       },
+      "OutcomeValues": {
+        "properties": {
+          "margin_usd_ha": {
+            "type": "number",
+            "title": "Margin Usd Ha"
+          },
+          "deficit_mm": {
+            "type": "number",
+            "title": "Deficit Mm"
+          },
+          "bare_days": {
+            "type": "number",
+            "title": "Bare Days"
+          },
+          "bare_rain_mm": {
+            "type": "number",
+            "title": "Bare Rain Mm"
+          },
+          "drainage_mm": {
+            "type": "number",
+            "title": "Drainage Mm"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "margin_usd_ha",
+          "deficit_mm",
+          "bare_days",
+          "bare_rain_mm",
+          "drainage_mm"
+        ],
+        "title": "OutcomeValues",
+        "description": "The five simulator outcomes of one campaign (or their mean), in their own units."
+      },
       "PairedCounts": {
         "properties": {
           "strategy_id": {
@@ -2507,6 +2849,121 @@
         ],
         "title": "PairedDifference"
       },
+      "PlannerSource": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "dataset": {
+            "type": "string",
+            "title": "Dataset"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "used_for": {
+            "type": "string",
+            "title": "Used For"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_id",
+          "dataset",
+          "provider",
+          "period",
+          "location",
+          "used_for"
+        ],
+        "title": "PlannerSource",
+        "description": "One dataset or reference behind the run: what, who, when and where."
+      },
+      "PolicyResult": {
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "title": "Policy Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "optimal",
+              "agent",
+              "best_fixed",
+              "named"
+            ],
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "is_current": {
+            "type": "boolean",
+            "title": "Is Current"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "sequence": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Itinerary"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence"
+          },
+          "expected_score": {
+            "type": "number",
+            "title": "Expected Score"
+          },
+          "train": {
+            "$ref": "#/components/schemas/SplitReplay"
+          },
+          "test": {
+            "$ref": "#/components/schemas/SplitReplay"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "policy_id",
+          "kind",
+          "label",
+          "is_current",
+          "note",
+          "sequence",
+          "expected_score",
+          "train",
+          "test"
+        ],
+        "title": "PolicyResult"
+      },
       "PolygonGeometry": {
         "properties": {
           "type": {
@@ -2541,6 +2998,51 @@
           "coordinates"
         ],
         "title": "PolygonGeometry"
+      },
+      "PriorityWeights": {
+        "properties": {
+          "margin_usd_ha": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Margin Usd Ha"
+          },
+          "deficit_mm": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Deficit Mm"
+          },
+          "bare_days": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Bare Days"
+          },
+          "bare_rain_mm": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Bare Rain Mm"
+          },
+          "drainage_mm": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Drainage Mm"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "margin_usd_ha",
+          "deficit_mm",
+          "bare_days",
+          "bare_rain_mm",
+          "drainage_mm"
+        ],
+        "title": "PriorityWeights",
+        "description": "How much each outcome matters. Margin counts up; the other four count down."
       },
       "RankingChange": {
         "properties": {
@@ -2880,6 +3382,191 @@
         ],
         "title": "RobustnessSummary"
       },
+      "RotationPlanRequest": {
+        "properties": {
+          "weights": {
+            "$ref": "#/components/schemas/PriorityWeights"
+          },
+          "horizon_campaigns": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Horizon Campaigns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weights",
+          "horizon_campaigns"
+        ],
+        "title": "RotationPlanRequest"
+      },
+      "RotationPlanResult": {
+        "properties": {
+          "horizon_campaigns": {
+            "type": "integer",
+            "title": "Horizon Campaigns"
+          },
+          "weights": {
+            "$ref": "#/components/schemas/PriorityWeights"
+          },
+          "outcome_scales": {
+            "$ref": "#/components/schemas/OutcomeValues"
+          },
+          "soil_capacity_mm": {
+            "type": "number",
+            "title": "Soil Capacity Mm"
+          },
+          "water_levels": {
+            "type": "integer",
+            "title": "Water Levels"
+          },
+          "episodes": {
+            "type": "integer",
+            "title": "Episodes"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyResult"
+            },
+            "type": "array",
+            "title": "Policies"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionCell"
+            },
+            "type": "array",
+            "title": "Decisions"
+          },
+          "unavailable_strategies": {
+            "items": {
+              "$ref": "#/components/schemas/UnavailableStrategy"
+            },
+            "type": "array",
+            "title": "Unavailable Strategies"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/Verdict"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/PlannerSource"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "horizon_campaigns",
+          "weights",
+          "outcome_scales",
+          "soil_capacity_mm",
+          "water_levels",
+          "episodes",
+          "policies",
+          "decisions",
+          "unavailable_strategies",
+          "verdict",
+          "sources"
+        ],
+        "title": "RotationPlanResult"
+      },
+      "RotationPlanRun": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "done",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "region_id": {
+            "type": "string",
+            "title": "Region Id"
+          },
+          "request": {
+            "$ref": "#/components/schemas/RotationPlanRequest"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageProgress"
+            },
+            "type": "array",
+            "title": "Stages"
+          },
+          "agent_seeds": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Agent Seeds"
+          },
+          "optimal_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optimal Score"
+          },
+          "convergence": {
+            "items": {
+              "$ref": "#/components/schemas/ConvergencePoint"
+            },
+            "type": "array",
+            "title": "Convergence"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RotationPlanResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "status",
+          "region_id",
+          "request",
+          "stages",
+          "agent_seeds",
+          "optimal_score",
+          "convergence",
+          "error",
+          "result"
+        ],
+        "title": "RotationPlanRun"
+      },
       "SoilCapacity": {
         "properties": {
           "depth_m": {
@@ -2971,6 +3658,104 @@
         ],
         "title": "SourceRef",
         "description": "One dataset, paper or person behind a number: what, who, when and where."
+      },
+      "SplitReplay": {
+        "properties": {
+          "first_year": {
+            "type": "integer",
+            "title": "First Year"
+          },
+          "last_year": {
+            "type": "integer",
+            "title": "Last Year"
+          },
+          "mean_score": {
+            "type": "number",
+            "title": "Mean Score"
+          },
+          "mean_outcomes": {
+            "$ref": "#/components/schemas/OutcomeValues"
+          },
+          "campaigns": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignReplay"
+            },
+            "type": "array",
+            "title": "Campaigns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "first_year",
+          "last_year",
+          "mean_score",
+          "mean_outcomes",
+          "campaigns"
+        ],
+        "title": "SplitReplay"
+      },
+      "StageProgress": {
+        "properties": {
+          "stage_id": {
+            "type": "string",
+            "enum": [
+              "simulate",
+              "build_mdp",
+              "solve_optimal",
+              "train_agent",
+              "score_fixed",
+              "backtest"
+            ],
+            "title": "Stage Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "done"
+            ],
+            "title": "Status"
+          },
+          "completed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Completed"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "elapsed_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "stage_id",
+          "status",
+          "completed",
+          "total",
+          "unit",
+          "elapsed_ms"
+        ],
+        "title": "StageProgress"
       },
       "StrategiesBundle": {
         "properties": {
@@ -3277,6 +4062,30 @@
         ],
         "title": "StrategyMargin"
       },
+      "UnavailableStrategy": {
+        "properties": {
+          "strategy_id": {
+            "type": "string",
+            "title": "Strategy Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_id",
+          "label",
+          "reason"
+        ],
+        "title": "UnavailableStrategy"
+      },
       "UnharvestedRow": {
         "properties": {
           "crop": {
@@ -3384,6 +4193,64 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "Verdict": {
+        "properties": {
+          "best_fixed_policy_id": {
+            "type": "string",
+            "title": "Best Fixed Policy Id"
+          },
+          "optimal_minus_best_fixed_expected": {
+            "type": "number",
+            "title": "Optimal Minus Best Fixed Expected"
+          },
+          "optimal_minus_best_fixed_train": {
+            "type": "number",
+            "title": "Optimal Minus Best Fixed Train"
+          },
+          "optimal_minus_best_fixed_test": {
+            "type": "number",
+            "title": "Optimal Minus Best Fixed Test"
+          },
+          "optimal_minus_best_fixed_test_outcomes": {
+            "$ref": "#/components/schemas/OutcomeValues"
+          },
+          "test_campaigns_won": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Test Campaigns Won"
+          },
+          "test_campaigns": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Test Campaigns"
+          },
+          "agent_minus_optimal_expected": {
+            "type": "number",
+            "title": "Agent Minus Optimal Expected"
+          },
+          "agent_agreement_share": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Agent Agreement Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "best_fixed_policy_id",
+          "optimal_minus_best_fixed_expected",
+          "optimal_minus_best_fixed_train",
+          "optimal_minus_best_fixed_test",
+          "optimal_minus_best_fixed_test_outcomes",
+          "test_campaigns_won",
+          "test_campaigns",
+          "agent_minus_optimal_expected",
+          "agent_agreement_share"
+        ],
+        "title": "Verdict",
+        "description": "Optimal policy against the best fixed rotation, chosen on training campaigns only."
       },
       "WaterBlock": {
         "properties": {

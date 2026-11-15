@@ -1,0 +1,11 @@
+field_id,name,province,department,latitude_deg,longitude_deg,kind,note
+pergamino,Pergamino,Buenos Aires,Pergamino,-33.84,-60.52,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+marcos-juarez,Marcos Juárez,Córdoba,Marcos Juárez,-32.65,-62.05,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+balcarce,Balcarce,Buenos Aires,Balcarce,-37.80,-58.20,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+trenque-lauquen,Trenque Lauquen,Buenos Aires,Trenque Lauquen,-35.92,-62.68,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+rio-cuarto,Río Cuarto,Córdoba,Río Cuarto,-33.08,-64.30,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+parana,Paraná,Entre Ríos,Paraná,-31.68,-60.48,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+anguil,Anguil,La Pampa,Capital,-36.53,-64.01,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+charata,Charata,Chaco,Chacabuco,-27.16,-61.14,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+quimili,Quimilí,Santiago del Estero,Moreno,-27.63,-62.42,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py
+las-lajitas,Las Lajitas,Salta,Anta,-24.68,-64.15,reference_point,Rural SoilGrids pixel picked by hand in research/ml-soil-checks/zones_check.py

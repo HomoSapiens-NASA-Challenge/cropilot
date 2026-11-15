@@ -10,6 +10,7 @@ from app.modules.crops.router import router as crops_router
 from app.modules.farms.router import router as farms_router
 from app.modules.health.router import router as health_router
 from app.modules.regions.router import router as regions_router
+from app.modules.rotation_planner.router import router as rotation_planner_router
 from app.modules.water.router import router as water_router
 from app.modules.workspaces.router import router as workspaces_router
 
@@ -22,6 +23,7 @@ ROUTERS: list[APIRouter] = [
     water_router,
     crops_router,
     cases_router,
+    rotation_planner_router,
 ]
 
 

@@ -8,6 +8,8 @@ ENV UV_COMPILE_BYTECODE=1 \
 WORKDIR /app
 
 COPY apps/backend/pyproject.toml apps/backend/uv.lock apps/backend/.python-version ./
+# Path dependency of the lock file: the vendored rotation simulator and its parameter tables.
+COPY apps/backend/vendor vendor
 RUN uv sync --locked --no-dev
 
 COPY apps/backend/app app

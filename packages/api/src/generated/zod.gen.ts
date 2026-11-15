@@ -167,6 +167,18 @@ export const zClaim = z.object({
 });
 
 /**
+ * ConvergencePoint
+ *
+ * One training checkpoint, scored exactly on the decision process, not by noisy returns.
+ */
+export const zConvergencePoint = z.object({
+    seed: z.int().gte(0),
+    episodes: z.int().gte(0),
+    agent_score: z.number(),
+    agreement_share: z.number().gte(0).lte(1)
+});
+
+/**
  * CropStage
  */
 export const zCropStage = z.object({
@@ -275,6 +287,44 @@ export const zDecision = z.object({
 });
 
 /**
+ * DecisionCell
+ *
+ * What the first campaign's policy does in one state. August cells also carry the winter.
+ */
+export const zDecisionCell = z.object({
+    decision: z.enum(['june', 'august']),
+    winter: z.enum([
+        'fallow',
+        'wheat',
+        'soybean_first',
+        'soybean_second',
+        'maize'
+    ]).nullable(),
+    water_fraction: z.number().gte(0).lte(1),
+    enso: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ]),
+    optimal_action: z.enum([
+        'fallow',
+        'wheat',
+        'soybean_first',
+        'soybean_second',
+        'maize'
+    ]),
+    agent_action: z.enum([
+        'fallow',
+        'wheat',
+        'soybean_first',
+        'soybean_second',
+        'maize'
+    ]),
+    agrees: z.boolean(),
+    training_campaigns: z.int().gte(0)
+});
+
+/**
  * DifferenceDistribution
  */
 export const zDifferenceDistribution = z.object({
@@ -371,6 +421,26 @@ export const zGlossaryTerm = z.object({
     definition: z.string()
 });
 
+/**
+ * Itinerary
+ */
+export const zItinerary = z.object({
+    winter: z.enum([
+        'fallow',
+        'wheat',
+        'soybean_first',
+        'soybean_second',
+        'maize'
+    ]),
+    summer: z.enum([
+        'fallow',
+        'wheat',
+        'soybean_first',
+        'soybean_second',
+        'maize'
+    ])
+});
+
 export const zJsonValue = z.unknown();
 
 /**
@@ -440,6 +510,42 @@ export const zNotComputed = z.object({
 });
 
 /**
+ * OutcomeValues
+ *
+ * The five simulator outcomes of one campaign (or their mean), in their own units.
+ */
+export const zOutcomeValues = z.object({
+    margin_usd_ha: z.number(),
+    deficit_mm: z.number(),
+    bare_days: z.number(),
+    bare_rain_mm: z.number(),
+    drainage_mm: z.number()
+});
+
+/**
+ * CampaignReplay
+ *
+ * One real campaign replayed through the simulator under one policy.
+ */
+export const zCampaignReplay = z.object({
+    campaign_start_year: z.int(),
+    enso_june: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ]),
+    enso_august: z.enum([
+        'la_nina',
+        'neutral',
+        'el_nino'
+    ]),
+    water_start_fraction: z.number().gte(0).lte(1),
+    itinerary: zItinerary,
+    score: z.number(),
+    outcomes: zOutcomeValues
+});
+
+/**
  * PairedCounts
  */
 export const zPairedCounts = z.object({
@@ -466,6 +572,20 @@ export const zPairedDifference = z.object({
 });
 
 /**
+ * PlannerSource
+ *
+ * One dataset or reference behind the run: what, who, when and where.
+ */
+export const zPlannerSource = z.object({
+    source_id: z.string(),
+    dataset: z.string(),
+    provider: z.string(),
+    period: z.string(),
+    location: z.string(),
+    used_for: z.string()
+});
+
+/**
  * PolygonGeometry
  */
 export const zPolygonGeometry = z.object({
@@ -489,6 +609,19 @@ export const zFieldMap = z.object({
     type: z.literal('FeatureCollection'),
     meta: zFieldMapMeta,
     features: z.array(zCropField)
+});
+
+/**
+ * PriorityWeights
+ *
+ * How much each outcome matters. Margin counts up; the other four count down.
+ */
+export const zPriorityWeights = z.object({
+    margin_usd_ha: z.number().gte(0).lte(1),
+    deficit_mm: z.number().gte(0).lte(1),
+    bare_days: z.number().gte(0).lte(1),
+    bare_rain_mm: z.number().gte(0).lte(1),
+    drainage_mm: z.number().gte(0).lte(1)
 });
 
 /**
@@ -562,6 +695,14 @@ export const zRobustnessSummary = z.object({
 });
 
 /**
+ * RotationPlanRequest
+ */
+export const zRotationPlanRequest = z.object({
+    weights: zPriorityWeights,
+    horizon_campaigns: z.int().gte(1).lte(5)
+});
+
+/**
  * SoilCapacity
  */
 export const zSoilCapacity = z.object({
@@ -621,6 +762,60 @@ export const zSourceRef = z.object({
 });
 
 /**
+ * SplitReplay
+ */
+export const zSplitReplay = z.object({
+    first_year: z.int(),
+    last_year: z.int(),
+    mean_score: z.number(),
+    mean_outcomes: zOutcomeValues,
+    campaigns: z.array(zCampaignReplay)
+});
+
+/**
+ * PolicyResult
+ */
+export const zPolicyResult = z.object({
+    policy_id: z.string(),
+    kind: z.enum([
+        'optimal',
+        'agent',
+        'best_fixed',
+        'named'
+    ]),
+    label: z.string(),
+    is_current: z.boolean(),
+    note: z.string().nullable(),
+    sequence: z.array(zItinerary).nullable(),
+    expected_score: z.number(),
+    train: zSplitReplay,
+    test: zSplitReplay
+});
+
+/**
+ * StageProgress
+ */
+export const zStageProgress = z.object({
+    stage_id: z.enum([
+        'simulate',
+        'build_mdp',
+        'solve_optimal',
+        'train_agent',
+        'score_fixed',
+        'backtest'
+    ]),
+    status: z.enum([
+        'pending',
+        'running',
+        'done'
+    ]),
+    completed: z.int().gte(0),
+    total: z.int().gte(0),
+    unit: z.string(),
+    elapsed_ms: z.int().gte(0).nullable()
+});
+
+/**
  * StrategyAnswers
  *
  * The five answers the challenge asks of every strategy.
@@ -673,6 +868,15 @@ export const zAnalogMargins = z.object({
 });
 
 /**
+ * UnavailableStrategy
+ */
+export const zUnavailableStrategy = z.object({
+    strategy_id: z.string(),
+    label: z.string(),
+    reason: z.string()
+});
+
+/**
  * UnharvestedRow
  *
  * Planted but not harvested area by ENSO phase known at the end of August.
@@ -707,6 +911,62 @@ export const zValidationError = z.object({
  */
 export const zHttpValidationError = z.object({
     detail: z.array(zValidationError).optional()
+});
+
+/**
+ * Verdict
+ *
+ * Optimal policy against the best fixed rotation, chosen on training campaigns only.
+ */
+export const zVerdict = z.object({
+    best_fixed_policy_id: z.string(),
+    optimal_minus_best_fixed_expected: z.number(),
+    optimal_minus_best_fixed_train: z.number(),
+    optimal_minus_best_fixed_test: z.number(),
+    optimal_minus_best_fixed_test_outcomes: zOutcomeValues,
+    test_campaigns_won: z.int().gte(0),
+    test_campaigns: z.int().gte(0),
+    agent_minus_optimal_expected: z.number(),
+    agent_agreement_share: z.number().gte(0).lte(1)
+});
+
+/**
+ * RotationPlanResult
+ */
+export const zRotationPlanResult = z.object({
+    horizon_campaigns: z.int(),
+    weights: zPriorityWeights,
+    outcome_scales: zOutcomeValues,
+    soil_capacity_mm: z.number(),
+    water_levels: z.int(),
+    episodes: z.int(),
+    policies: z.array(zPolicyResult),
+    decisions: z.array(zDecisionCell),
+    unavailable_strategies: z.array(zUnavailableStrategy),
+    verdict: zVerdict,
+    sources: z.array(zPlannerSource)
+});
+
+/**
+ * RotationPlanRun
+ */
+export const zRotationPlanRun = z.object({
+    run_id: z.string(),
+    status: z.enum([
+        'queued',
+        'running',
+        'done',
+        'failed',
+        'cancelled'
+    ]),
+    region_id: z.string(),
+    request: zRotationPlanRequest,
+    stages: z.array(zStageProgress),
+    agent_seeds: z.int().gte(1),
+    optimal_score: z.number().nullable(),
+    convergence: z.array(zConvergencePoint),
+    error: z.string().nullable(),
+    result: zRotationPlanResult.nullable()
 });
 
 /**
@@ -1023,3 +1283,19 @@ export const zGetCasePath = z.object({
  * Successful Response
  */
 export const zGetCaseResponse = zCaseBundle;
+
+export const zStartRotationPlanBody = zRotationPlanRequest;
+
+/**
+ * Successful Response
+ */
+export const zStartRotationPlanResponse = zRotationPlanRun;
+
+export const zGetRotationPlanPath = z.object({
+    run_id: z.string()
+});
+
+/**
+ * Successful Response
+ */
+export const zGetRotationPlanResponse = zRotationPlanRun;

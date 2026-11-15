@@ -17,6 +17,7 @@ import { Route as AuthenticatedAnalogYearsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFarmsRouteImport } from './routes/_authenticated/farms'
 import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
 import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
+import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedStrategiesRouteImport } from './routes/_authenticated/strategies'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteSectionSlugPageSlugRouteImport } from './routes/_site/$sectionSlug.$pageSlug'
@@ -61,6 +62,11 @@ const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
   path: '/overview',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedStrategiesRoute = AuthenticatedStrategiesRouteImport.update({
   id: '/strategies',
   path: '/strategies',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/farms': typeof AuthenticatedFarmsRoute
   '/map': typeof AuthenticatedMapRoute
   '/overview': typeof AuthenticatedOverviewRoute
+  '/planner': typeof AuthenticatedPlannerRoute
   '/strategies': typeof AuthenticatedStrategiesRoute
   '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
   '/case/$zoneId': typeof SiteCaseZoneIdRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/farms': typeof AuthenticatedFarmsRoute
   '/map': typeof AuthenticatedMapRoute
   '/overview': typeof AuthenticatedOverviewRoute
+  '/planner': typeof AuthenticatedPlannerRoute
   '/strategies': typeof AuthenticatedStrategiesRoute
   '/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
   '/case/$zoneId': typeof SiteCaseZoneIdRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/_authenticated/farms': typeof AuthenticatedFarmsRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
   '/_authenticated/overview': typeof AuthenticatedOverviewRoute
+  '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/strategies': typeof AuthenticatedStrategiesRoute
   '/_site/': typeof SiteIndexRoute
   '/_site/$sectionSlug/$pageSlug': typeof SiteSectionSlugPageSlugRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/farms'
     | '/map'
     | '/overview'
+    | '/planner'
     | '/strategies'
     | '/$sectionSlug/$pageSlug'
     | '/case/$zoneId'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/farms'
     | '/map'
     | '/overview'
+    | '/planner'
     | '/strategies'
     | '/$sectionSlug/$pageSlug'
     | '/case/$zoneId'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/_authenticated/farms'
     | '/_authenticated/map'
     | '/_authenticated/overview'
+    | '/_authenticated/planner'
     | '/_authenticated/strategies'
     | '/_site/'
     | '/_site/$sectionSlug/$pageSlug'
@@ -227,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOverviewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/planner': {
+      id: '/_authenticated/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof AuthenticatedPlannerRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/strategies': {
       id: '/_authenticated/strategies'
       path: '/strategies'
@@ -263,6 +282,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFarmsRoute: typeof AuthenticatedFarmsRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
   AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
+  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedStrategiesRoute: typeof AuthenticatedStrategiesRoute
 }
 
@@ -271,6 +291,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFarmsRoute: AuthenticatedFarmsRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
   AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
+  AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedStrategiesRoute: AuthenticatedStrategiesRoute,
 }
 

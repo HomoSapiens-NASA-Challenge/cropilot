@@ -268,6 +268,36 @@ export type CampaignRecord = {
 };
 
 /**
+ * CampaignReplay
+ *
+ * One real campaign replayed through the simulator under one policy.
+ */
+export type CampaignReplay = {
+    /**
+     * Campaign Start Year
+     */
+    campaign_start_year: number;
+    /**
+     * Enso June
+     */
+    enso_june: 'la_nina' | 'neutral' | 'el_nino';
+    /**
+     * Enso August
+     */
+    enso_august: 'la_nina' | 'neutral' | 'el_nino';
+    /**
+     * Water Start Fraction
+     */
+    water_start_fraction: number;
+    itinerary: Itinerary;
+    /**
+     * Score
+     */
+    score: number;
+    outcomes: OutcomeValues;
+};
+
+/**
  * CampaignWater
  */
 export type CampaignWater = {
@@ -454,6 +484,30 @@ export type Compare = {
      * Not Computed
      */
     not_computed: Array<NotComputed>;
+};
+
+/**
+ * ConvergencePoint
+ *
+ * One training checkpoint, scored exactly on the decision process, not by noisy returns.
+ */
+export type ConvergencePoint = {
+    /**
+     * Seed
+     */
+    seed: number;
+    /**
+     * Episodes
+     */
+    episodes: number;
+    /**
+     * Agent Score
+     */
+    agent_score: number;
+    /**
+     * Agreement Share
+     */
+    agreement_share: number;
 };
 
 /**
@@ -737,6 +791,46 @@ export type Decision = {
 };
 
 /**
+ * DecisionCell
+ *
+ * What the first campaign's policy does in one state. August cells also carry the winter.
+ */
+export type DecisionCell = {
+    /**
+     * Decision
+     */
+    decision: 'june' | 'august';
+    /**
+     * Winter
+     */
+    winter: 'fallow' | 'wheat' | 'soybean_first' | 'soybean_second' | 'maize' | null;
+    /**
+     * Water Fraction
+     */
+    water_fraction: number;
+    /**
+     * Enso
+     */
+    enso: 'la_nina' | 'neutral' | 'el_nino';
+    /**
+     * Optimal Action
+     */
+    optimal_action: 'fallow' | 'wheat' | 'soybean_first' | 'soybean_second' | 'maize';
+    /**
+     * Agent Action
+     */
+    agent_action: 'fallow' | 'wheat' | 'soybean_first' | 'soybean_second' | 'maize';
+    /**
+     * Agrees
+     */
+    agrees: boolean;
+    /**
+     * Training Campaigns
+     */
+    training_campaigns: number;
+};
+
+/**
  * DifferenceDistribution
  */
 export type DifferenceDistribution = {
@@ -975,6 +1069,20 @@ export type HttpValidationError = {
     detail?: Array<ValidationError>;
 };
 
+/**
+ * Itinerary
+ */
+export type Itinerary = {
+    /**
+     * Winter
+     */
+    winter: 'fallow' | 'wheat' | 'soybean_first' | 'soybean_second' | 'maize';
+    /**
+     * Summer
+     */
+    summer: 'fallow' | 'wheat' | 'soybean_first' | 'soybean_second' | 'maize';
+};
+
 export type JsonValue = unknown;
 
 /**
@@ -1122,6 +1230,34 @@ export type NotComputed = {
 };
 
 /**
+ * OutcomeValues
+ *
+ * The five simulator outcomes of one campaign (or their mean), in their own units.
+ */
+export type OutcomeValues = {
+    /**
+     * Margin Usd Ha
+     */
+    margin_usd_ha: number;
+    /**
+     * Deficit Mm
+     */
+    deficit_mm: number;
+    /**
+     * Bare Days
+     */
+    bare_days: number;
+    /**
+     * Bare Rain Mm
+     */
+    bare_rain_mm: number;
+    /**
+     * Drainage Mm
+     */
+    drainage_mm: number;
+};
+
+/**
  * PairedCounts
  */
 export type PairedCounts = {
@@ -1190,6 +1326,74 @@ export type PairedDifference = {
 };
 
 /**
+ * PlannerSource
+ *
+ * One dataset or reference behind the run: what, who, when and where.
+ */
+export type PlannerSource = {
+    /**
+     * Source Id
+     */
+    source_id: string;
+    /**
+     * Dataset
+     */
+    dataset: string;
+    /**
+     * Provider
+     */
+    provider: string;
+    /**
+     * Period
+     */
+    period: string;
+    /**
+     * Location
+     */
+    location: string;
+    /**
+     * Used For
+     */
+    used_for: string;
+};
+
+/**
+ * PolicyResult
+ */
+export type PolicyResult = {
+    /**
+     * Policy Id
+     */
+    policy_id: string;
+    /**
+     * Kind
+     */
+    kind: 'optimal' | 'agent' | 'best_fixed' | 'named';
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Is Current
+     */
+    is_current: boolean;
+    /**
+     * Note
+     */
+    note: string | null;
+    /**
+     * Sequence
+     */
+    sequence: Array<Itinerary> | null;
+    /**
+     * Expected Score
+     */
+    expected_score: number;
+    train: SplitReplay;
+    test: SplitReplay;
+};
+
+/**
  * PolygonGeometry
  */
 export type PolygonGeometry = {
@@ -1204,6 +1408,34 @@ export type PolygonGeometry = {
         number,
         number
     ]>>;
+};
+
+/**
+ * PriorityWeights
+ *
+ * How much each outcome matters. Margin counts up; the other four count down.
+ */
+export type PriorityWeights = {
+    /**
+     * Margin Usd Ha
+     */
+    margin_usd_ha: number;
+    /**
+     * Deficit Mm
+     */
+    deficit_mm: number;
+    /**
+     * Bare Days
+     */
+    bare_days: number;
+    /**
+     * Bare Rain Mm
+     */
+    bare_rain_mm: number;
+    /**
+     * Drainage Mm
+     */
+    drainage_mm: number;
 };
 
 /**
@@ -1402,6 +1634,98 @@ export type RobustnessSummary = {
 };
 
 /**
+ * RotationPlanRequest
+ */
+export type RotationPlanRequest = {
+    weights: PriorityWeights;
+    /**
+     * Horizon Campaigns
+     */
+    horizon_campaigns: number;
+};
+
+/**
+ * RotationPlanResult
+ */
+export type RotationPlanResult = {
+    /**
+     * Horizon Campaigns
+     */
+    horizon_campaigns: number;
+    weights: PriorityWeights;
+    outcome_scales: OutcomeValues;
+    /**
+     * Soil Capacity Mm
+     */
+    soil_capacity_mm: number;
+    /**
+     * Water Levels
+     */
+    water_levels: number;
+    /**
+     * Episodes
+     */
+    episodes: number;
+    /**
+     * Policies
+     */
+    policies: Array<PolicyResult>;
+    /**
+     * Decisions
+     */
+    decisions: Array<DecisionCell>;
+    /**
+     * Unavailable Strategies
+     */
+    unavailable_strategies: Array<UnavailableStrategy>;
+    verdict: Verdict;
+    /**
+     * Sources
+     */
+    sources: Array<PlannerSource>;
+};
+
+/**
+ * RotationPlanRun
+ */
+export type RotationPlanRun = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Status
+     */
+    status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    /**
+     * Region Id
+     */
+    region_id: string;
+    request: RotationPlanRequest;
+    /**
+     * Stages
+     */
+    stages: Array<StageProgress>;
+    /**
+     * Agent Seeds
+     */
+    agent_seeds: number;
+    /**
+     * Optimal Score
+     */
+    optimal_score: number | null;
+    /**
+     * Convergence
+     */
+    convergence: Array<ConvergencePoint>;
+    /**
+     * Error
+     */
+    error: string | null;
+    result: RotationPlanResult | null;
+};
+
+/**
  * SoilCapacity
  */
 export type SoilCapacity = {
@@ -1453,6 +1777,59 @@ export type SourceRef = {
      * License
      */
     license: string | null;
+};
+
+/**
+ * SplitReplay
+ */
+export type SplitReplay = {
+    /**
+     * First Year
+     */
+    first_year: number;
+    /**
+     * Last Year
+     */
+    last_year: number;
+    /**
+     * Mean Score
+     */
+    mean_score: number;
+    mean_outcomes: OutcomeValues;
+    /**
+     * Campaigns
+     */
+    campaigns: Array<CampaignReplay>;
+};
+
+/**
+ * StageProgress
+ */
+export type StageProgress = {
+    /**
+     * Stage Id
+     */
+    stage_id: 'simulate' | 'build_mdp' | 'solve_optimal' | 'train_agent' | 'score_fixed' | 'backtest';
+    /**
+     * Status
+     */
+    status: 'pending' | 'running' | 'done';
+    /**
+     * Completed
+     */
+    completed: number;
+    /**
+     * Total
+     */
+    total: number;
+    /**
+     * Unit
+     */
+    unit: string;
+    /**
+     * Elapsed Ms
+     */
+    elapsed_ms: number | null;
 };
 
 /**
@@ -1619,6 +1996,24 @@ export type StrategyMargin = {
 };
 
 /**
+ * UnavailableStrategy
+ */
+export type UnavailableStrategy = {
+    /**
+     * Strategy Id
+     */
+    strategy_id: string;
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Reason
+     */
+    reason: string;
+};
+
+/**
  * UnharvestedRow
  *
  * Planted but not harvested area by ENSO phase known at the end of August.
@@ -1676,6 +2071,47 @@ export type ValidationError = {
     ctx?: {
         [key: string]: unknown;
     };
+};
+
+/**
+ * Verdict
+ *
+ * Optimal policy against the best fixed rotation, chosen on training campaigns only.
+ */
+export type Verdict = {
+    /**
+     * Best Fixed Policy Id
+     */
+    best_fixed_policy_id: string;
+    /**
+     * Optimal Minus Best Fixed Expected
+     */
+    optimal_minus_best_fixed_expected: number;
+    /**
+     * Optimal Minus Best Fixed Train
+     */
+    optimal_minus_best_fixed_train: number;
+    /**
+     * Optimal Minus Best Fixed Test
+     */
+    optimal_minus_best_fixed_test: number;
+    optimal_minus_best_fixed_test_outcomes: OutcomeValues;
+    /**
+     * Test Campaigns Won
+     */
+    test_campaigns_won: number;
+    /**
+     * Test Campaigns
+     */
+    test_campaigns: number;
+    /**
+     * Agent Minus Optimal Expected
+     */
+    agent_minus_optimal_expected: number;
+    /**
+     * Agent Agreement Share
+     */
+    agent_agreement_share: number;
 };
 
 /**
@@ -2307,3 +2743,58 @@ export type GetCaseResponses = {
 };
 
 export type GetCaseResponse = GetCaseResponses[keyof GetCaseResponses];
+
+export type StartRotationPlanData = {
+    body: RotationPlanRequest;
+    path?: never;
+    query?: never;
+    url: '/api/rotation-plans';
+};
+
+export type StartRotationPlanErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type StartRotationPlanError = StartRotationPlanErrors[keyof StartRotationPlanErrors];
+
+export type StartRotationPlanResponses = {
+    /**
+     * Successful Response
+     */
+    202: RotationPlanRun;
+};
+
+export type StartRotationPlanResponse = StartRotationPlanResponses[keyof StartRotationPlanResponses];
+
+export type GetRotationPlanData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/rotation-plans/{run_id}';
+};
+
+export type GetRotationPlanErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetRotationPlanError = GetRotationPlanErrors[keyof GetRotationPlanErrors];
+
+export type GetRotationPlanResponses = {
+    /**
+     * Successful Response
+     */
+    200: RotationPlanRun;
+};
+
+export type GetRotationPlanResponse = GetRotationPlanResponses[keyof GetRotationPlanResponses];

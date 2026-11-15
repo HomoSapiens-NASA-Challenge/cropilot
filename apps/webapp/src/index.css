@@ -78,6 +78,29 @@
   --animate-field-drift: field-drift 16s ease-in-out infinite alternate;
   --animate-sow: sow 900ms ease-out backwards;
   --animate-marquee: marquee 40s linear infinite;
+  --animate-route-progress: route-progress 1.2s ease-in-out infinite;
+  --animate-reveal: reveal 450ms ease-out backwards;
+
+  /* Indeterminate bar: a quarter-width block crosses its track. */
+  @keyframes route-progress {
+    from {
+      transform: translate3d(-100%, 0, 0);
+    }
+    to {
+      transform: translate3d(400%, 0, 0);
+    }
+  }
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 6px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
 
   @keyframes field-drift {
     0% {

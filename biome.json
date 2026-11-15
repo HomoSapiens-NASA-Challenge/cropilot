@@ -12,7 +12,8 @@
       "!**/routeTree.gen.ts",
       "!packages/api/openapi.json",
       "!apps/backend/app/modules/cases/resources",
-      "!apps/mobile/assets"
+      "!apps/mobile/assets",
+      "!apps/backend/vendor"
     ]
   },
   "formatter": {
