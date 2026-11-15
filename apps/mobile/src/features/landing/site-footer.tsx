@@ -42,7 +42,7 @@ export function SiteFooter() {
       </View>
       <DashedRule />
       <View className="gap-6 px-4 py-8">
-        <View className="gap-3">
+        <View className="items-start gap-3">
           <BrandMark />
           <Text className="text-sm text-muted-foreground">
             Built for the NASA Space Apps Challenge 2026 · Field Shift: Adapting

@@ -5,7 +5,7 @@ import { Text } from "@/components/ui/text"
 import { cn } from "@/lib/utils"
 
 /**
- * Glass window that frames a product preview. Previews show the layout of a
+ * Window that frames a product preview. Previews show the layout of a
  * screen with placeholder lines: they carry no results, real or mock.
  */
 export function PreviewWindow({
@@ -21,7 +21,7 @@ export function PreviewWindow({
   return (
     <View
       className={cn(
-        "rounded-xl bg-background/75 shadow-2xl shadow-foreground/15",
+        "rounded-xl bg-background shadow-2xl shadow-foreground/15",
         className
       )}
     >

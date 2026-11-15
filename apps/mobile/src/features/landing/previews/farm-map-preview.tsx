@@ -49,7 +49,7 @@ export function FarmMapPreview({ className }: { className?: string }) {
             />
           ))}
         </Svg>
-        <View className="absolute bottom-3 right-3 w-40 flex-col gap-2 rounded-lg border border-background/80 bg-background/75 p-3 shadow-sm">
+        <View className="absolute bottom-3 right-3 w-40 flex-col gap-2 rounded-lg border border-background/80 bg-background p-3 shadow-sm">
           <PlaceholderLine className="h-2.5 w-16" />
           <PlaceholderLine className="w-24" />
           <Text className="text-[0.65rem] text-muted-foreground">

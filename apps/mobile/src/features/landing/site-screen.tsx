@@ -12,12 +12,14 @@ import {
   type SiteScroll,
   SiteScrollContext,
 } from "@/features/landing/site-scroll"
+import { useReduceMotion } from "@/lib/use-reduce-motion"
 
 /**
  * Chrome of the public site: the announcement bar scrolls away, the header
  * sticks to the top like the web's glass header, the footer closes the page.
  */
 export function SiteScreen({ children }: { children: ReactNode }) {
+  const reduceMotion = useReduceMotion()
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null)
   const positions = useRef<Partial<Record<LandingAnchor, number>>>({})
   // `at` makes every request new, so asking twice for the same section works.
@@ -30,7 +32,7 @@ export function SiteScreen({ children }: { children: ReactNode }) {
   const scrollToY = (y: number) =>
     scroll.current?.scrollTo({
       y: Math.max(0, y - SITE_HEADER_HEIGHT),
-      animated: true,
+      animated: !reduceMotion,
     })
 
   // A sub-page asked for a section (`section` + `at`): scroll there now if
@@ -47,9 +49,9 @@ export function SiteScreen({ children }: { children: ReactNode }) {
     }
     scroll.current?.scrollTo({
       y: Math.max(0, y - SITE_HEADER_HEIGHT),
-      animated: true,
+      animated: !reduceMotion,
     })
-  }, [section, at])
+  }, [section, at, reduceMotion])
 
   const value: SiteScroll = {
     goTo: (anchor) => {
@@ -70,7 +72,8 @@ export function SiteScreen({ children }: { children: ReactNode }) {
         scrollToY(y)
       }
     },
-    scrollToTop: () => scroll.current?.scrollTo({ y: 0, animated: true }),
+    scrollToTop: () =>
+      scroll.current?.scrollTo({ y: 0, animated: !reduceMotion }),
   }
 
   return (

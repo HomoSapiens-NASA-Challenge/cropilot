@@ -17,6 +17,7 @@ export const NAV_THEME: Theme = {
 // as src/global.css; crop colors are the data-encoding exception of the
 // visual system, declared here and in global.css only.
 export const SVG_COLORS = {
+  background: "hsl(0 0% 100%)",
   inverseForeground: "hsl(0 0% 100%)",
   highlight: "hsl(223.4 87% 79.2%)",
   primary: "hsl(228.5 60.1% 48.6%)",
