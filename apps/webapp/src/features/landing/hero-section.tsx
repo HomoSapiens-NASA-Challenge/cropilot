@@ -1,8 +1,9 @@
-import { AppEntryLink, CtaLink } from "@/features/landing/cta-link"
+import { CtaLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
 import { StrandsArt } from "@/features/landing/strands-art"
+import { REFERENCE_CASE_ZONE_ID } from "@/lib/reference-case"
 
-export function HeroSection({ isSignedIn }: { isSignedIn: boolean }) {
+export function HeroSection() {
   return (
     <Band className="relative isolate overflow-hidden">
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -25,7 +26,13 @@ export function HeroSection({ isSignedIn }: { isSignedIn: boolean }) {
           did in them.
         </SplitHeading>
         <div className="flex flex-wrap items-center gap-2">
-          <AppEntryLink isSignedIn={isSignedIn} signedOutLabel="Get started" />
+          <CtaLink
+            to="/case/$zoneId"
+            params={{ zoneId: REFERENCE_CASE_ZONE_ID }}
+            withChevron
+          >
+            Open the 2026/27 case, no sign-in
+          </CtaLink>
           <CtaLink to="/" hash="how-it-works" variant="outline">
             See how it works
           </CtaLink>

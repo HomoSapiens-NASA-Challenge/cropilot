@@ -36,9 +36,9 @@ function MenuPageLink({
     >
       <span className="flex items-baseline gap-2 text-sm font-medium text-primary transition-colors group-hover/page:text-foreground">
         {page.title}
-        {page.isInDevelopment && (
+        {(page.isInDevelopment || page.isRoadmap) && (
           <span className="text-xs font-normal text-muted-foreground">
-            Soon
+            {page.isRoadmap ? "Roadmap" : "Soon"}
           </span>
         )}
       </span>

@@ -111,12 +111,16 @@ function PagePlaceholder({ page }: { page: SitePage }) {
             <PencilLine className="size-5" />
           </span>
           <h2 className="text-2xl font-light tracking-tight">
-            This page is being written
+            {page.isRoadmap
+              ? "Not in this version"
+              : "This page is being written"}
           </h2>
           <p className="max-w-md text-muted-foreground">
-            {page.isInDevelopment
-              ? "This part of Cropilot is in development. The page will describe it once it is in the app, with its data sources."
-              : "The content of this page is on its way."}
+            {page.isRoadmap
+              ? "This is on the roadmap. Cropilot does not do it today, and this page will describe it once it ships."
+              : page.isInDevelopment
+                ? "This part of Cropilot is in development. The page will describe it once it is in the app, with its data sources."
+                : "The content of this page is on its way."}
           </p>
         </div>
       </div>
@@ -151,6 +155,9 @@ export function SitePageView({
             </span>
             {page.isInDevelopment && (
               <Badge variant="outline">In development</Badge>
+            )}
+            {page.isRoadmap && (
+              <Badge variant="outline">Roadmap · not in this version</Badge>
             )}
           </p>
           <div className="flex max-w-3xl flex-col gap-6">
