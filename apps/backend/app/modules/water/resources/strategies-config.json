@@ -1,0 +1,81 @@
+{
+  "field_id": "268949",
+  "label": "Pergamino demonstration footprint",
+  "source_repository": "HomoSapiens-NASA-Challenge/hub",
+  "source_tag": "pergamino-diagnostics-2026-11-14",
+  "source_asset": "pergamino-tables-and-field.zip",
+  "source_sha256": "c9cb64544951469e3e765e3107a0d0f43dcee63bd5c22d27828c931cd27d0c2b",
+  "start_years": [
+    1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
+    1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
+    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
+    2020, 2021, 2022
+  ],
+  "campaigns": 3,
+  "depths_m": [0.6, 1.0],
+  "initial_water_fractions": [0.25, 0.5, 0.75],
+  "summer_shift_days": [-14, -7, 0, 7, 14],
+  "calendar_depth_m": 1.0,
+  "calendar_initial_fraction": 0.5,
+  "crops": {
+    "soybean_first": {
+      "label": "Soybean",
+      "sowing_month_day": "11-08",
+      "stage_lengths": [20, 35, 60, 25],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.5,
+      "depletion_fraction": 0.5
+    },
+    "soybean_second": {
+      "label": "Second soybean",
+      "sowing_month_day": "12-18",
+      "stage_lengths": [20, 35, 60, 25],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.5,
+      "depletion_fraction": 0.5
+    },
+    "maize": {
+      "label": "Maize",
+      "sowing_month_day": "10-21",
+      "stage_lengths": [30, 40, 50, 30],
+      "kc_initial": 0.3,
+      "kc_mid": 1.2,
+      "kc_end": 0.35,
+      "depletion_fraction": 0.55
+    },
+    "wheat": {
+      "label": "Wheat",
+      "sowing_month_day": "06-10",
+      "stage_lengths": [20, 25, 60, 30],
+      "kc_initial": 0.3,
+      "kc_mid": 1.15,
+      "kc_end": 0.25,
+      "depletion_fraction": 0.55
+    }
+  },
+  "strategies": [
+    {
+      "strategy_id": "mapped-reference",
+      "label": "Maize / soybean / soybean",
+      "is_baseline": true,
+      "sequence": [["maize"], ["soybean_first"], ["soybean_first"]],
+      "rationale": "Repeats the dominant 2021/22\u20132023/24 INTA summer map sequence as a scenario; actual farmer rotation and sowing dates are unconfirmed."
+    },
+    {
+      "strategy_id": "winter-wheat",
+      "label": "Maize / wheat + soybean / soybean",
+      "is_baseline": false,
+      "sequence": [["maize"], ["wheat", "soybean_second"], ["soybean_first"]],
+      "rationale": "Explore the water cost of adding a winter wheat crop before the second summer crop."
+    },
+    {
+      "strategy_id": "summer-maize",
+      "label": "Maize / soybean / maize",
+      "is_baseline": false,
+      "sequence": [["maize"], ["soybean_first"], ["maize"]],
+      "rationale": "Explore replacing the third summer soybean with maize under identical weather and initial states."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Five additional water-model candidates
 
-Status: **proposals, not implemented or trained**. Evidence reviewed on 2026-11-14 against branch `modelos`, commit `d938a7995d85fdb4d7686548cddfcae99cc56698`.
+Status updated 2026-11-14: **candidates 3 and 4 are implemented as physical scenarios** in [Pergamino water scenarios](water-strategies.md), alongside rotation and initial-water/soil sensitivity comparisons. Candidates 1, 2 and 5 remain proposals, not trained models. The original proposal review used commit `d938a7995d85fdb4d7686548cddfcae99cc56698`.
 
 These proposals add information to the existing [seasonal water/heat models and physical simulator](models.md) and [7/14-day regional wetness models](moisture-models.md). They are not the five components of a previously trained release. Three are potential statistical experiments; two extend physical scenario analysis without fitting a new estimator.
 
@@ -16,7 +16,7 @@ The product can use historical indicators to explain named analogous campaigns. 
 | 4. Sowing-date sensitivity    | How does shifting sowing change water reserves and stress across the same historical campaigns? | Paired physical simulations                         | Existing engine accepts calendars; local date ranges still need agronomic review | 2        |
 | 5. River-station nitrate      | Does antecedent NASA weather improve estimates of measured nitrate at monitoring stations?      | Small HGB benchmark against station baselines       | Argentine laboratory labels audited; weather join still missing                  | 5        |
 
-The first two implementation priorities are candidates 3 and 4: they directly explain the rotations already simulated. Candidates 1 and 2 can first contribute observed historical context, even if their predictive experiments fail. Candidate 5 is an independent water-quality investigation.
+Candidates 3 and 4 now explain the Pergamino simulations through authenticated API endpoints. The sections below retain their research rationale; the implementation guide specifies the delivered scope and limitations. Candidates 1 and 2 can later contribute observed historical context, even if their predictive experiments fail. Candidate 5 is an independent water-quality investigation.
 
 ## 1. Dry-spell duration
 
@@ -44,6 +44,8 @@ The first two implementation priorities are candidates 3 and 4: they directly ex
 
 ## 3. Water stress by crop stage
 
+**Implemented:** all four configured stages in 3,900 crop events, including overlap with daily maximum temperature above 35 °C. See [the delivered contract and validation](water-strategies.md). Stage durations remain assumptions; there is no measured phenology or field validation.
+
 **Output:** for each crop event and each of its four configured stages, return start/end dates, cumulative `crop_et_deficit_mm`, `stress_days` and `longest_stress_spell_days`. Deficit is the daily sum of potential minus actual crop ET; a stress day has the existing water-stress coefficient below one. Preserve the source scenario, soil capacity and initial-water assumption.
 
 **Contribution:** the current comparison reports whole-crop water deficits. Stage summaries explain when a difference between rotations occurs and whether it shifts between historical campaigns.
@@ -55,6 +57,8 @@ The first two implementation priorities are candidates 3 and 4: they directly ex
 **Limits:** the four stages are configured durations, not observed phenology. Do not rename a stage "flowering" without crop-specific evidence, convert its deficit to yield loss, or invent severity weights. The illustrative Río Cuarto case uses calendar assumptions that still require local review.
 
 ## 4. Sowing-date sensitivity
+
+**Implemented:** summer sowing shifts of −14, −7, 0, +7 and +14 days in Pergamino, with winter wheat unchanged. The released calendar comparison fixes depth at 1 m and initial water at 50%; soil/initial-water sensitivity is a separate, unshifted comparison. No sowing date is selected or recommended automatically.
 
 **Output:** a table of candidate sowing dates with initial available water, whole-crop and stage deficits, and paired changes relative to the current calendar for each historical campaign. Summarize median and range across campaigns while keeping individual years visible.
 

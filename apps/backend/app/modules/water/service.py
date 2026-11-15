@@ -11,8 +11,18 @@ from pydantic import JsonValue, TypeAdapter
 
 from app.core.config import WaterModelSettings
 from app.modules.water.assets import RESOURCES, ArtifactError, run_command, verify_installation
+from app.modules.water.schemas import StrategiesBundle, WaterRunDetail
+from app.modules.water.strategies import load_strategies, load_strategy_run
 
 JSON_OBJECT = TypeAdapter(dict[str, JsonValue])
+
+
+def get_water_strategies() -> StrategiesBundle:
+    return load_strategies()
+
+
+def get_water_strategy_run(run_id: str) -> WaterRunDetail:
+    return load_strategy_run(run_id)
 
 
 def read_json_object(path: Path) -> dict[str, JsonValue]:

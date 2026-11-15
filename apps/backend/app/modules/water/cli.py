@@ -9,11 +9,26 @@ from pathlib import Path
 from app.modules.water.assets import RESOURCES, ArtifactError, prepare_models, verify_installation
 from app.modules.water.moisture import predict_moisture, prepare_moisture, verify_moisture
 from app.modules.water.service import compare_water_scenarios, predict_regional, read_json_object
+from app.modules.water.strategies import (
+    build_strategies,
+    load_strategies,
+    load_strategy_run,
+    prepare_strategies,
+    verify_strategies,
+)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    strategies_setup = commands.add_parser("strategies-setup", help="Install Pergamino scenarios")
+    strategies_setup.add_argument("--archive", type=Path)
+    commands.add_parser("strategies-verify", help="Verify the Pergamino result release")
+    strategies = commands.add_parser("strategies", help="Read comparison or one daily scenario")
+    strategies.add_argument("--run-id")
+    strategies_build = commands.add_parser("strategies-build", help="Reproduce all water scenarios")
+    strategies_build.add_argument("--output", type=Path, required=True)
+    strategies_build.add_argument("--source-archive", type=Path)
     setup = commands.add_parser("setup", help="Download verified assets and prepare Python 3.12.7")
     setup.add_argument("--archive", type=Path, help="Use a previously downloaded release archive")
     commands.add_parser("verify", help="Check all payload hashes, Python and pinned packages")
@@ -31,7 +46,19 @@ def main() -> int:
     water.add_argument("--output-parent", type=Path)
     args = parser.parse_args()
     try:
-        if args.command == "setup":
+        if args.command == "strategies-build":
+            build_strategies(args.output, args.source_archive)
+            result = {"status": "research_only", "output_directory": str(args.output.resolve())}
+        elif args.command == "strategies-setup":
+            prepare_strategies(args.archive)
+            result = {"status": "verified", "command": args.command}
+        elif args.command == "strategies-verify":
+            verify_strategies()
+            result = {"status": "verified", "command": args.command}
+        elif args.command == "strategies":
+            value = load_strategy_run(args.run_id) if args.run_id else load_strategies()
+            result = value.model_dump(mode="json")
+        elif args.command == "setup":
             prepare_models(args.archive)
             result = {"status": "verified", "command": "setup"}
         elif args.command == "verify":
@@ -59,7 +86,7 @@ def main() -> int:
             }
         sys.stdout.write(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
         return 0
-    except (ArtifactError, ValueError, OSError, subprocess.SubprocessError) as error:
+    except (ArtifactError, KeyError, ValueError, OSError, subprocess.SubprocessError) as error:
         detail = error.stderr if isinstance(error, subprocess.CalledProcessError) else str(error)
         sys.stderr.write(f"Water models: {detail}\n")
         return 1

@@ -49,9 +49,11 @@ Code conventions live in [`AGENTS.md`](AGENTS.md).
 
 ## Frozen research models
 
-The `modelos` branch includes the regional water/heat ML models and the physical rotation-water model, with a separate pinned Python environment. See [installation, examples, evaluation and backend integration](docs/models.md). The examples run without starting the web app or database. Additional [7/14-day regional soil-wetness experiments](docs/moisture-models.md) include trained weights, temporal evaluation, uncertainty and reproducible training code.
+The backend includes regional water/heat ML models and a physical rotation-water model, with a separate pinned Python environment. See [installation, examples, evaluation and backend integration](docs/models.md). The examples run without starting the web app or database. Additional [7/14-day regional soil-wetness experiments](docs/moisture-models.md) include trained weights, temporal evaluation, uncertainty and reproducible training code.
 
-[Five additional water-model proposals](docs/model-candidates.md) compare new indicators, available data, evaluation plans and implementation priorities. These candidates have not been implemented or trained.
+[Pergamino water scenarios](docs/water-strategies.md) provide three-rotation comparisons, stress by crop stage, soil/initial-water sensitivity and sowing-date scenarios: 1,170 historical runs, authenticated read endpoints and a generated web/mobile client. Results are precomputed physical scenarios, not field-validated forecasts. Install the result release before serving these endpoints; UI integration remains separate.
+
+[Five water-model candidates](docs/model-candidates.md) record the broader research roadmap. Stage stress and sowing-date scenarios are implemented; the other three candidates remain proposals.
 
 ## Deploy
 
@@ -67,5 +69,5 @@ To deploy on every push to `main`, set the repository variables `DEPLOY_HOST`, `
 ## AI use
 
 - Claude Fable 5.2 (Anthropic), in Claude Code: scaffolding of this repository, including project structure, tooling and CI configuration, deployment files, the example `farms` module and these docs.
-- Codex (OpenAI): frozen model packaging, isolated Python runtime, backend service, integrity/inference tests and model integration documentation on branch `modelos`; additional regional soil-wetness training, evaluation and reproducibility tests. No new frontend.
 - Claude Fable 5.2 (Anthropic), in Claude Code: the public landing page with its navigation menus and menu pages, the visual system shared with the app, and the lint check that enforces it. The landing's line art is vector geometry drawn in code, not a generated image.
+- Codex (OpenAI): frozen model packaging, isolated Python runtime, backend service, integrity/inference tests and model integration documentation; regional soil-wetness training and evaluation; Pergamino rotation/stage/sensitivity/calendar calculations, authenticated API, reproducibility tests and handoff documentation. No new frontend or generated field observations.

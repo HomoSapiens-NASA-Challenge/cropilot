@@ -1,5 +1,7 @@
 # Frozen water models
 
+For the delivered Pergamino rotation, stage-stress, soil/initial-water and sowing-calendar analyses, see [Pergamino water scenarios](water-strategies.md). Its precomputed API can be installed independently of the scientific runtime described below.
+
 The original `models-water-v1` release makes the existing research models callable from Cropilot's backend. That release preserves the original training and adds no screens or HTTP endpoints.
 
 The branch now also includes [newly trained regional wetness models at 7 and 14 days](moisture-models.md), distributed separately as `models-moisture-v1`.

@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getHealth, listFarms, type Options } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, ListFarmsData, ListFarmsResponse } from '../types.gen';
+import { createFarm, getHealth, getWaterStrategies, getWaterStrategyRun, listFarms, type Options } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, ListFarmsData, ListFarmsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -91,3 +91,43 @@ export const createFarmMutation = (options?: Partial<Options<CreateFarmData>>): 
     };
     return mutationOptions;
 };
+
+export const getWaterStrategiesQueryKey = (options?: Options<GetWaterStrategiesData>) => createQueryKey('getWaterStrategies', options);
+
+/**
+ * Get Water Strategies
+ *
+ * Shared Pergamino research scenarios; contains no user's farm records.
+ */
+export const getWaterStrategiesOptions = (options?: Options<GetWaterStrategiesData>) => queryOptions<GetWaterStrategiesResponse, DefaultError, GetWaterStrategiesResponse, ReturnType<typeof getWaterStrategiesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getWaterStrategies({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getWaterStrategiesQueryKey(options)
+});
+
+export const getWaterStrategyRunQueryKey = (options: Options<GetWaterStrategyRunData>) => createQueryKey('getWaterStrategyRun', options);
+
+/**
+ * Get Water Strategy Run
+ *
+ * Daily series and crop stages for one released historical scenario.
+ */
+export const getWaterStrategyRunOptions = (options: Options<GetWaterStrategyRunData>) => queryOptions<GetWaterStrategyRunResponse, GetWaterStrategyRunError, GetWaterStrategyRunResponse, ReturnType<typeof getWaterStrategyRunQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getWaterStrategyRun({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getWaterStrategyRunQueryKey(options)
+});
