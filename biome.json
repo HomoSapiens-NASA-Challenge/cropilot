@@ -46,6 +46,41 @@
       "linter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["apps/mobile/src/components/ui/**"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["apps/mobile/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noReactNativeRawText": {
+              "level": "on",
+              "options": {
+                "skip": [
+                  "CardTitle",
+                  "CardDescription",
+                  "Label",
+                  "SourceNote",
+                  "SplitHeading"
+                ]
+              }
+            }
+          },
+          "suspicious": {
+            "noUnknownAtRules": {
+              "level": "on",
+              "options": {
+                "ignore": ["tailwind"]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
