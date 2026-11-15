@@ -75,15 +75,28 @@
   --shadow-2xl:
     0 50px 100px -20px oklch(0.3 0.06 262 / 0.2),
     0 30px 60px -30px oklch(0 0 0 / 0.25);
-  --animate-strand-drift: strand-drift 14s ease-in-out infinite alternate;
+  --animate-field-drift: field-drift 16s ease-in-out infinite alternate;
+  --animate-sow: sow 900ms ease-out backwards;
   --animate-marquee: marquee 40s linear infinite;
 
-  @keyframes strand-drift {
+  @keyframes field-drift {
     0% {
       transform: translate3d(0, 0, 0);
     }
     100% {
-      transform: translate3d(-1.5%, 1.5%, 0);
+      transform: translate3d(-1.5%, 1%, 0);
+    }
+  }
+
+  /* A row is drawn from end to end, like a planter crossing the lot. Needs `pathLength={1}`. */
+  @keyframes sow {
+    from {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
     }
   }
 
