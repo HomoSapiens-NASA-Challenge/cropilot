@@ -43,7 +43,7 @@ export function FarmMapPreview({ className }: { className?: string }) {
             />
           ))}
         </svg>
-        <div className="absolute right-3 bottom-3 flex w-40 flex-col gap-2 rounded-lg border border-background/80 bg-background/75 p-3 shadow-sm backdrop-blur-lg">
+        <div className="absolute right-3 bottom-3 flex w-40 flex-col gap-2 rounded-lg border border-background/80 bg-background p-3 shadow-sm">
           <PlaceholderLine className="h-2.5 w-16" />
           <PlaceholderLine className="w-24" />
           <span className="text-[0.65rem] text-muted-foreground">

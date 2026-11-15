@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Glass window that frames a product preview. Previews show the layout of a
+ * Window that frames a product preview. Previews show the layout of a
  * screen with placeholder lines: they carry no results, real or mock.
  */
 export function PreviewWindow({
@@ -18,7 +18,7 @@ export function PreviewWindow({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-background/80 bg-background/75 shadow-2xl backdrop-blur-lg",
+        "overflow-hidden rounded-xl border border-background/80 bg-background shadow-2xl",
         className
       )}
     >
