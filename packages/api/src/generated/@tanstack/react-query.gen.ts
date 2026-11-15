@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createFarm, getHealth, getWaterStrategies, getWaterStrategyRun, listFarms, type Options } from '../sdk.gen';
-import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, ListFarmsData, ListFarmsResponse } from '../types.gen';
+import { createFarm, getHealth, getWaterStrategies, getWaterStrategyRun, getWorkspace, listFarms, listRegions, type Options, saveWorkspace } from '../sdk.gen';
+import type { CreateFarmData, CreateFarmError, CreateFarmResponse, GetHealthData, GetHealthResponse, GetWaterStrategiesData, GetWaterStrategiesResponse, GetWaterStrategyRunData, GetWaterStrategyRunError, GetWaterStrategyRunResponse, GetWorkspaceData, GetWorkspaceResponse, ListFarmsData, ListFarmsResponse, ListRegionsData, ListRegionsResponse, SaveWorkspaceData, SaveWorkspaceError, SaveWorkspaceResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -82,6 +82,63 @@ export const createFarmMutation = (options?: Partial<Options<CreateFarmData>>): 
     const mutationOptions: UseMutationOptions<CreateFarmResponse, CreateFarmError, Options<CreateFarmData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await createFarm({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listRegionsQueryKey = (options?: Options<ListRegionsData>) => createQueryKey('listRegions', options);
+
+/**
+ * List Regions
+ *
+ * Public catalog: the departments a workspace can be scoped to.
+ */
+export const listRegionsOptions = (options?: Options<ListRegionsData>) => queryOptions<ListRegionsResponse, DefaultError, ListRegionsResponse, ReturnType<typeof listRegionsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listRegions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listRegionsQueryKey(options)
+});
+
+export const getWorkspaceQueryKey = (options?: Options<GetWorkspaceData>) => createQueryKey('getWorkspace', options);
+
+/**
+ * Get Workspace
+ *
+ * The signed-in user's workspace, or `null` until onboarding picks a region.
+ */
+export const getWorkspaceOptions = (options?: Options<GetWorkspaceData>) => queryOptions<GetWorkspaceResponse, DefaultError, GetWorkspaceResponse, ReturnType<typeof getWorkspaceQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getWorkspace({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getWorkspaceQueryKey(options)
+});
+
+/**
+ * Save Workspace
+ */
+export const saveWorkspaceMutation = (options?: Partial<Options<SaveWorkspaceData>>): UseMutationOptions<SaveWorkspaceResponse, SaveWorkspaceError, Options<SaveWorkspaceData>> => {
+    const mutationOptions: UseMutationOptions<SaveWorkspaceResponse, SaveWorkspaceError, Options<SaveWorkspaceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await saveWorkspace({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

@@ -13,6 +13,9 @@ import {
 // show the viewer; they are not real parcels. Areas are computed from these
 // made-up boundaries. Farms will come from the API once they carry geometry.
 
+/** Id of the catalog region the synthetic farms sit in, around Pergamino. */
+export const SYNTHETIC_DEMO_REGION_ID = "pergamino"
+
 type SyntheticFarmSpec = {
   farmId: string
   name: string

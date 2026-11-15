@@ -1,9 +1,12 @@
+import type { Region } from "@cropilot/api"
+import type { Feature, Polygon } from "geojson"
 import { ArrowLeft } from "lucide-react"
 import type {
   FillLayerSpecification,
   LineLayerSpecification,
 } from "maplibre-gl"
 import { useEffect, useMemo, useState } from "react"
+import { RegionDialog } from "@/components/region-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +28,7 @@ import { CropLegend } from "@/features/farm-map/crop-swatch"
 import { CROP_FILL_COLOR } from "@/features/farm-map/crops"
 import { FarmDetails } from "@/features/farm-map/farm-details"
 import { FarmList } from "@/features/farm-map/farm-list"
-import { formatHectares } from "@/features/farm-map/format"
+import { formatHectares, formatLngLat } from "@/features/farm-map/format"
 import type { LngLat } from "@/features/farm-map/geometry"
 import { LotHoverCard } from "@/features/farm-map/lot-hover-card"
 import { powerCellAt } from "@/features/farm-map/nasa-power-grid"
@@ -36,6 +39,7 @@ import {
   SYNTHETIC_DEMO_FARMS_GEOJSON,
   SYNTHETIC_DEMO_LOTS_BY_ID,
   SYNTHETIC_DEMO_LOTS_GEOJSON,
+  SYNTHETIC_DEMO_REGION_ID,
 } from "@/features/farm-map/synthetic-demo-farms"
 
 // Literal colors for MapLibre paint: the theme's --foreground and --primary.
@@ -65,7 +69,103 @@ function CameraController({ bounds }: { bounds: [LngLat, LngLat] }) {
   return null
 }
 
-export function FarmMapViewer() {
+/** The farm map of the workspace region. Only the synthetic demo region has farms today. */
+export function FarmMapViewer({ region }: { region: Region }) {
+  return region.id === SYNTHETIC_DEMO_REGION_ID ? (
+    <DemoFarmsMap />
+  ) : (
+    <RegionWithoutFarmsMap region={region} />
+  )
+}
+
+function RegionWithoutFarmsMap({ region }: { region: Region }) {
+  const referencePoint: LngLat = [region.longitude_deg, region.latitude_deg]
+  const cell = powerCellAt(referencePoint)
+  const [isRegionDialogOpen, setRegionDialogOpen] = useState(false)
+  const cellBounds = useMemo<[LngLat, LngLat]>(
+    () => [
+      [cell.west, cell.south],
+      [cell.east, cell.north],
+    ],
+    [cell.west, cell.south, cell.east, cell.north]
+  )
+  const cellOutline: Feature<Polygon> = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [cell.west, cell.south],
+          [cell.east, cell.south],
+          [cell.east, cell.north],
+          [cell.west, cell.north],
+          [cell.west, cell.south],
+        ],
+      ],
+    },
+  }
+
+  return (
+    <Card className="relative h-[calc(100svh-15rem)] min-h-128 gap-0 overflow-hidden p-0">
+      <BaseMap theme="light" center={referencePoint} zoom={8}>
+        <MapGeoJSON
+          id="region-power-cell"
+          data={cellOutline}
+          fillPaint={{
+            "fill-color": SELECTED_FARM_OUTLINE_COLOR,
+            "fill-opacity": 0.06,
+          }}
+          linePaint={{
+            "line-color": SELECTED_FARM_OUTLINE_COLOR,
+            "line-width": 1.5,
+            "line-dasharray": [2, 2],
+          }}
+        />
+        <MapMarker longitude={referencePoint[0]} latitude={referencePoint[1]}>
+          <MarkerContent />
+        </MapMarker>
+        <CameraController bounds={cellBounds} />
+        <MapControls position="bottom-right" showCompass showFullscreen />
+      </BaseMap>
+
+      <Card className="absolute top-3 left-3 z-10 hidden w-80 gap-0 bg-background/75 py-0 shadow-xl backdrop-blur-lg md:flex">
+        <CardHeader className="border-b py-4">
+          <CardTitle>{region.name}</CardTitle>
+          <CardDescription className="text-xs">
+            {region.department} department, {region.province}
+          </CardDescription>
+        </CardHeader>
+        <div className="flex flex-col gap-4 p-4 text-sm leading-relaxed">
+          <div className="flex flex-col gap-1">
+            <p className="font-medium">No farms in this region yet</p>
+            <p className="text-muted-foreground">
+              The demo farms are synthetic and sit around Pergamino. Switch your
+              region to Pergamino to explore them.
+            </p>
+          </div>
+          <p className="text-muted-foreground">
+            The dot is the region's reference point,{" "}
+            <span className="tabular-nums">{formatLngLat(referencePoint)}</span>
+            . The dashed outline is the NASA POWER cell that holds it, about{" "}
+            {cell.heightKm.toFixed(0)} × {cell.widthKm.toFixed(0)} km. POWER
+            gives one value for the whole cell.
+          </p>
+          <Button variant="outline" onClick={() => setRegionDialogOpen(true)}>
+            Change region
+          </Button>
+        </div>
+      </Card>
+      <RegionDialog
+        currentRegion={region}
+        open={isRegionDialogOpen}
+        onOpenChange={setRegionDialogOpen}
+      />
+    </Card>
+  )
+}
+
+function DemoFarmsMap() {
   const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null)
   const [hoveredFarmId, setHoveredFarmId] = useState<string | null>(null)
   const [mapHoveredLotId, setMapHoveredLotId] = useState<string | null>(null)

@@ -1,4 +1,5 @@
-import { queryOptions } from "@tanstack/react-query"
+import { type QueryClient, queryOptions } from "@tanstack/react-query"
+import { redirect } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth"
 
 const SESSION_STALE_MS = 5 * 60 * 1000
@@ -15,6 +16,15 @@ export const sessionOptions = queryOptions({
   },
   staleTime: SESSION_STALE_MS,
 })
+
+/** The current session for a page that needs one; sends the reader to log in otherwise. */
+export async function requireSession(queryClient: QueryClient) {
+  const session = await queryClient.ensureQueryData(sessionOptions)
+  if (!session) {
+    throw redirect({ to: "/login" })
+  }
+  return session
+}
 
 export async function signInWithGoogle(): Promise<void> {
   const { error } = await authClient.signIn.social({

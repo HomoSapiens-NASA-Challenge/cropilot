@@ -126,6 +126,22 @@ export const zPairedDifference = z.object({
 });
 
 /**
+ * Region
+ *
+ * A department Cropilot can scope its analyses to, anchored on one reference point.
+ */
+export const zRegion = z.object({
+    id: z.string(),
+    name: z.string(),
+    province: z.string(),
+    department: z.string(),
+    latitude_deg: z.number(),
+    longitude_deg: z.number(),
+    is_reference_case: z.boolean(),
+    known_limit: z.string().nullable()
+});
+
+/**
  * RobustnessSummary
  */
 export const zRobustnessSummary = z.object({
@@ -230,6 +246,20 @@ export const zStrategiesBundle = z.object({
 });
 
 /**
+ * WorkspaceRead
+ */
+export const zWorkspaceRead = z.object({
+    region: zRegion
+});
+
+/**
+ * WorkspaceSave
+ */
+export const zWorkspaceSave = z.object({
+    region_id: z.string().min(1)
+});
+
+/**
  * Response Get Health
  *
  * Successful Response
@@ -249,6 +279,27 @@ export const zCreateFarmBody = zFarmCreate;
  * Successful Response
  */
 export const zCreateFarmResponse = zFarmRead;
+
+/**
+ * Response List Regions
+ *
+ * Successful Response
+ */
+export const zListRegionsResponse = z.array(zRegion);
+
+/**
+ * Response Get Workspace
+ *
+ * Successful Response
+ */
+export const zGetWorkspaceResponse = zWorkspaceRead.nullable();
+
+export const zSaveWorkspaceBody = zWorkspaceSave;
+
+/**
+ * Successful Response
+ */
+export const zSaveWorkspaceResponse = zWorkspaceRead;
 
 /**
  * Successful Response

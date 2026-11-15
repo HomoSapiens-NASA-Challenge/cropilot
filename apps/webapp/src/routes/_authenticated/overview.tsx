@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/overview")({
 })
 
 function OverviewPage() {
-  const { user } = Route.useRouteContext()
+  const { user, region } = Route.useRouteContext()
   const { data: farms } = useSuspenseQuery(listFarmsOptions())
   const firstName = user.name.split(" ")[0]
 
@@ -21,7 +21,7 @@ function OverviewPage() {
     <>
       <PageHeader
         title={`Welcome back, ${firstName}`}
-        description="Start from a farm, find the years that started like this one and compare rotations."
+        description={`Scoped to ${region.name}, ${region.province}. Start from a farm, find the years that started like this one and compare rotations.`}
       />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <SectionCard section={appSections.farms}>

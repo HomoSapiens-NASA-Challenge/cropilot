@@ -104,6 +104,111 @@
         ]
       }
     },
+    "/api/regions": {
+      "get": {
+        "tags": [
+          "regions"
+        ],
+        "summary": "List Regions",
+        "description": "Public catalog: the departments a workspace can be scoped to.",
+        "operationId": "list_regions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Region"
+                  },
+                  "type": "array",
+                  "title": "Response List Regions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspace": {
+      "get": {
+        "tags": [
+          "workspace"
+        ],
+        "summary": "Get Workspace",
+        "description": "The signed-in user's workspace, or `null` until onboarding picks a region.",
+        "operationId": "get_workspace",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/WorkspaceRead"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Workspace"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "workspace"
+        ],
+        "summary": "Save Workspace",
+        "operationId": "save_workspace",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspaceSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/water/strategies": {
       "get": {
         "tags": [
@@ -635,6 +740,62 @@
         ],
         "title": "PairedDifference"
       },
+      "Region": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "province": {
+            "type": "string",
+            "title": "Province"
+          },
+          "department": {
+            "type": "string",
+            "title": "Department"
+          },
+          "latitude_deg": {
+            "type": "number",
+            "title": "Latitude Deg"
+          },
+          "longitude_deg": {
+            "type": "number",
+            "title": "Longitude Deg"
+          },
+          "is_reference_case": {
+            "type": "boolean",
+            "title": "Is Reference Case"
+          },
+          "known_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Known Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "province",
+          "department",
+          "latitude_deg",
+          "longitude_deg",
+          "is_reference_case",
+          "known_limit"
+        ],
+        "title": "Region",
+        "description": "A department Cropilot can scope its analyses to, anchored on one reference point."
+      },
       "RobustnessSummary": {
         "properties": {
           "strategy_id": {
@@ -1076,6 +1237,32 @@
           "crop_demand_unmet_fraction"
         ],
         "title": "WaterSummary"
+      },
+      "WorkspaceRead": {
+        "properties": {
+          "region": {
+            "$ref": "#/components/schemas/Region"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region"
+        ],
+        "title": "WorkspaceRead"
+      },
+      "WorkspaceSave": {
+        "properties": {
+          "region_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Region Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region_id"
+        ],
+        "title": "WorkspaceSave"
       }
     },
     "securitySchemes": {

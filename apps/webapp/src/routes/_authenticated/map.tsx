@@ -11,10 +11,12 @@ export const Route = createFileRoute("/_authenticated/map")({
 })
 
 function FarmMapPage() {
+  const { region } = Route.useRouteContext()
+
   return (
     <>
       <PageHeader title={section.title} description={section.description} />
-      <FarmMapViewer />
+      <FarmMapViewer region={region} />
     </>
   )
 }

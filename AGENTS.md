@@ -79,7 +79,7 @@ components/ui/   shadcn. Se agrega con el CLI y se adapta al sistema visual
 lib/             clientes y utilidades sin dominio
 ```
 
-- Las rutas bajo `routes/_authenticated/` exigen sesión. Las de `routes/_site/` son el sitio público: la landing y las páginas de sus menús, que salen del catálogo `features/landing/site-content.ts`.
+- Las rutas bajo `routes/_authenticated/` exigen sesión y una región en el workspace (`getWorkspaceOptions()`); sin región se va a `/onboarding`, que la elige. Después se cambia con `components/region-dialog.tsx`, que guarda y llama a `router.invalidate()`. El layout pasa `user` y `region` por el contexto de la ruta. Las de `routes/_site/` son el sitio público: la landing y las páginas de sus menús, que salen del catálogo `features/landing/site-content.ts`.
 - **Estado de servidor solo con TanStack Query**, con las options generadas (`listFarmsOptions()`, `createFarmMutation()`). Nada de `fetch` ni `useEffect` para traer datos. La ruta precarga con `loader` y `ensureQueryData`; el componente lee con `useSuspenseQuery`.
 - **Formularios** con TanStack Form, los schemas Zod generados (`zFarmCreate`) y los componentes `Field`.
 - Estado local con `useState`. No se agrega un store global.

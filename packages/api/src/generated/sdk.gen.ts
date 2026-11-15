@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, ListFarmsData, ListFarmsResponses } from './types.gen';
+import type { CreateFarmData, CreateFarmErrors, CreateFarmResponses, GetHealthData, GetHealthResponses, GetWaterStrategiesData, GetWaterStrategiesResponses, GetWaterStrategyRunData, GetWaterStrategyRunErrors, GetWaterStrategyRunResponses, GetWorkspaceData, GetWorkspaceResponses, ListFarmsData, ListFarmsResponses, ListRegionsData, ListRegionsResponses, SaveWorkspaceData, SaveWorkspaceErrors, SaveWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -38,6 +38,37 @@ export const listFarms = <ThrowOnError extends boolean = false>(options?: Option
 export const createFarm = <ThrowOnError extends boolean = false>(options: Options<CreateFarmData, ThrowOnError>): RequestResult<CreateFarmResponses, CreateFarmErrors, ThrowOnError> => (options.client ?? client).post<CreateFarmResponses, CreateFarmErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/farms',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List Regions
+ *
+ * Public catalog: the departments a workspace can be scoped to.
+ */
+export const listRegions = <ThrowOnError extends boolean = false>(options?: Options<ListRegionsData, ThrowOnError>): RequestResult<ListRegionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListRegionsResponses, unknown, ThrowOnError>({ url: '/api/regions', ...options });
+
+/**
+ * Get Workspace
+ *
+ * The signed-in user's workspace, or `null` until onboarding picks a region.
+ */
+export const getWorkspace = <ThrowOnError extends boolean = false>(options?: Options<GetWorkspaceData, ThrowOnError>): RequestResult<GetWorkspaceResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetWorkspaceResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/workspace',
+    ...options
+});
+
+/**
+ * Save Workspace
+ */
+export const saveWorkspace = <ThrowOnError extends boolean = false>(options: Options<SaveWorkspaceData, ThrowOnError>): RequestResult<SaveWorkspaceResponses, SaveWorkspaceErrors, ThrowOnError> => (options.client ?? client).put<SaveWorkspaceResponses, SaveWorkspaceErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/workspace',
     ...options,
     headers: {
         'Content-Type': 'application/json',

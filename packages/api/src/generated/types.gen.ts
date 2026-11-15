@@ -316,6 +316,46 @@ export type PairedDifference = {
 };
 
 /**
+ * Region
+ *
+ * A department Cropilot can scope its analyses to, anchored on one reference point.
+ */
+export type Region = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Province
+     */
+    province: string;
+    /**
+     * Department
+     */
+    department: string;
+    /**
+     * Latitude Deg
+     */
+    latitude_deg: number;
+    /**
+     * Longitude Deg
+     */
+    longitude_deg: number;
+    /**
+     * Is Reference Case
+     */
+    is_reference_case: boolean;
+    /**
+     * Known Limit
+     */
+    known_limit: string | null;
+};
+
+/**
  * RobustnessSummary
  */
 export type RobustnessSummary = {
@@ -594,6 +634,23 @@ export type WaterSummary = {
     crop_demand_unmet_fraction: number;
 };
 
+/**
+ * WorkspaceRead
+ */
+export type WorkspaceRead = {
+    region: Region;
+};
+
+/**
+ * WorkspaceSave
+ */
+export type WorkspaceSave = {
+    /**
+     * Region Id
+     */
+    region_id: string;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -656,6 +713,67 @@ export type CreateFarmResponses = {
 };
 
 export type CreateFarmResponse = CreateFarmResponses[keyof CreateFarmResponses];
+
+export type ListRegionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/regions';
+};
+
+export type ListRegionsResponses = {
+    /**
+     * Response List Regions
+     *
+     * Successful Response
+     */
+    200: Array<Region>;
+};
+
+export type ListRegionsResponse = ListRegionsResponses[keyof ListRegionsResponses];
+
+export type GetWorkspaceData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/workspace';
+};
+
+export type GetWorkspaceResponses = {
+    /**
+     * Response Get Workspace
+     *
+     * Successful Response
+     */
+    200: WorkspaceRead | null;
+};
+
+export type GetWorkspaceResponse = GetWorkspaceResponses[keyof GetWorkspaceResponses];
+
+export type SaveWorkspaceData = {
+    body: WorkspaceSave;
+    path?: never;
+    query?: never;
+    url: '/api/workspace';
+};
+
+export type SaveWorkspaceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SaveWorkspaceError = SaveWorkspaceErrors[keyof SaveWorkspaceErrors];
+
+export type SaveWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspaceRead;
+};
+
+export type SaveWorkspaceResponse = SaveWorkspaceResponses[keyof SaveWorkspaceResponses];
 
 export type GetWaterStrategiesData = {
     body?: never;
