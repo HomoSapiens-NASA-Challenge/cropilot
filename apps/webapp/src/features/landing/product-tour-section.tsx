@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CtaLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
 import { Recording, type RecordingId } from "@/features/landing/recording"
+import { useI18n } from "@/lib/i18n"
 import { REFERENCE_CASE_ZONE_ID } from "@/lib/reference-case"
 
 const TOUR_STOPS: ReadonlyArray<{
@@ -47,6 +48,7 @@ function TourLink({
   id: RecordingId
   isSignedIn: boolean
 }) {
+  const { t } = useI18n("landing")
   if (id === "planner") {
     return (
       <CtaLink
@@ -54,7 +56,7 @@ function TourLink({
         variant="outline"
         withChevron
       >
-        {isSignedIn ? "Open the planner" : "Sign in to run the planner"}
+        {t(isSignedIn ? "Open the planner" : "Sign in to run the planner")}
       </CtaLink>
     )
   }
@@ -65,18 +67,20 @@ function TourLink({
       variant="outline"
       withChevron
     >
-      Open the public case
+      {t("Open the public case")}
     </CtaLink>
   )
 }
 
 export function ProductTourSection({ isSignedIn }: { isSignedIn: boolean }) {
+  const { t } = useI18n("landing")
   return (
     <Band id="tour" className="scroll-mt-18">
       <div className="flex flex-col gap-10 px-4 py-20 sm:px-6 lg:py-24">
-        <SplitHeading lead="See the running app." className="max-w-3xl">
-          Four screen recordings of Cropilot as it runs today. The case is
-          public and needs no sign-in; the planner needs an account.
+        <SplitHeading lead={t("See the running app.")} className="max-w-3xl">
+          {t(
+            "Four screen recordings of Cropilot as it runs today. The case is public; the planner only asks for your name."
+          )}
         </SplitHeading>
         <Tabs defaultValue={TOUR_STOPS[0].id} className="gap-8">
           <TabsList className="h-auto w-full flex-wrap justify-start sm:w-fit">
@@ -86,7 +90,7 @@ export function ProductTourSection({ isSignedIn }: { isSignedIn: boolean }) {
                 value={stop.id}
                 className="h-9 flex-none px-4"
               >
-                {stop.tab}
+                {t(stop.tab)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -98,10 +102,10 @@ export function ProductTourSection({ isSignedIn }: { isSignedIn: boolean }) {
             >
               <div className="flex flex-col items-start gap-4">
                 <h3 className="text-2xl/8 font-light tracking-tight text-balance">
-                  {stop.title}
+                  {t(stop.title)}
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  {stop.description}
+                  {t(stop.description)}
                 </p>
                 <div className="mt-2">
                   <TourLink id={stop.id} isSignedIn={isSignedIn} />

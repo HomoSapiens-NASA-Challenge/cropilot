@@ -5,10 +5,7 @@ import { AnnouncementBar } from "@/features/landing/announcement-bar"
 import { SiteFooter } from "@/features/landing/site-footer"
 import { SiteHeader } from "@/features/landing/site-header"
 
-/**
- * Smooth wheel scrolling for the public site. Touch keeps the native scroll,
- * and Lenis drops the smoothing when the reader asks for reduced motion.
- */
+/** Touch keeps the native scroll; Lenis drops the smoothing for reduced motion. */
 const SMOOTH_SCROLL: LenisOptions = {
   autoRaf: true,
   // Base UI locks the page under a sheet with `overflow: hidden` on the body.
@@ -21,7 +18,6 @@ const SMOOTH_SCROLL: LenisOptions = {
   stopInertiaOnNavigate: true,
 }
 
-/** Shell of the public site: announcement, glass header, page and footer. */
 export function SiteLayout({
   isSignedIn,
   children,

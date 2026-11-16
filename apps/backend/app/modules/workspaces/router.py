@@ -11,7 +11,7 @@ router = APIRouter(prefix="/workspace", tags=["workspace"])
 
 @router.get("", response_model=WorkspaceRead | None)
 async def get_workspace(user: CurrentUser, session: SessionDep) -> WorkspaceRead | None:
-    """The signed-in user's workspace, or `null` until onboarding picks a region."""
+    """The caller's workspace, or `null` until onboarding picks a region."""
     return await service.get_workspace(session, user.id)
 
 

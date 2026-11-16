@@ -31,7 +31,6 @@ const CTA_VARIANTS = {
   },
 } as const
 
-/** Square-cornered call to action of the public site. */
 export function CtaLink({
   label,
   variant = "primary",
@@ -73,7 +72,6 @@ export function CtaLink({
   )
 }
 
-/** Inline accent link with a chevron, for "read more" actions. */
 export function ArrowLink({
   label,
   onPress,
@@ -95,7 +93,6 @@ export function ArrowLink({
   )
 }
 
-/** Opens the decorative sign-in, which enters the demo app. */
 export function AppEntryLink({
   signedOutLabel,
   size,

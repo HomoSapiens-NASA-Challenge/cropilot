@@ -2,6 +2,7 @@
 
 import type * as MapLibreGL from "maplibre-gl"
 import type { MarkerOptions, PopupOptions } from "maplibre-gl"
+import { translate, useI18n } from "@/lib/i18n"
 import "maplibre-gl/dist/maplibre-gl.css"
 import type * as GeoJSON from "geojson"
 import { Loader2, Locate, Maximize, Minus, Plus, X } from "lucide-react"
@@ -80,6 +81,21 @@ const blankGlobeStyle: MapLibreGL.StyleSpecification = {
       paint: { "background-color": "rgba(128, 128, 128, 0.12)" },
     },
   ],
+}
+
+/** MapLibre writes the cooperative-gesture hint once, when the map is created. */
+function cooperativeGestureText(): Record<string, string> {
+  return {
+    "CooperativeGesturesHandler.WindowsHelpText": translate(
+      "Use Ctrl + scroll to zoom the map"
+    ),
+    "CooperativeGesturesHandler.MacHelpText": translate(
+      "Use ⌘ + scroll to zoom the map"
+    ),
+    "CooperativeGesturesHandler.MobileHelpText": translate(
+      "Use two fingers to move the map"
+    ),
+  }
 }
 
 // Prevent equivalent inline style objects from triggering a full map style reload.
@@ -356,6 +372,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
             compact: true,
           },
           ...props,
+          locale: { ...cooperativeGestureText(), ...props.locale },
           ...viewport,
         })
         if (!instance.painter) throw new lib.GPUInitializationError({}, null)
@@ -468,6 +485,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     <MapContext.Provider value={contextValue}>
       <div
         ref={containerRef}
+        // MapLibre owns the wheel when it zooms with it; Lenis must not also scroll
+        // the page. Cooperative gestures leave the plain wheel to the page, and
+        // Lenis already ignores the Ctrl/⌘ + wheel that zooms the map.
+        data-lenis-prevent-wheel={
+          props.scrollZoom !== false && !props.cooperativeGestures
+            ? ""
+            : undefined
+        }
         className={cn("relative h-full w-full", className)}
       >
         {(!isLoaded || loading) && <DefaultLoader />}
@@ -675,11 +700,12 @@ function DefaultMarkerIcon() {
 }
 
 function PopupCloseButton({ onClick }: { onClick: () => void }) {
+  const { t } = useI18n()
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Close popup"
+      aria-label={t("Close popup")}
       className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
       <X className="size-3.5" />
@@ -905,10 +931,11 @@ function ControlButton({
   children: React.ReactNode
   disabled?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <button
       onClick={onClick}
-      aria-label={label}
+      aria-label={t(label)}
       type="button"
       className={cn(
         "flex size-8 items-center justify-center transition-colors",
@@ -987,6 +1014,7 @@ function MapControls({
 
   return (
     <div
+      data-slot="map-controls"
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],

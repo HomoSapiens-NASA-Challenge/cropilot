@@ -6,6 +6,10 @@ import { caseIndexOptions, zoneCaseOptions } from "@/features/case/case-queries"
 
 /** The public case of one zone: no sign-in, read-only. */
 export const Route = createFileRoute("/_site/case/$zoneId")({
+  // Keep the current case mounted while the next loads. A short pending screen
+  // would shrink the document and clamp scrollY even with resetScroll: false.
+  // The shared route progress bar still signals the navigation.
+  pendingMs: Number.POSITIVE_INFINITY,
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(caseIndexOptions),
@@ -25,13 +29,11 @@ function CaseRoute() {
   }
   return (
     <>
-      <div className="fixed right-4 bottom-4 z-40 rounded-lg bg-background shadow-lg">
-        <AssistantPanel
-          key={zoneId}
-          zoneId={zoneId}
-          zoneName={bundle.zone_name}
-        />
-      </div>
+      <AssistantPanel
+        key={zoneId}
+        zoneId={zoneId}
+        zoneName={bundle.zone_name}
+      />
       <CasePage index={index} bundle={bundle} />
     </>
   )

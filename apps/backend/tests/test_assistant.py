@@ -1,4 +1,6 @@
 import json
+import time
+from uuid import uuid4
 
 import httpx2
 import pytest
@@ -7,12 +9,14 @@ from openai import OpenAI
 from pydantic import ValidationError
 
 from app.core.auth import User, get_current_user
+from app.core.config import RotationSimSettings
 from app.main import create_app
 from app.modules.assistant import service
 from app.modules.assistant.schemas import AnswerClaim, AssistantRequest, ModelAnswer
 from app.modules.assistant.tools import EvidenceError, EvidenceSession
 from app.modules.cases import service as cases_service
 from app.modules.rotation_planner import service as planner_service
+from app.modules.rotation_planner.schemas import PriorityWeights, RotationPlanRequest
 
 
 def test_public_assistant_is_disabled_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -127,9 +131,7 @@ def test_planner_chat_requires_login() -> None:
 
 def test_planner_uses_server_owner_before_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="alice", name="Alice", email="a@test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="alice")
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-not-a-real-key")
     calls = []
 
@@ -144,6 +146,33 @@ def test_planner_uses_server_owner_before_provider(monkeypatch: pytest.MonkeyPat
     )
     assert response.status_code == 404
     assert calls == [("alice", "bob-run")]
+
+
+@pytest.mark.skipif(
+    not (RotationSimSettings().rotation_sim_data_dir / "fields.json").is_file(),
+    reason="Simulator inputs are not installed (scripts/rotation_sim/install.sh)",
+)
+def test_a_real_planner_run_fits_the_evidence_cap() -> None:
+    # The per-campaign replays of every policy alone exceed the tool's evidence cap, so the
+    # tool must leave them out of a finished run.
+    owner = f"owner-{uuid4().hex}"
+    request = RotationPlanRequest(
+        weights=PriorityWeights(
+            margin_usd_ha=1, deficit_mm=1, bare_days=1, bare_rain_mm=1, drainage_mm=1
+        ),
+        horizon_campaigns=1,
+    )
+    run = planner_service.start_rotation_plan(owner, "pergamino", request)
+    deadline = time.monotonic() + 120
+    while planner_service.get_rotation_plan(owner, run.run_id).status != "done":
+        assert time.monotonic() < deadline, "the planner run never finished"
+        time.sleep(0.1)
+
+    evidence = EvidenceSession("pergamino", owner, run.run_id)
+    result = json.loads(evidence.execute("get_planner_result", "{}"))["result"]
+
+    assert result["verdict"]["held_out"]
+    assert all("lower_tail_margin_usd_ha" in p["test"] for p in result["policies"])
 
 
 def test_usage_budget_and_concurrency_release() -> None:

@@ -9,6 +9,7 @@ import {
   stageCounter,
 } from "@/features/planner/pipeline-stages"
 import { formatDuration, formatWhole } from "@/features/planner/planner-format"
+import { translate, useI18n } from "@/lib/i18n"
 
 function totalElapsedMs(stages: ReadonlyArray<StageProgress>): number {
   return stages.reduce((sum, stage) => sum + (stage.elapsed_ms ?? 0), 0)
@@ -25,15 +26,16 @@ function statusLine(run: RotationPlanRun): string {
     // Agents train one after another, so the newest seed seen is the one in progress.
     const current =
       Math.max(-1, ...run.convergence.map((point) => point.seed)) + 1
-    return `${title}: agent ${Math.max(current, 1)} of ${run.agent_seeds} - ${stageCounter(active)}`
+    return translate("{value1}: agent {value2} of {value3} - {value4}", {
+      value1: translate(title),
+      value2: Math.max(current, 1),
+      value3: run.agent_seeds,
+      value4: stageCounter(active),
+    })
   }
-  return `${title}: ${stageCounter(active)}`
+  return `${translate(title)}: ${stageCounter(active)}`
 }
 
-/**
- * The live view of a run: its pipeline and, once the agent starts learning, the convergence
- * chart. Everything on it is read from the run snapshot the browser polls.
- */
 export function TrainingConsole({
   run,
   compact = false,
@@ -41,6 +43,8 @@ export function TrainingConsole({
   run: RotationPlanRun
   compact?: boolean
 }) {
+  const { t } = useI18n("app")
+
   const training = run.stages.find((stage) => stage.stage_id === "train_agent")
   const showChart =
     !compact &&
@@ -57,16 +61,16 @@ export function TrainingConsole({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-(--card-spacing)">
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-base font-medium">Training console</h2>
+          <h2 className="text-base font-medium">{t("Training console")}</h2>
           <p
             role="status"
             className="text-sm tabular-nums text-muted-foreground"
           >
-            {statusLine(run)}
+            {t(statusLine(run))}
           </p>
         </div>
         <span className="text-sm tabular-nums text-muted-foreground">
-          {formatDuration(totalElapsedMs(run.stages))} elapsed
+          {formatDuration(totalElapsedMs(run.stages))} {t(" elapsed")}
         </span>
       </div>
 
@@ -77,7 +81,7 @@ export function TrainingConsole({
       {showChart && training && (
         <div className="mx-(--card-spacing) flex flex-col gap-3 border-t pt-6">
           <h3 className="text-sm font-medium">
-            The agents closing in on the optimum
+            {t("The agents closing in on the optimum")}
           </h3>
           <ConvergenceChart
             points={run.convergence}
@@ -93,6 +97,8 @@ export function TrainingConsole({
 
 /** What a finished run cost: measured time and the real counts of simulated work. */
 export function RunSummary({ run }: { run: RotationPlanRun }) {
+  const { t } = useI18n("app")
+
   const simulated = run.stages.find((stage) => stage.stage_id === "simulate")
   const trained = run.stages.find((stage) => stage.stage_id === "train_agent")
 
@@ -103,14 +109,15 @@ export function RunSummary({ run }: { run: RotationPlanRun }) {
     >
       <Check aria-hidden className="size-4 text-primary" />
       <span className="font-medium text-foreground">
-        Computed in {formatDuration(totalElapsedMs(run.stages))}
+        {t("Computed in ")}
+        {formatDuration(totalElapsedMs(run.stages))}
       </span>
       {simulated && trained && (
         <span>
-          - {formatWhole(simulated.completed)} {simulated.unit} simulated,{" "}
-          {run.agent_seeds} agents x{" "}
-          {formatWhole(trained.completed / run.agent_seeds)} {trained.unit}{" "}
-          trained
+          - {formatWhole(simulated.completed)} {t(simulated.unit)}{" "}
+          {t(" simulated,")} {run.agent_seeds} {t(" agents x")}{" "}
+          {formatWhole(trained.completed / run.agent_seeds)} {t(trained.unit)}{" "}
+          {t("trained")}
         </span>
       )}
     </p>

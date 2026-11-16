@@ -11,6 +11,7 @@ import type {
   PolicyKind,
 } from "@/features/planner/planner-types"
 import type { Crop } from "@/lib/data-colors"
+import { getLocale, translate } from "@/lib/i18n"
 
 export const ACTION_LABEL = {
   fallow: "Fallow",
@@ -90,7 +91,12 @@ const ENSO_SEASON_LABEL = {
 
 /** `NOAA ONI Feb-Apr 2026: +0.11 (Neutral)`, the reading a default phase comes from. */
 export function describeEnsoReading(reading: EnsoReading): string {
-  return `NOAA ONI ${ENSO_SEASON_LABEL[reading.season]} ${reading.year}: ${formatSigned(reading.oni)} (${ENSO_LABEL[reading.phase]})`
+  return translate("NOAA ONI {value1} {value2}: {value3} ({value4})", {
+    value1: translate(ENSO_SEASON_LABEL[reading.season]),
+    value2: reading.year,
+    value3: formatSigned(reading.oni),
+    value4: translate(ENSO_LABEL[reading.phase]),
+  })
 }
 
 /** The sources a card draws on, picked from the run's own list by id. */
@@ -127,7 +133,10 @@ export function formatShare(fraction: number): string {
 
 /** An interval as plain words: `-0.31 to +0.10`. */
 export function formatInterval(low: number, high: number): string {
-  return `${formatScore(low)} to ${formatScore(high)}`
+  return translate("{value1} to {value2}", {
+    value1: formatScore(low),
+    value2: formatScore(high),
+  })
 }
 
 /** Measured wall time: milliseconds below a second, one decimal of seconds above. */
@@ -148,7 +157,10 @@ export function campaignShortName(startYear: number): string {
 }
 
 export function itineraryLabel(itinerary: Itinerary): string {
-  return `${ACTION_LABEL[itinerary.winter]}, then ${ACTION_LABEL[itinerary.summer]}`
+  return translate("{value1}, then {value2}", {
+    value1: translate(ACTION_LABEL[itinerary.winter]),
+    value2: translate(ACTION_LABEL[itinerary.summer]),
+  })
 }
 
 type OutcomeId = keyof OutcomeValues
@@ -167,9 +179,16 @@ export function formatOutcome(id: OutcomeId, value: number): string {
 }
 
 export function formatOutcomeWithUnit(id: OutcomeId, value: number): string {
-  return `${formatOutcome(id, value)} ${OUTCOME_FORMAT[id].unit}`
+  return `${formatOutcome(id, value)} ${translate(OUTCOME_FORMAT[id].unit)}`
 }
 
 export function formatOutcomeDelta(id: OutcomeId, value: number): string {
-  return `${formatSigned(value, OUTCOME_FORMAT[id].digits)} ${OUTCOME_FORMAT[id].unit}`
+  return `${formatSigned(value, OUTCOME_FORMAT[id].digits)} ${translate(OUTCOME_FORMAT[id].unit)}`
+}
+
+export function formatPlannerList(values: string[]): string {
+  return new Intl.ListFormat(getLocale(), {
+    style: "long",
+    type: "conjunction",
+  }).format(values)
 }

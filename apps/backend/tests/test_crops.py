@@ -100,9 +100,7 @@ def synthetic_field_map(zone: str = "pergamino", purity: float = 0.9) -> dict:
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("CROP_MAP_DIR", str(tmp_path))
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="test", name="Test", email="test@example.test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="test")
     return TestClient(app)
 
 

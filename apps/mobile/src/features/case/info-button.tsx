@@ -4,15 +4,20 @@ import { Pressable } from "react-native"
 import { Icon } from "@/components/ui/icon"
 import { Sheet } from "@/components/ui/sheet"
 
-/** Opens contextual information from a native header. */
 export function InfoButton({
   title,
   children,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   title: string
   children: ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = controlledOpen ?? internalOpen
+  const setOpen = onOpenChange ?? setInternalOpen
   return (
     <>
       <Pressable

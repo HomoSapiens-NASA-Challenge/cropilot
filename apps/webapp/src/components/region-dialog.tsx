@@ -22,8 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useI18n } from "@/lib/i18n"
 
-/** Changes the region the workspace is scoped to, without leaving the page. */
 export function RegionDialog({
   currentRegion,
   open,
@@ -53,6 +53,8 @@ function RegionDialogBody({
   currentRegion: Region
   onSaved: () => void
 }) {
+  const { t } = useI18n("app")
+
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: regions } = useSuspenseQuery(listRegionsOptions())
@@ -71,11 +73,12 @@ function RegionDialogBody({
     <>
       <DialogHeader>
         <DialogTitle className="text-xl font-light tracking-tight">
-          Change region
+          {t("Change region")}
         </DialogTitle>
         <DialogDescription>
-          Cropilot scopes every analysis to one department: its NASA POWER
-          climate cell, its soil and its MAGyP yields.
+          {t(
+            "Cropilot scopes every analysis to one department: its NASA POWER climate cell, its soil and its MAGyP yields."
+          )}
         </DialogDescription>
       </DialogHeader>
       <RegionPicker
@@ -86,10 +89,12 @@ function RegionDialogBody({
       <DialogFooter className="-mx-6 -mb-6 px-6">
         {saveWorkspace.isError && (
           <p role="alert" className="text-sm text-destructive sm:mr-auto">
-            Could not save the region. Try again.
+            {t("Could not save the region. Try again.")}
           </p>
         )}
-        <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+        <DialogClose render={<Button variant="outline" />}>
+          {t("Cancel")}
+        </DialogClose>
         <Button
           disabled={
             saveWorkspace.isPending || selectedRegionId === currentRegion.id
@@ -98,7 +103,7 @@ function RegionDialogBody({
             saveWorkspace.mutate({ body: { region_id: selectedRegionId } })
           }
         >
-          {saveWorkspace.isPending ? "Saving…" : "Save region"}
+          {saveWorkspace.isPending ? t("Saving…") : t("Save region")}
         </Button>
       </DialogFooter>
     </>

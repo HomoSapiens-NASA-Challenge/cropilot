@@ -37,6 +37,15 @@ function hasLotData(lot: Lot): boolean {
   return lot.latest_crop !== null || lot.status !== null
 }
 
+/** List order of the statuses: the ones that need attention first, `ok` last. */
+const LIST_ORDER: ReadonlyArray<NonNullable<Lot["status"]>> = [
+  "alert",
+  "watch",
+  "check",
+  "bare",
+  "ok",
+]
+
 /**
  * The lots the list shows, worst status first: the farm's lots, or every lot with data when
  * the zone has no farm lots.
@@ -46,10 +55,10 @@ function listedLots(field: Field) {
   const farmLots = withData.filter((lot) => lot.is_demo_farm)
   const listed = farmLots.length > 0 ? farmLots : withData
   const severity = (lot: Lot) =>
-    lot.status ? LOT_STATUS_IDS.indexOf(lot.status) : LOT_STATUS_IDS.length
+    lot.status ? LIST_ORDER.indexOf(lot.status) : LIST_ORDER.length
   const ordered = [...listed].sort(
     (a, b) =>
-      severity(b) - severity(a) ||
+      severity(a) - severity(b) ||
       a.name.localeCompare(b.name, undefined, { numeric: true })
   )
   return {
@@ -67,17 +76,24 @@ export function FieldInfo({ bundle }: { bundle: CaseBundle }) {
   const { withData, farmLots, unlistedWithData, contextCount } =
     listedLots(field)
   const zoneLots = withData.length - farmLots.length
-  const lead = [
-    `${pluralize(farmLots.length, "lot")} of ${field.farm_name}`,
-    zoneLots > 0 &&
-      `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`,
-    "carry a crop, a status and an NDVI curve.",
-    contextCount > 0 &&
-      `${pluralize(contextCount, "more outline")} give context.`,
-    "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
-  ]
-    .filter(Boolean)
-    .join(" ")
+  const lead =
+    withData.length === 0
+      ? `${pluralize(contextCount, "outline")} of ${bundle.zone_name} ${contextCount === 1 ? "is" : "are"} on the map for context, with no crop, status or NDVI. They come from satellite imagery.`
+      : [
+          farmLots.length > 0 &&
+            `${pluralize(farmLots.length, "lot")} of ${field.farm_name}`,
+          zoneLots > 0 &&
+            (farmLots.length > 0
+              ? `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`
+              : `${pluralize(zoneLots, "field")} of ${bundle.zone_name}`),
+          withData.length === 1 ? "carries" : "carry",
+          "a crop, a status and an NDVI curve.",
+          contextCount > 0 &&
+            `${pluralize(contextCount, "more outline")} ${contextCount === 1 ? "gives" : "give"} context.`,
+          "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
+        ]
+          .filter(Boolean)
+          .join(" ")
   return (
     <View className="gap-4">
       <Text>{lead}</Text>
@@ -98,10 +114,11 @@ export function FieldInfo({ bundle }: { bundle: CaseBundle }) {
           the map.
         </Text>
       )}
-      {contextCount > 0 && (
+      {contextCount > 0 && withData.length > 0 && (
         <Text>
-          {contextCount} more outlines of the zone are on the map for context.
-          They carry no crop, status or NDVI.
+          {contextCount === 1
+            ? "1 more outline of the zone is on the map for context. It carries no crop, status or NDVI."
+            : `${contextCount} more outlines of the zone are on the map for context. They carry no crop, status or NDVI.`}
         </Text>
       )}
       {field.limitations.length > 0 && (

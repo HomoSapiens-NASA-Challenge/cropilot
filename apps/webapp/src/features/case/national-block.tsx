@@ -14,27 +14,40 @@ import { EvidenceChip } from "@/features/case/evidence-chip"
 import { Term } from "@/features/case/glossary-term"
 import { NationalMap, ZoneDot } from "@/features/case/national-map"
 import { accentScale } from "@/lib/data-colors"
+import { translate, useI18n } from "@/lib/i18n"
 
 const LEGEND_STEPS = [0, 0.25, 0.5, 0.75, 1] as const
 
 function headline(index: CaseIndex, sinceYear: number | undefined): string {
-  const start = `${index.campaign} starts with ONI ${formatSigned(index.oni_jas)}`
+  const start = translate("{campaign} starts with ONI {oni}", undefined, {
+    campaign: index.campaign,
+    oni: formatSigned(index.oni_jas),
+  })
   if (index.oni_jas > index.highest_past_oni_jas) {
     return sinceYear === undefined
-      ? `${start}, above every past campaign`
-      : `${start}, above every campaign since ${sinceYear}`
+      ? translate("{start}, above every past campaign", undefined, { start })
+      : translate("{start}, above every campaign since {year}", undefined, {
+          start,
+          year: sinceYear,
+        })
   }
-  return `${start}, a ${ENSO_PHASE_LABEL[index.enso_phase]} winter`
+  return translate("{start}, a {phase} winter", undefined, {
+    start,
+    phase: translate(ENSO_PHASE_LABEL[index.enso_phase]),
+  })
 }
 
 function WetnessLegend() {
+  const { t } = useI18n("case")
+
   return (
     <div className="flex flex-col gap-2 text-xs text-muted-foreground">
       <span className="font-medium text-foreground">
-        <Term term="Soil wetness">Soil wetness</Term>, end of August
+        <Term term="Soil wetness">{t("Soil wetness")}</Term>
+        {t(", end of August")}
       </span>
       <div className="flex items-center gap-2">
-        <span>Drier</span>
+        <span>{t("Drier")}</span>
         <span aria-hidden className="flex gap-0.5">
           {LEGEND_STEPS.map((step) => (
             <span
@@ -44,11 +57,11 @@ function WetnessLegend() {
             />
           ))}
         </span>
-        <span>Wetter than most past campaigns</span>
+        <span>{t("Wetter than most past campaigns")}</span>
       </div>
       <span className="flex items-center gap-2">
         <ZoneDot percentile={null} className="size-4" />
-        No soil wetness value for this zone
+        {t("No soil wetness value for this zone")}
       </span>
     </div>
   )
@@ -61,6 +74,8 @@ function ZoneRow({
   zone: ZoneCard
   isSelected: boolean
 }) {
+  const { t } = useI18n("case")
+
   const missingModules = (["water", "field"] as const).filter(
     (module) => zone.modules[module] === "not_available"
   )
@@ -69,6 +84,7 @@ function ZoneRow({
       <Link
         to="/case/$zoneId"
         params={{ zoneId: zone.zone_id }}
+        resetScroll={false}
         className={cn(
           "group/zone flex flex-col gap-2 rounded-lg border px-3 py-2.5 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50",
           isSelected && "border-primary bg-primary/5 hover:bg-primary/5"
@@ -103,18 +119,20 @@ function ZoneRow({
           </>
         ) : (
           <span className="text-xs text-muted-foreground">
-            No soil wetness value
+            {t("No soil wetness value")}
           </span>
         )}
         {zone.analogs.length > 0 && (
           <span className="text-xs text-muted-foreground">
-            Years like this: {zone.analogs.slice(0, 3).join(", ")}
+            {t("Years like this: ")}
+            {zone.analogs.slice(0, 3).join(", ")}
             {zone.analogs.length > 3 && ` +${zone.analogs.length - 3}`}
           </span>
         )}
         {missingModules.length > 0 && (
           <span className="text-xs text-muted-foreground">
-            Not available yet: {missingModules.join(", ")}
+            {t("Not available yet: ")}
+            {missingModules.map((module) => t(module)).join(", ")}
           </span>
         )}
       </Link>
@@ -122,10 +140,6 @@ function ZoneRow({
   )
 }
 
-/**
- * B0. How the campaign starts in every zone with a case: the headline, a map of
- * Argentina with one marker per zone, and the same zones as a list.
- */
 export function NationalBlock({
   index,
   glossary,
@@ -144,6 +158,8 @@ export function NationalBlock({
   isCompact?: boolean
   id?: string
 }) {
+  const { t } = useI18n("case")
+
   return (
     <CaseReferencesProvider sources={index.sources} glossary={glossary}>
       <BlockSection
@@ -151,12 +167,15 @@ export function NationalBlock({
         title={headline(index, sinceYear)}
         lead={
           <>
-            <Term term="ONI">Oceanic Niño Index</Term> for July to September, as
-            NOAA publishes it in early October:{" "}
-            {ENSO_PHASE_LABEL[index.enso_phase]}. The highest before was{" "}
-            {formatSigned(index.highest_past_oni_jas)} in{" "}
-            {index.highest_past_oni_campaign}. Markers show how wet the soil was
-            in each zone.
+            <Term term="ONI">{t("Oceanic Niño Index")}</Term>
+            {t(
+              " for July to September, as NOAA publishes it in early October:"
+            )}{" "}
+            {t(ENSO_PHASE_LABEL[index.enso_phase])}
+            {t(". The highest before was")}{" "}
+            {formatSigned(index.highest_past_oni_jas)}
+            {t(" in")} {index.highest_past_oni_campaign}
+            {t(". Markers show how wet the soil was in each zone.")}
           </>
         }
       >
@@ -173,13 +192,15 @@ export function NationalBlock({
               <WetnessLegend />
               <EvidenceChip
                 meta={index.meta}
-                horizon="ONI July to September, soil wetness 22 to 31 August"
+                horizon={t(
+                  "ONI July to September, soil wetness 22 to 31 August"
+                )}
               />
             </div>
           </div>
           {!isCompact && (
             <ul
-              aria-label="Zones with a case"
+              aria-label={t("Zones with a case")}
               className="flex max-h-136 flex-col gap-2 overflow-y-auto pr-1"
             >
               {index.zones.map((zone) => (

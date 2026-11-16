@@ -134,7 +134,7 @@ class RegionSimulator:
 
     @property
     def sowing_sourced(self) -> bool:
-        """Whether every sowing date this field uses has a source (not a team assumption)."""
+        """Whether every sowing date this field uses has a source rather than an assumption."""
         calendar = self._dataset.model.calendar
         crops = {c for itinerary in self.itineraries for c in itinerary if c != "fallow"}
         return all(

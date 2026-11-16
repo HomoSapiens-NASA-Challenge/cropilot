@@ -15,6 +15,7 @@ import {
 import { hasLotData } from "@/features/case/field-panels"
 import { cropColor, LOT_STATUS, MAP_ACCENT_COLOR } from "@/lib/data-colors"
 import { type LngLat, pointsBounds, ringCenter } from "@/lib/geo"
+import { useI18n } from "@/lib/i18n"
 import { powerCellAt } from "@/lib/nasa-power-grid"
 
 const NO_STATUS = { color: "#94a3b8", width: 1 } as const
@@ -67,11 +68,7 @@ function CameraController({ bounds }: { bounds: [LngLat, LngLat] }) {
   return null
 }
 
-/**
- * The lots of the zone on the map: fill is the latest crop, outline is the status of the
- * lot. The reference footprint is outlined in the accent and named. The dashed rectangle
- * is the NASA POWER cell, which is the scale of the climate data.
- */
+/** The dashed rectangle is the NASA POWER cell, the scale of the climate data. */
 export function FieldMap({
   field,
   selectedLotId,
@@ -85,6 +82,8 @@ export function FieldMap({
   onSelectLot: (fieldId: string | null) => void
   onToggleCellView: () => void
 }) {
+  const { t, locale } = useI18n("case")
+
   const lotsData = useMemo<FeatureCollection<Polygon, LotFeatureProperties>>(
     () => ({ type: "FeatureCollection", features: field.lots.map(lotFeature) }),
     [field.lots]
@@ -134,8 +133,16 @@ export function FieldMap({
   )
 
   return (
-    <div className="relative h-104 overflow-hidden rounded-xl border bg-secondary md:h-136">
-      <BaseMap theme="light" center={ringCenter(allPoints)} zoom={11}>
+    <div className="relative isolate h-104 overflow-hidden rounded-xl border bg-secondary md:h-136">
+      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it.
+          MapLibre writes that hint once, so a language change recreates the map. */}
+      <BaseMap
+        key={locale}
+        theme="light"
+        center={ringCenter(allPoints)}
+        zoom={11}
+        cooperativeGestures
+      >
         <MapGeoJSON
           id="power-cell"
           data={cellOutline}
@@ -192,7 +199,7 @@ export function FieldMap({
           >
             <MarkerContent>
               <span className="block rounded-4xl bg-primary px-2.5 py-1 text-xs font-medium whitespace-nowrap text-primary-foreground shadow-sm">
-                Footprint {reference.field_id}
+                {t("Footprint {value1}", { value1: reference.field_id })}
               </span>
             </MarkerContent>
           </MapMarker>
@@ -213,7 +220,7 @@ export function FieldMap({
           )}
         >
           <Crosshair data-icon="inline-start" />
-          {isCellView ? "Back to the lots" : "Show the NASA POWER cell"}
+          {isCellView ? t("Back to the lots") : t("Show the NASA POWER cell")}
         </Button>
       </div>
     </div>

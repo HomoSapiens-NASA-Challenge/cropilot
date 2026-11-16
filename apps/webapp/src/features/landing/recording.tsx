@@ -2,6 +2,7 @@ import { cn } from "cn"
 import { Pause, Play } from "lucide-react"
 import { useRef, useState, useSyncExternalStore } from "react"
 import { PreviewWindow } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 export type RecordingId =
   | "years-like-this"
@@ -66,6 +67,7 @@ export function Recording({
   id: RecordingId
   className?: string
 }) {
+  const { locale, t } = useI18n("landing")
   const { windowTitle, caption, label } = RECORDINGS[id]
   const prefersReducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
@@ -90,13 +92,13 @@ export function Recording({
   return (
     <figure className={cn("flex flex-col gap-3", className)}>
       <PreviewWindow
-        title={windowTitle}
-        badge="Screen recording"
+        title={t(windowTitle)}
+        badge={t("Screen recording")}
         bodyClassName="relative bg-secondary"
       >
         <video
           ref={videoRef}
-          aria-label={label}
+          aria-label={t(label)}
           poster={`/recordings/${id}.webp`}
           autoPlay={!prefersReducedMotion}
           preload={prefersReducedMotion ? "none" : "auto"}
@@ -112,11 +114,12 @@ export function Recording({
         <button
           type="button"
           onClick={togglePlayback}
-          aria-label={
+          aria-label={t(
             isPlaying
-              ? `Pause recording: ${caption}`
-              : `Play recording: ${caption}`
-          }
+              ? "Pause recording: {caption}"
+              : "Play recording: {caption}",
+            { caption: t(caption) }
+          )}
           className={cn(
             "absolute flex items-center justify-center rounded-lg border bg-background/75 text-foreground backdrop-blur-lg outline-none transition-opacity focus-visible:ring-3 focus-visible:ring-ring/50",
             isPlaying
@@ -132,7 +135,8 @@ export function Recording({
         </button>
       </PreviewWindow>
       <figcaption className="text-sm text-muted-foreground">
-        {caption}
+        {t(caption)}
+        {locale === "es" && <> {t("Capture recorded in English")}</>}
       </figcaption>
     </figure>
   )

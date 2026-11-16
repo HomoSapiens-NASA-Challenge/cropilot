@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/sheet"
 import { AppEntryLink } from "@/features/landing/cta-link"
 import { SITE_MENUS } from "@/features/landing/site-content"
+import { useI18n } from "@/lib/i18n"
 
-/** The same menus as the desktop navigation, stacked in a side sheet. */
 export function SiteMobileNav({
   isSignedIn,
   className,
@@ -22,6 +22,7 @@ export function SiteMobileNav({
   isSignedIn: boolean
   className?: string
 }) {
+  const { t } = useI18n("landing")
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -30,7 +31,7 @@ export function SiteMobileNav({
         render={<Button variant="ghost" size="icon-lg" className={className} />}
       >
         <Menu />
-        <span className="sr-only">Open menu</span>
+        <span className="sr-only">{t("Open menu")}</span>
       </SheetTrigger>
       <SheetContent className="gap-0 overflow-y-auto">
         <SheetHeader>
@@ -42,7 +43,7 @@ export function SiteMobileNav({
           {SITE_MENUS.map((menu) => (
             <section key={menu.sectionSlug} className="flex flex-col gap-3">
               <h2 className="border-b pb-2 text-sm text-muted-foreground">
-                {menu.label}
+                {t(menu.label)}
               </h2>
               <ul className="flex flex-col gap-3">
                 {menu.columns
@@ -58,7 +59,7 @@ export function SiteMobileNav({
                         onClick={() => setIsOpen(false)}
                         className="text-base text-foreground"
                       >
-                        {page.title}
+                        {t(page.title)}
                       </Link>
                     </li>
                   ))}
@@ -67,7 +68,10 @@ export function SiteMobileNav({
           ))}
         </nav>
         <SheetFooter className="sticky bottom-0 border-t bg-popover">
-          <AppEntryLink isSignedIn={isSignedIn} signedOutLabel="Get started" />
+          <AppEntryLink
+            isSignedIn={isSignedIn}
+            signedOutLabel={t("Get started")}
+          />
         </SheetFooter>
       </SheetContent>
     </Sheet>

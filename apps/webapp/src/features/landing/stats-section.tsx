@@ -1,4 +1,5 @@
 import { Band } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 // Facts about the method and its two sources, not results for any field.
 const METHOD_FACTS = [
@@ -21,10 +22,11 @@ const METHOD_FACTS = [
 ] as const
 
 export function StatsSection() {
+  const { t } = useI18n("landing")
   return (
     <Band tone="tinted">
       <h2 className="mx-auto max-w-2xl px-4 py-20 text-center text-5xl leading-none font-light tracking-tighter text-balance sm:px-6 lg:py-24 lg:text-6xl">
-        Real campaigns, not a forecast
+        {t("Real campaigns, not a forecast")}
       </h2>
       <dl className="relative grid border-y sm:grid-cols-2 lg:grid-cols-4">
         <span
@@ -39,7 +41,7 @@ export function StatsSection() {
             <dd className="text-5xl font-light tracking-tighter">
               {fact.value}
             </dd>
-            <dt className="max-w-48 text-muted-foreground">{fact.label}</dt>
+            <dt className="max-w-48 text-muted-foreground">{t(fact.label)}</dt>
           </div>
         ))}
       </dl>

@@ -2,6 +2,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useState } from "react"
 import { Pressable, ScrollView, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { ListRow, ListSection } from "@/components/list-row"
 import { SegmentedControl } from "@/components/ui/segmented-control"
 import { Text } from "@/components/ui/text"
 import { HideBlockHeaders, NotAvailable } from "@/features/case/block-section"
@@ -12,7 +13,7 @@ import { YearsLikeThis } from "@/features/case/blocks/years-like-this"
 import { CaseState } from "@/features/case/case-state"
 import { CaseReferencesProvider } from "@/features/case/evidence-chip"
 import { InfoButton } from "@/features/case/info-button"
-import { caseHref, methodHref } from "@/features/case/routes"
+import { askHref, caseHref, methodHref } from "@/features/case/routes"
 import { useCaseBundle, useCaseIndex } from "@/features/case/use-case"
 import { DEFAULT_ZONE_ID } from "@/features/case/zone"
 
@@ -100,6 +101,15 @@ export default function CaseScreen() {
                 <FieldView bundle={bundle.data} zoneId={zoneId} />
               )}
             </HideBlockHeaders>
+            <View className="px-4 pb-4">
+              <ListSection>
+                <ListRow
+                  title="Ask Cropilot"
+                  subtitle="Explore the evidence, with sources"
+                  onPress={() => router.push(askHref(zoneId))}
+                />
+              </ListSection>
+            </View>
           </ScrollView>
         </CaseReferencesProvider>
       ) : bundle.status === "notFound" ? (

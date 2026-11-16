@@ -1,7 +1,7 @@
 """The `case-v1` contract: one public, read-only demonstration case per zone.
 
-A case joins what the team's models already computed (analog years and margins, water scenarios,
-crop maps) into one bundle built offline by `scripts/demo_case/`. HTTP only reads it.
+A case joins precomputed results (analog years and margins, water scenarios, crop maps) into
+one bundle built offline by `scripts/demo_case/`. HTTP only reads it.
 Every number keeps its provenance, spatial scale and sources; `null` means missing, never zero.
 """
 

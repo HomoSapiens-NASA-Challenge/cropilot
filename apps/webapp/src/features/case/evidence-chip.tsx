@@ -9,12 +9,20 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useSources } from "@/features/case/case-context"
+import {
+  useEvidenceSources,
+  useSourceInputs,
+} from "@/features/case/case-context"
 import {
   PROVENANCE,
   type Provenance,
   SCALE_LABEL,
 } from "@/features/case/case-format"
+import {
+  isCalculationReference,
+  originalInputIds,
+} from "@/features/case/source-lineage"
+import { useI18n } from "@/lib/i18n"
 
 type EvidenceMeta = Pick<
   BlockMeta,
@@ -47,25 +55,81 @@ function ProvenanceDot({ provenance }: { provenance: Provenance }) {
   )
 }
 
-function SourceEntry({ source }: { source: SourceRef }) {
+export function SourceEntry({
+  source,
+  className,
+}: {
+  source: SourceRef
+  className?: string
+}) {
+  const { t } = useI18n("case")
+  const isCalculation = isCalculationReference(source.id)
+  const inputs = useSourceInputs(source.id)
+
   return (
-    <li className="flex flex-col gap-1 border-t pt-2.5 first:border-t-0 first:pt-0">
-      <span className="font-medium">{source.dataset}</span>
+    <li
+      className={cn(
+        "flex flex-col gap-1",
+        className ?? "border-t pt-2.5 first:border-t-0 first:pt-0"
+      )}
+    >
+      <span className="font-medium">{t(source.dataset)}</span>
       <span className="text-xs text-muted-foreground">
-        {source.provider} · {source.nature.replace("_", " ")}
+        {isCalculation && `${t("Prepared by")}: `}
+        {source.provider} · {t(source.nature.replaceAll("_", " "))}
       </span>
       <dl className="mt-1 grid grid-cols-[4.5rem_1fr] gap-x-2 gap-y-0.5 text-xs">
-        <dt className="text-muted-foreground">Period</dt>
-        <dd>{source.period}</dd>
-        <dt className="text-muted-foreground">Location</dt>
-        <dd>{source.location}</dd>
-        {source.license && (
-          <>
-            <dt className="text-muted-foreground">License</dt>
-            <dd>{source.license}</dd>
-          </>
-        )}
+        <dt className="text-muted-foreground">{t("Period")}</dt>
+        <dd>{t(source.period)}</dd>
+        <dt className="text-muted-foreground">{t("Location")}</dt>
+        <dd>{t(source.location)}</dd>
+        <dt className="text-muted-foreground">{t("License")}</dt>
+        <dd>{t(source.license ?? "Not stated")}</dd>
       </dl>
+      {inputs.length > 0 && (
+        <div className="mt-2 text-xs">
+          <p className="mb-1 text-muted-foreground">
+            {t("Main original inputs")}
+          </p>
+          <ul className="flex flex-col gap-1">
+            {inputs.map((input) => (
+              <li key={input.id}>
+                {input.url ? (
+                  <a
+                    href={input.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-lg text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+                  >
+                    {t(input.dataset)}
+                  </a>
+                ) : (
+                  t(input.dataset)
+                )}
+              </li>
+            ))}
+          </ul>
+          {inputs.length < originalInputIds(source.id).length && (
+            <p className="mt-2 text-muted-foreground">
+              {t("Additional inputs are documented in the linked method.")}
+            </p>
+          )}
+          {source.id === "team_water_scenarios" && (
+            <p className="mt-2 text-muted-foreground">
+              {t(
+                "Crop parameters and sowing dates are documented in the linked simulation method."
+              )}
+            </p>
+          )}
+          {source.id === "team_rl_lab" && (
+            <p className="mt-2 text-muted-foreground">
+              {t(
+                "The method also documents FAO-33, INTA sowing dates, World Bank prices and explicit model assumptions."
+              )}
+            </p>
+          )}
+        </div>
+      )}
       {source.url && (
         <a
           href={source.url}
@@ -73,7 +137,7 @@ function SourceEntry({ source }: { source: SourceRef }) {
           rel="noreferrer"
           className="mt-1 inline-flex w-fit items-center gap-1 rounded-lg text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          Open the source
+          {t(isCalculation ? "Open calculation or method" : "Open the source")}
           <ExternalLink className="size-3" />
         </a>
       )}
@@ -92,54 +156,82 @@ function EvidenceDetails({
   scaleLabel: string | undefined
   horizon: string | undefined
 }) {
-  const sources = useSources(sourceIds)
+  const { t } = useI18n("case")
+
+  const sources = useEvidenceSources(sourceIds)
+  const originalSources = sources.filter(
+    (source) => !isCalculationReference(source.id)
+  )
+  const calculations = sources.filter((source) =>
+    isCalculationReference(source.id)
+  )
   return (
     <>
       <PopoverHeader>
-        <PopoverTitle>Evidence</PopoverTitle>
+        <PopoverTitle>{t("Evidence")}</PopoverTitle>
         {meta && (
           <PopoverDescription>
-            {PROVENANCE[meta.provenance].description}
+            {t(PROVENANCE[meta.provenance].description)}
           </PopoverDescription>
         )}
       </PopoverHeader>
       {meta && (
         <dl className="grid grid-cols-[4.5rem_1fr] gap-x-2 gap-y-0.5 text-xs">
-          <dt className="text-muted-foreground">Scale</dt>
-          <dd>{scaleLabel ?? SCALE_LABEL[meta.scale]}</dd>
+          <dt className="text-muted-foreground">{t("Scale")}</dt>
+          <dd>{t(scaleLabel ?? SCALE_LABEL[meta.scale])}</dd>
           {horizon && (
             <>
-              <dt className="text-muted-foreground">Horizon</dt>
-              <dd>{horizon}</dd>
+              <dt className="text-muted-foreground">{t("Horizon")}</dt>
+              <dd>{t(horizon)}</dd>
             </>
           )}
           {meta.unit && (
             <>
-              <dt className="text-muted-foreground">Unit</dt>
-              <dd>{meta.unit}</dd>
+              <dt className="text-muted-foreground">{t("Unit")}</dt>
+              <dd>{t(meta.unit)}</dd>
             </>
           )}
           {meta.note && (
             <>
-              <dt className="text-muted-foreground">Note</dt>
-              <dd>{meta.note}</dd>
+              <dt className="text-muted-foreground">{t("Note")}</dt>
+              <dd>{t(meta.note)}</dd>
             </>
           )}
         </dl>
       )}
-      <ul className="flex flex-col gap-2.5 border-t pt-2.5">
-        {sources.map((source) => (
-          <SourceEntry key={source.id} source={source} />
-        ))}
-      </ul>
+      {originalSources.length > 0 && (
+        <section className="border-t pt-2.5">
+          <h3 className="mb-3 text-xs font-medium">
+            {t("Original data and references")}
+          </h3>
+          <ul className="flex flex-col gap-2.5">
+            {originalSources.map((source) => (
+              <SourceEntry key={source.id} source={source} />
+            ))}
+          </ul>
+        </section>
+      )}
+      {calculations.length > 0 && (
+        <section className="border-t pt-2.5">
+          <h3 className="mb-3 text-xs font-medium">
+            {t("Calculations and method notes")}
+          </h3>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {t(
+              "Results computed from external inputs. The linked method explains how they were produced; they are not observations published by the data providers."
+            )}
+          </p>
+          <ul className="flex flex-col gap-2.5">
+            {calculations.map((source) => (
+              <SourceEntry key={source.id} source={source} />
+            ))}
+          </ul>
+        </section>
+      )}
     </>
   )
 }
 
-/**
- * The line that goes with a number: how it was obtained (provenance), what it describes
- * (scale) and where it comes from. The popover lists dataset, period, location and link.
- */
 export function EvidenceChip({
   meta,
   sourceIds,
@@ -147,8 +239,12 @@ export function EvidenceChip({
   horizon,
   className,
 }: EvidenceChipProps) {
-  const ids = meta ? meta.source_ids : sourceIds
-  if (!ids) return null
+  const { t } = useI18n("case")
+
+  const citedIds = meta ? meta.source_ids : sourceIds
+  const references = useEvidenceSources(citedIds ?? [])
+  const ids = references.map((source) => source.id)
+  if (!citedIds) return null
   if (ids.length === 0) {
     return (
       <span
@@ -157,17 +253,21 @@ export function EvidenceChip({
           className
         )}
       >
-        No source listed
+        {t("No source listed")}
       </span>
     )
   }
 
   const parts: string[] = []
   if (meta) {
-    parts.push(PROVENANCE[meta.provenance].label)
-    parts.push(scaleLabel ?? SCALE_LABEL[meta.scale])
+    parts.push(t(PROVENANCE[meta.provenance].label))
+    parts.push(t(scaleLabel ?? SCALE_LABEL[meta.scale]))
   }
-  parts.push(ids.length === 1 ? "1 source" : `${ids.length} sources`)
+  parts.push(
+    ids.length === 1
+      ? t("1 reference")
+      : t("{count} references", { count: ids.length })
+  )
 
   return (
     <Popover>

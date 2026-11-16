@@ -4,11 +4,11 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { PageLoader } from "@/components/page-loader"
-import { accessToken } from "@/lib/auth"
+import { getHandle } from "@/features/auth/session"
 import { routeTree } from "./routeTree.gen"
 import "./index.css"
 
-configureApi({ baseUrl: "", getToken: accessToken.get })
+configureApi({ baseUrl: "", getToken: getHandle })
 
 const queryClient = new QueryClient()
 

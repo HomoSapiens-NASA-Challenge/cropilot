@@ -1,5 +1,7 @@
 import { cn } from "cn"
+import { formatDecimal } from "@/features/case/case-format"
 import { useElementWidth } from "@/hooks/use-element-width"
+import { getLocale, useI18n } from "@/lib/i18n"
 
 export type NdviSeries = {
   id: string
@@ -17,25 +19,18 @@ const MIN_WIDTH_PX = 220
 const FONT_PX = 11
 const Y_TICKS = [0, 0.25, 0.5, 0.75, 1] as const
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-] as const
-
 /** "Sep" from "2025-09"; any other label is shown as it came. */
 export function monthLabel(month: string): string {
   const match = /^\d{4}-(\d{2})$/.exec(month)
-  return match ? (MONTHS[Number(match[1]) - 1] ?? month) : month
+  const monthNumber = Number(match?.[1])
+  return match && monthNumber >= 1 && monthNumber <= 12
+    ? new Intl.DateTimeFormat(getLocale() === "es" ? "es-AR" : "en-US", {
+        month: "short",
+        timeZone: "UTC",
+      })
+        .format(new Date(`${month}-01T00:00:00Z`))
+        .replace(/\.$/, "")
+    : month
 }
 
 /** Segments of a line, split wherever a value is missing so a gap is never bridged. */
@@ -58,10 +53,7 @@ function segmentsOf(
   return segments
 }
 
-/**
- * NDVI, the greenness index from 0 to 1, as lines over time. Missing months leave a gap.
- * `tickLabels` has one entry per point: the text under it, or `null` for none.
- */
+/** `tickLabels` has one entry per point: the text under it, or `null` for none. */
 export function NdviChart({
   series,
   tickLabels,
@@ -71,6 +63,8 @@ export function NdviChart({
   tickLabels: ReadonlyArray<string | null>
   className?: string
 }) {
+  const { t } = useI18n("case")
+
   const [containerRef, measuredWidth] = useElementWidth<HTMLDivElement>()
   const width = Math.max(measuredWidth, MIN_WIDTH_PX)
   const innerWidth = width - MARGIN.left - MARGIN.right
@@ -87,7 +81,9 @@ export function NdviChart({
         width={width}
         height={HEIGHT_PX}
         role="img"
-        aria-label={`NDVI, 0 to 1: ${series.map((entry) => entry.label).join(" and ")}`}
+        aria-label={t("NDVI, 0 to 1: {value1}", {
+          value1: series.map((entry) => t(entry.label)).join(t(" and ")),
+        })}
         className="block max-w-full"
       >
         {Y_TICKS.map((tick) => (
@@ -106,7 +102,7 @@ export function NdviChart({
               fontSize={FONT_PX}
               className="fill-muted-foreground"
             >
-              {tick}
+              {formatDecimal(tick, String(tick).split(".")[1]?.length ?? 0)}
             </text>
           </g>
         ))}

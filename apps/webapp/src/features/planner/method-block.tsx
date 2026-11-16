@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { plannerText } from "@/features/planner/planner-copy"
 import {
   campaignName,
   ENSO_LABEL,
@@ -19,6 +20,7 @@ import {
 import { OUTCOMES } from "@/features/planner/planner-outcomes"
 import { policyOfKind } from "@/features/planner/planner-results"
 import { ResultSection } from "@/features/planner/result-section"
+import { translate, useI18n } from "@/lib/i18n"
 
 const EXPLANATIONS = [
   {
@@ -62,14 +64,21 @@ function percentile(fraction: number): string {
   return `${Number((fraction * 100).toFixed(1))}th`
 }
 
-/** What the planner does in plain words, how comparisons are judged, what it assumes, and its sources. */
 export function MethodBlock({ result }: { result: RotationPlanResult }) {
+  const { t } = useI18n("app")
+
   const optimal = policyOfKind(result, "optimal")
   const fitted = optimal
-    ? `${campaignName(optimal.train.first_year)} to ${campaignName(optimal.train.last_year)}`
+    ? translate("{value1} to {value2}", {
+        value1: campaignName(optimal.train.first_year),
+        value2: campaignName(optimal.train.last_year),
+      })
     : "the fitted campaigns"
   const heldOut = optimal
-    ? `${campaignName(optimal.test.first_year)} to ${campaignName(optimal.test.last_year)}`
+    ? translate("{value1} to {value2}", {
+        value1: campaignName(optimal.test.first_year),
+        value2: campaignName(optimal.test.last_year),
+      })
     : "the held-out campaigns"
   const { bootstrap } = result
   const lowerFraction = (1 - bootstrap.confidence) / 2
@@ -84,85 +93,97 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
     <div className="flex flex-col gap-6">
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <ResultSection
-          title="How it is computed"
-          lead="From simulated campaigns to a plan, in four ideas."
+          title={t("How it is computed")}
+          lead={t("From simulated campaigns to a plan, in four ideas.")}
         >
           <dl className="flex flex-col gap-5">
             {EXPLANATIONS.map((item) => (
               <div key={item.term} className="flex flex-col gap-1">
-                <dt className="text-sm font-medium">{item.term}</dt>
-                <dd className="text-sm text-muted-foreground">{item.text}</dd>
+                <dt className="text-sm font-medium">{t(item.term)}</dt>
+                <dd className="text-sm text-muted-foreground">
+                  {t(item.text)}
+                </dd>
               </div>
             ))}
           </dl>
         </ResultSection>
 
         <ResultSection
-          title="How comparisons are judged"
-          lead={`Every held-out gap is the optimum minus one baseline, campaign by campaign, with a ${Math.round(bootstrap.confidence * 100)}% interval.`}
+          title={t("How comparisons are judged")}
+          lead={t(
+            "Every held-out gap is the optimum minus one baseline, campaign by campaign, with a {value1}% interval.",
+            { value1: Math.round(bootstrap.confidence * 100) }
+          )}
         >
           <div className="flex flex-col gap-5 text-sm text-muted-foreground">
             <p>
-              The {heldOutCampaigns} held-out campaigns are cut into{" "}
-              {bootstrap.blocks} blocks of {bootstrap.block_campaigns} in a row.
-              The gap is recomputed for every ordered way to draw{" "}
-              {bootstrap.blocks} blocks with replacement:{" "}
+              {t("The ")}
+              {heldOutCampaigns} {t(" held-out campaigns are cut into")}{" "}
+              {bootstrap.blocks} {t(" blocks of ")}
+              {bootstrap.block_campaigns}{" "}
+              {t(
+                " in a row. The gap is recomputed for every ordered way to draw"
+              )}{" "}
+              {bootstrap.blocks} {t(" blocks with replacement:")}{" "}
               <span className="tabular-nums text-foreground">
                 {formatWhole(bootstrap.resamples)}
               </span>{" "}
-              resamples, with no random draws. The interval runs from the{" "}
-              {percentile(lowerFraction)} to the {percentile(1 - lowerFraction)}{" "}
-              percentile of their means.
+              {t("resamples, with no random draws. The interval runs from the")}{" "}
+              {percentile(lowerFraction)} {t(" to the ")}
+              {percentile(1 - lowerFraction)} {t("percentile of their means.")}
             </p>
             <dl className="flex flex-col gap-1.5">
               {JUDGING_RULE.map((item) => (
                 <div key={item.term} className="flex gap-2">
                   <dt className="w-24 shrink-0 font-medium text-foreground">
-                    {item.term}
+                    {t(item.term)}
                   </dt>
-                  <dd>{item.text}</dd>
+                  <dd>{t(item.text)}</dd>
                 </div>
               ))}
             </dl>
             <p>
-              Few blocks give a coarse interval, so Better needs nearly every
-              block to agree. Consecutive campaigns carry soil water into the
-              next, so the blocks are not independent restarts. Read the
-              conclusion as a guide, not as a test with a guaranteed error rate.
+              {t(
+                "Few blocks give a coarse interval, so Better needs nearly every block to agree. Consecutive campaigns carry soil water into the next, so the blocks are not independent restarts. Read the conclusion as a guide, not as a test with a guaranteed error rate."
+              )}
             </p>
             <p>
               <span className="font-medium text-foreground">
-                Bad-year margin
+                {t("Bad-year margin")}
               </span>{" "}
-              is the mean gross margin, in USD/ha, of the worst {tailCampaigns}{" "}
-              of the {heldOutCampaigns} held-out campaigns: a fifth of them,
-              rounded up. It is reported per policy and is not one of your
-              priorities.
+              {t("is the mean gross margin, in USD/ha, of the worst ")}
+              {tailCampaigns} {t("of the ")}
+              {heldOutCampaigns}{" "}
+              {t(
+                " held-out campaigns: a fifth of them, rounded up. It is reported per policy and is not one of your priorities."
+              )}
             </p>
           </div>
         </ResultSection>
 
         <ResultSection
-          title="How the score is built"
-          lead="Each outcome is divided by its standard deviation across the fitted campaigns, so dollars and millimetres can be added."
+          title={t("How the score is built")}
+          lead={t(
+            "Each outcome is divided by its standard deviation across the fitted campaigns, so dollars and millimetres can be added."
+          )}
         >
           <p className="text-sm text-muted-foreground">
-            Margin counts up and the other four count down, each times its share
-            of your priorities. A score has no unit: it ranks policies, and the
-            real units are always shown beside it.
+            {t(
+              "Margin counts up and the other four count down, each times its share of your priorities. A score has no unit: it ranks policies, and the real units are always shown beside it."
+            )}
           </p>
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>Outcome</TableHead>
-                <TableHead className="text-right">Share</TableHead>
-                <TableHead className="text-right">Scale</TableHead>
+                <TableHead>{t("Outcome")}</TableHead>
+                <TableHead className="text-right">{t("Share")}</TableHead>
+                <TableHead className="text-right">{t("Scale")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {OUTCOMES.map((outcome) => (
                 <TableRow key={outcome.id}>
-                  <TableCell>{outcome.label}</TableCell>
+                  <TableCell>{t(outcome.label)}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {formatShare(result.weights[outcome.id])}
                   </TableCell>
@@ -177,44 +198,56 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
             </TableBody>
           </Table>
           <p className="text-xs text-muted-foreground">
-            Share is the part of your priorities an outcome carries. Scale is
-            one standard deviation of that outcome across the fitted campaigns.
+            {t(
+              "Share is the part of your priorities an outcome carries. Scale is one standard deviation of that outcome across the fitted campaigns."
+            )}
           </p>
         </ResultSection>
 
         <ResultSection
-          title="Assumptions and limits"
-          lead="What the plan takes as given."
+          title={t("Assumptions and limits")}
+          lead={t("What the plan takes as given.")}
           sources={sourcesById(result.sources, ["noaa-oni"])}
         >
           <ul className="flex list-disc flex-col gap-2 pl-5 text-sm text-muted-foreground">
             <li>
-              The decision process is built from the {fitted} campaigns, and
-              every policy is judged again on the held-out {heldOut} campaigns.
-              The best fixed rotation is chosen on the fitted campaigns only.
+              {t("The decision process is built from the ")}
+              {fitted}{" "}
+              {t(
+                " campaigns, and every policy is judged again on the held-out "
+              )}
+              {heldOut}{" "}
+              {t(
+                " campaigns. The best fixed rotation is chosen on the fitted campaigns only."
+              )}
             </li>
-            <li>The August decision does not see the August soil water.</li>
             <li>
-              Weather years are drawn within the El Niño phase of the decision:
-              the planner does not forecast a particular year.
+              {t("The August decision does not see the August soil water.")}
             </li>
             <li>
-              Soil water is read at {formatWhole(result.water_levels)} levels of
-              a {formatWhole(result.soil_capacity_mm)} mm capacity, and the
-              agent trained for {formatWhole(result.episodes)} episodes.
+              {t(
+                "Weather years are drawn within the El Niño phase of the decision: the planner does not forecast a particular year."
+              )}
+            </li>
+            <li>
+              {t("Soil water is read at ")}
+              {formatWhole(result.water_levels)} {t(" levels of a ")}
+              {formatWhole(result.soil_capacity_mm)}{" "}
+              {t(" mm capacity, and the agent trained for ")}
+              {formatWhole(result.episodes)} {t(" episodes.")}
             </li>
           </ul>
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-medium">
-              El Niño phases in the fitted campaigns
+              {t("El Niño phases in the fitted campaigns")}
             </h3>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead>June \ August</TableHead>
+                  <TableHead>{t("June \\ August")}</TableHead>
                   {ENSO_ORDER.map((august) => (
                     <TableHead key={august} className="text-right">
-                      {ENSO_LABEL[august]}
+                      {t(ENSO_LABEL[august])}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -222,7 +255,7 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
               <TableBody>
                 {ENSO_ORDER.map((june) => (
                   <TableRow key={june}>
-                    <TableCell>{ENSO_LABEL[june]}</TableCell>
+                    <TableCell>{t(ENSO_LABEL[june])}</TableCell>
                     {ENSO_ORDER.map((august) => (
                       <TableCell
                         key={august}
@@ -236,16 +269,17 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
               </TableBody>
             </Table>
             <p className="text-xs text-muted-foreground">
-              Campaigns of the fitted period, counted by the phase on June 1
-              (rows) and the phase at the end of August (columns).
+              {t(
+                "Campaigns of the fitted period, counted by the phase on June 1 (rows) and the phase at the end of August (columns)."
+              )}
             </p>
           </div>
         </ResultSection>
       </div>
 
       <ResultSection
-        title="Sources"
-        lead="Every number in the planner comes from one of these."
+        title={t("Sources")}
+        lead={t("Every number in the planner comes from one of these.")}
       >
         <ul className="grid gap-4 md:grid-cols-2">
           {result.sources.map((source) => (
@@ -253,12 +287,13 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
               key={source.source_id}
               className="flex flex-col gap-0.5 rounded-lg border p-4 text-sm"
             >
-              <span className="font-medium">{source.dataset}</span>
+              <span className="font-medium">{t(source.dataset)}</span>
               <span className="text-muted-foreground">
-                {source.provider}. {source.period}. {source.location}.
+                {t(source.provider)}. {t(source.period)}. {t(source.location)}.
               </span>
               <span className="text-xs text-muted-foreground">
-                Used for: {source.used_for}
+                {t("Used for: ")}
+                {plannerText(source.used_for)}
               </span>
             </li>
           ))}
@@ -266,8 +301,9 @@ export function MethodBlock({ result }: { result: RotationPlanResult }) {
       </ResultSection>
 
       <p className="text-sm font-medium">
-        Simulated scenarios, not a recommendation. They support the
-        agronomist&apos;s judgment; they do not replace it.
+        {t(
+          "Simulated scenarios, not a recommendation. They support the agronomist's judgment; they do not replace it."
+        )}
       </p>
     </div>
   )

@@ -35,7 +35,7 @@ export const askCaseAssistant = <ThrowOnError extends boolean = false>(options: 
 /**
  * Ask Planner Assistant
  *
- * Explain only a run owned by the authenticated caller; never start or modify a run.
+ * Explain only a run owned by the caller's handle; never start or modify a run.
  */
 export const askPlannerAssistant = <ThrowOnError extends boolean = false>(options: Options<AskPlannerAssistantData, ThrowOnError>): RequestResult<AskPlannerAssistantResponses, AskPlannerAssistantErrors, ThrowOnError> => (options.client ?? client).post<AskPlannerAssistantResponses, AskPlannerAssistantErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -64,7 +64,7 @@ export const transcribeCaseQuestion = <ThrowOnError extends boolean = false>(opt
 /**
  * Transcribe Private Question
  *
- * Authenticated voice input, independent of whether anonymous demo chat is enabled.
+ * Voice input with a user handle, independent of whether anonymous demo chat is enabled.
  */
 export const transcribePrivateQuestion = <ThrowOnError extends boolean = false>(options: Options<TranscribePrivateQuestionData, ThrowOnError>): RequestResult<TranscribePrivateQuestionResponses, TranscribePrivateQuestionErrors, ThrowOnError> => (options.client ?? client).post<TranscribePrivateQuestionResponses, TranscribePrivateQuestionErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -113,7 +113,7 @@ export const listRegions = <ThrowOnError extends boolean = false>(options?: Opti
 /**
  * Get Workspace
  *
- * The signed-in user's workspace, or `null` until onboarding picks a region.
+ * The caller's workspace, or `null` until onboarding picks a region.
  */
 export const getWorkspace = <ThrowOnError extends boolean = false>(options?: Options<GetWorkspaceData, ThrowOnError>): RequestResult<GetWorkspaceResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetWorkspaceResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

@@ -1,12 +1,9 @@
 import { cn } from "cn"
 import type { ReactNode } from "react"
 import { Badge } from "@/components/ui/badge"
+import { useI18n } from "@/lib/i18n"
 
-/**
- * Window that frames a product preview. A preview either shows the layout of a screen
- * with placeholder lines ("Illustrative", no results, real or mock) or carries real
- * values copied from a measured result, and then its badge names where they come from.
- */
+/** A preview shows placeholder lines ("Illustrative") or real values from a measured result; its badge then names the source. */
 export function PreviewWindow({
   title,
   badge = "Illustrative",
@@ -20,6 +17,7 @@ export function PreviewWindow({
   bodyClassName?: string
   children: ReactNode
 }) {
+  const { t } = useI18n("landing")
   return (
     <div
       className={cn(
@@ -33,9 +31,11 @@ export function PreviewWindow({
           <span className="size-2 rounded-full bg-border" />
           <span className="size-2 rounded-full bg-border" />
         </span>
-        <span className="truncate text-xs text-muted-foreground">{title}</span>
+        <span className="truncate text-xs text-muted-foreground">
+          {t(title)}
+        </span>
         <Badge variant="outline" className="ml-auto bg-background/60">
-          {badge}
+          {t(badge)}
         </Badge>
       </div>
       <div className={bodyClassName}>{children}</div>

@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query"
 import { LoaderCircle, Mic, Square, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/lib/i18n"
 
 const MAX_RECORDING_MS = 60_000
 const MAX_AUDIO_BYTES = 4_000_000
@@ -47,6 +48,8 @@ export function AssistantVoiceInput({
   onTranscript: (text: string) => void
   onBusy: (busy: boolean) => void
 }) {
+  const { t } = useI18n("app")
+
   const [phase, setPhase] = useState<Phase>("idle")
   const [error, setError] = useState<string | null>(null)
   const [seconds, setSeconds] = useState(0)
@@ -216,7 +219,7 @@ export function AssistantVoiceInput({
             onClick={() => void start()}
           >
             <Mic aria-hidden data-icon="inline-start" />
-            Record question
+            {t("Record question")}
           </Button>
         ) : (
           <>
@@ -228,35 +231,39 @@ export function AssistantVoiceInput({
                 onClick={() => recorder.current?.stop()}
               >
                 <Square aria-hidden data-icon="inline-start" />
-                Stop recording
+                {t("Stop recording")}
               </Button>
             ) : (
               <span className="flex items-center gap-2 text-xs">
                 <LoaderCircle className="size-3 animate-spin" aria-hidden />
                 {phase === "requesting"
-                  ? "Waiting for microphone…"
-                  : "Transcribing…"}
+                  ? t("Waiting for microphone…")
+                  : t("Transcribing…")}
               </span>
             )}
             <Button type="button" variant="ghost" size="sm" onClick={cancel}>
               <X aria-hidden data-icon="inline-start" />
-              Cancel recording
+              {t("Cancel recording")}
             </Button>
           </>
         )}
         {phase === "recording" && (
           <span className="text-xs text-primary" role="status">
-            Recording · {seconds}/60 s
+            {t("Recording · ")}
+            {seconds}
+            {t("/60 s")}
           </span>
         )}
       </div>
       {error && (
         <p role="alert" className="text-xs text-destructive">
-          {error}
+          {t(error)}
         </p>
       )}
       <p className="text-xs text-muted-foreground">
-        Review the transcript before sending. Audio is processed by OpenAI.
+        {t(
+          "Review the transcript before sending. Audio is processed by OpenAI."
+        )}
       </p>
     </div>
   )

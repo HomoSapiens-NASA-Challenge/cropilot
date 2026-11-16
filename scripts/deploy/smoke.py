@@ -14,9 +14,15 @@ def require(condition: bool, message: str) -> None:
 
 
 def request(
-    origin: str, path: str, payload: dict | None = None, status: int = 200
+    origin: str,
+    path: str,
+    payload: dict | None = None,
+    status: int = 200,
+    handle: str | None = None,
 ) -> object:
     headers = {"Accept": "application/json, text/html, text/event-stream"}
+    if handle is not None:
+        headers["Authorization"] = f"Bearer {handle}"
     data = None
     if payload is not None:
         headers["Content-Type"] = "application/json"
@@ -94,13 +100,9 @@ def smoke(origin: str) -> None:
             and bool(bundle.get("sources")),
             f"Case bundle {zone_id} failed",
         )
-    require(request(origin, "/api/auth/ok") == {"ok": True}, "Auth health failed")
-    jwks = request(origin, "/api/auth/jwks")
-    require(
-        isinstance(jwks, dict) and isinstance(jwks.get("keys"), list),
-        "Auth JWKS failed",
-    )
     request(origin, "/api/water/strategies", status=401)
+    # The typed handle is the user: a valid one reaches the private API, no account needed.
+    request(origin, "/api/workspace", handle="deploy-smoke")
     request(origin, "/api/cases/smoke-unknown-zone", status=404)
 
     initialized = rpc(
@@ -149,10 +151,8 @@ def smoke(origin: str) -> None:
         "MCP Apps card is missing; rebuild the backend image",
     )
     print(
-        f"PASS: app routes, {len(zones)} cases, auth, private API boundary and MCP at {origin}"
-    )
-    print(
-        "Google sign-in and authenticated water reads require a separate real-session check."
+        f"PASS: app routes, {len(zones)} cases, handle identity, private API boundary "
+        f"and MCP at {origin}"
     )
 
 

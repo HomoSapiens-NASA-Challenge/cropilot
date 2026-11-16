@@ -4,6 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useI18n } from "@/lib/i18n"
 
 export type StripDot = {
   key: string
@@ -25,10 +26,7 @@ export function stripDomain(
   return [min - padding, max + padding]
 }
 
-/**
- * One dot per campaign on a shared axis. The dots are buttons, so the value is also
- * reachable by keyboard and by touch. A thin line marks zero when the axis crosses it.
- */
+/** The dots are buttons, so every value is reachable by keyboard and touch. */
 export function DotStrip({
   dots,
   domain,
@@ -40,12 +38,16 @@ export function DotStrip({
   format: (value: number) => string
   className?: string
 }) {
+  const { t } = useI18n("case")
+
   const present = dots.filter((dot) => dot.value !== null)
   const missingCount = dots.length - present.length
   if (!domain || present.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No value for any of the {dots.length} campaigns.
+        {t("No value for any of the {value1} campaigns.", {
+          value1: dots.length,
+        })}
       </p>
     )
   }
@@ -72,11 +74,11 @@ export function DotStrip({
         {present.map((dot) => (
           <Tooltip key={dot.key}>
             <TooltipTrigger
-              aria-label={dot.description}
+              aria-label={t(dot.description)}
               className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/80 ring-2 ring-background outline-none hover:bg-primary focus-visible:bg-primary focus-visible:ring-ring"
               style={{ left: `${positionOf(dot.value ?? 0)}%` }}
             />
-            <TooltipContent>{dot.description}</TooltipContent>
+            <TooltipContent>{t(dot.description)}</TooltipContent>
           </Tooltip>
         ))}
       </div>
@@ -86,8 +88,11 @@ export function DotStrip({
       </div>
       {missingCount > 0 && (
         <p className="text-xs text-muted-foreground">
-          {missingCount}{" "}
-          {missingCount === 1 ? "campaign has" : "campaigns have"} no value.
+          {t("{value1} {value2} no value.", {
+            value1: missingCount,
+            value2:
+              missingCount === 1 ? t("campaign has") : t("campaigns have"),
+          })}
         </p>
       )}
     </div>

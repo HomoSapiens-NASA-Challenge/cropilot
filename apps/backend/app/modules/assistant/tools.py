@@ -301,5 +301,15 @@ class EvidenceSession:
                     )
                 )
                 self.tools_used.append("get_planner_result")
-        # Exclude long traces and the policy grid; retain baseline results and uncertainty.
-        return run.model_dump_json(exclude={"convergence": True, "result": {"decisions": True}})
+        # Exclude long traces, the policy grid and the per-campaign replays of every policy
+        # (they alone exceed the evidence cap); keep split means, bad-year margins, baselines
+        # and the held-out comparison with its uncertainty.
+        return run.model_dump_json(
+            exclude={
+                "convergence": True,
+                "result": {
+                    "decisions": True,
+                    "policies": {"__all__": {"train": {"campaigns"}, "test": {"campaigns"}}},
+                },
+            }
+        )

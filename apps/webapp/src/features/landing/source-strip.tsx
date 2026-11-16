@@ -1,11 +1,12 @@
 import type { ReactNode } from "react"
 import { Band } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 type OpenDataSource = {
   name: string
   /** Drawn on a 32 × 32 grid, stroked in the text color. */
   glyph: ReactNode
-  wordmark: ReactNode
+  wordmark: (t: (text: string) => string) => ReactNode
 }
 
 // Our own marks, drawn for this strip. No agency logos or insignia: their use
@@ -21,7 +22,7 @@ const OPEN_DATA_SOURCES: ReadonlyArray<OpenDataSource> = [
         <path d="M4 20H28M8 24H24M12 28H20" />
       </>
     ),
-    wordmark: (
+    wordmark: () => (
       <span className="text-sm font-medium tracking-widest uppercase">
         NASA POWER
       </span>
@@ -41,7 +42,7 @@ const OPEN_DATA_SOURCES: ReadonlyArray<OpenDataSource> = [
         />
       </>
     ),
-    wordmark: (
+    wordmark: () => (
       <span className="text-2xl font-light tracking-tight">MERRA-2</span>
     ),
   },
@@ -57,11 +58,11 @@ const OPEN_DATA_SOURCES: ReadonlyArray<OpenDataSource> = [
         <path d="M4 26H28" />
       </>
     ),
-    wordmark: (
+    wordmark: (t) => (
       <span className="flex flex-col">
         <span className="text-lg/none font-medium tracking-tight">NOAA</span>
         <span className="mt-1 text-xs/none text-muted-foreground">
-          Climate Prediction Center
+          {t("Climate Prediction Center")}
         </span>
       </span>
     ),
@@ -80,11 +81,11 @@ const OPEN_DATA_SOURCES: ReadonlyArray<OpenDataSource> = [
         <path d="M3 16C5.5 5 10 5 12.5 16" className="stroke-primary" />
       </>
     ),
-    wordmark: (
+    wordmark: (t) => (
       <span className="flex flex-col">
         <span className="text-2xl/none font-light tracking-tight">ONI</span>
         <span className="mt-1 text-xs/none text-muted-foreground">
-          Oceanic Niño Index
+          {t("Oceanic Niño Index")}
         </span>
       </span>
     ),
@@ -96,6 +97,7 @@ const OPEN_DATA_SOURCES: ReadonlyArray<OpenDataSource> = [
 const TRACK = [...OPEN_DATA_SOURCES, ...OPEN_DATA_SOURCES]
 
 function SourceMark({ source }: { source: OpenDataSource }) {
+  const { t } = useI18n("landing")
   return (
     <div className="flex shrink-0 items-center gap-3 text-foreground/75">
       <svg
@@ -110,19 +112,22 @@ function SourceMark({ source }: { source: OpenDataSource }) {
       >
         {source.glyph}
       </svg>
-      {source.wordmark}
+      {source.wordmark(t)}
     </div>
   )
 }
 
 export function SourceStrip() {
+  const { t } = useI18n("landing")
   return (
     <Band frameClassName="border-y">
       <div className="grid items-center gap-x-8 gap-y-5 px-4 py-7 sm:px-6 lg:grid-cols-[auto_1fr]">
-        <p className="text-sm text-muted-foreground">Built on open data from</p>
+        <p className="text-sm text-muted-foreground">
+          {t("Built on open data from")}
+        </p>
         <ul className="sr-only">
           {OPEN_DATA_SOURCES.map((source) => (
-            <li key={source.name}>{source.name}</li>
+            <li key={source.name}>{t(source.name)}</li>
           ))}
         </ul>
         {/* Decorative loop of the list above. It pauses under the pointer and

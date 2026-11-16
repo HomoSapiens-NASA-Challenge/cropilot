@@ -1,4 +1,4 @@
-"""Authenticated access to shared, public-source crop maps of two demonstration zones."""
+"""Shared, public-source crop maps of two demonstration zones; requires a user handle."""
 
 import logging
 

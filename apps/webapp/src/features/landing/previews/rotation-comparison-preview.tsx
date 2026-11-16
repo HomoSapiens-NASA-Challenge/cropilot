@@ -4,6 +4,7 @@ import {
   PlaceholderLine,
   PreviewWindow,
 } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 const ROTATIONS = [
   { label: "Current rotation", isCurrent: true },
@@ -24,8 +25,9 @@ export function RotationComparisonPreview({
 }: {
   className?: string
 }) {
+  const { t } = useI18n("landing")
   return (
-    <PreviewWindow title="Strategies" className={className}>
+    <PreviewWindow title={t("Strategies")} className={className}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col divide-y">
           {ROTATIONS.map((rotation) => (
@@ -38,10 +40,10 @@ export function RotationComparisonPreview({
                       : "size-4 shrink-0 text-muted-foreground"
                   }
                 />
-                <span className="text-sm font-medium">{rotation.label}</span>
+                <span className="text-sm font-medium">{t(rotation.label)}</span>
                 {rotation.isCurrent && (
                   <Badge variant="secondary" className="ml-auto">
-                    Today
+                    {t("Today")}
                   </Badge>
                 )}
               </div>
@@ -56,7 +58,7 @@ export function RotationComparisonPreview({
         <div className="flex flex-wrap gap-1.5">
           {STRATEGY_ANSWERS.map((answer) => (
             <Badge key={answer} variant="outline" className="bg-background/60">
-              {answer}
+              {t(answer)}
             </Badge>
           ))}
         </div>

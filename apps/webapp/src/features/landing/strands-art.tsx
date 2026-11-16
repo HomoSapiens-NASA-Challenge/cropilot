@@ -32,10 +32,7 @@ const STRAND_TONES = {
   },
 } as const
 
-/**
- * Decorative ribbon of the brand. It is a drawing, not a chart: the lines carry
- * no data. The parent sets the box; the art fills it from the top right.
- */
+/** Decorative: the lines carry no data. */
 export function StrandsArt({
   tone = "plain",
   className,

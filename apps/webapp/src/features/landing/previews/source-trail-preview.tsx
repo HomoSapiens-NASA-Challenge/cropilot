@@ -3,6 +3,7 @@ import {
   PlaceholderLine,
   PreviewWindow,
 } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 // The source line is real: it is the one Cropilot shows for soil water.
 const SOURCE_FIELDS = [
@@ -12,8 +13,9 @@ const SOURCE_FIELDS = [
 ] as const
 
 export function SourceTrailPreview({ className }: { className?: string }) {
+  const { t } = useI18n("landing")
   return (
-    <PreviewWindow title="Soil water at start" className={className}>
+    <PreviewWindow title={t("Soil water at start")} className={className}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2.5">
           <PlaceholderLine className="h-3 w-20" />
@@ -25,14 +27,14 @@ export function SourceTrailPreview({ className }: { className?: string }) {
               key={field.label}
               className="flex items-baseline justify-between gap-4 px-3 py-2"
             >
-              <dt className="text-muted-foreground">{field.label}</dt>
-              <dd className="text-right font-medium">{field.value}</dd>
+              <dt className="text-muted-foreground">{t(field.label)}</dt>
+              <dd className="text-right font-medium">{t(field.value)}</dd>
             </div>
           ))}
         </dl>
         <p className="flex items-center gap-1.5 text-xs text-primary">
           <FileSearch className="size-3.5" />
-          Open the raw series
+          {t("Open the raw series")}
         </p>
       </div>
     </PreviewWindow>

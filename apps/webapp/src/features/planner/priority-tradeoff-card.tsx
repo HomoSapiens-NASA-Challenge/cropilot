@@ -6,6 +6,7 @@ import {
   formatInterval,
   formatOutcome,
   formatOutcomeDelta,
+  formatPlannerList,
   formatScore,
   sourcesById,
 } from "@/features/planner/planner-format"
@@ -16,21 +17,35 @@ import {
   policyOfKind,
 } from "@/features/planner/planner-results"
 import { ResultSection } from "@/features/planner/result-section"
-
-const LIST = new Intl.ListFormat("en", { style: "long", type: "conjunction" })
+import { translate, useI18n } from "@/lib/i18n"
 
 /** A change as words, from the amount (no sign) and whether the plan has more of it than margin only. */
 const CHANGE_PHRASE = {
   margin_usd_ha: (amount, isMore) =>
-    `${amount} USD/ha ${isMore ? "more" : "less"} gross margin`,
+    translate("{amount} USD/ha {direction} gross margin", {
+      amount,
+      direction: translate(isMore ? "more" : "less"),
+    }),
   deficit_mm: (amount, isMore) =>
-    `${amount} mm ${isMore ? "more" : "less"} crop water deficit`,
+    translate("{value1} mm {value2} crop water deficit", {
+      value1: amount,
+      value2: translate(isMore ? "more" : "less"),
+    }),
   bare_days: (amount, isMore) =>
-    `${amount} ${isMore ? "more" : "fewer"} days of bare soil`,
+    translate("{value1} {value2} days of bare soil", {
+      value1: amount,
+      value2: translate(isMore ? "more" : "fewer"),
+    }),
   bare_rain_mm: (amount, isMore) =>
-    `${amount} mm ${isMore ? "more" : "less"} rain on bare soil`,
+    translate("{value1} mm {value2} rain on bare soil", {
+      value1: amount,
+      value2: translate(isMore ? "more" : "less"),
+    }),
   drainage_mm: (amount, isMore) =>
-    `${amount} mm ${isMore ? "more" : "less"} drainage`,
+    translate("{value1} mm {value2} drainage", {
+      value1: amount,
+      value2: translate(isMore ? "more" : "less"),
+    }),
 } as const satisfies Record<
   keyof OutcomeValues,
   (amount: string, isMore: boolean) => string
@@ -46,9 +61,14 @@ function changeSentence(differences: OutcomeValues): string {
       : [CHANGE_PHRASE[outcome.id](amount, delta > 0)]
   })
   if (changes.length === 0) {
-    return "Your priorities and margin alone choose the same crops on the held-out campaigns, so nothing is traded."
+    return translate(
+      "Your priorities and margin alone choose the same crops on the held-out campaigns, so nothing is traded."
+    )
   }
-  return `Against planning for margin alone, your priorities bring ${LIST.format(changes)} per held-out campaign, on average.`
+  return translate(
+    "Against planning for margin alone, your priorities bring {value1} per held-out campaign, on average.",
+    { value1: formatPlannerList(changes) }
+  )
 }
 
 function Tile({
@@ -60,9 +80,11 @@ function Tile({
   figure: string
   children: ReactNode
 }) {
+  const { t } = useI18n("app")
+
   return (
     <div className="flex min-w-0 flex-col gap-2 rounded-xl border p-4">
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground">{t(label)}</span>
       <span className="text-3xl font-light tracking-tight tabular-nums">
         {figure}
       </span>
@@ -71,16 +93,14 @@ function Tile({
   )
 }
 
-/**
- * What weighing the other four outcomes costs and buys: the exact optimum for the reader's
- * priorities against the optimum for margin alone, on the held-out campaigns and in real units.
- * It exists only when the priorities are not already margin only.
- */
+/** Exists only when the priorities are not already margin only. */
 export function PriorityTradeoffCard({
   result,
 }: {
   result: RotationPlanResult
 }) {
+  const { t } = useI18n("app")
+
   const comparison = heldOutAgainstKind(result, "margin_only")
   const optimal = policyOfKind(result, "optimal")
   if (!comparison || !optimal) return null
@@ -90,11 +110,15 @@ export function PriorityTradeoffCard({
 
   return (
     <ResultSection
-      title="What your priorities trade"
-      lead="Your exact optimum against the exact optimum for gross margin alone, replayed on the held-out campaigns. Differences are yours minus margin only, in real units."
+      title={t("What your priorities trade")}
+      lead={t(
+        "Your exact optimum against the exact optimum for gross margin alone, replayed on the held-out campaigns. Differences are yours minus margin only, in real units."
+      )}
       aside={
         <span className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">In your score</span>
+          <span className="text-xs text-muted-foreground">
+            {t("In your score")}
+          </span>
           <ConclusionBadge conclusion={comparison.conclusion} />
         </span>
       }
@@ -111,30 +135,40 @@ export function PriorityTradeoffCard({
 
       <div className="flex flex-col gap-4">
         <h3 className="text-sm font-medium">
-          Your plan minus margin only, mean per held-out campaign
+          {t("Your plan minus margin only, mean per held-out campaign")}
         </h3>
         <OutcomeDeltas deltas={comparison.outcome_differences} />
       </div>
 
       <div className="grid gap-4 border-t pt-6 sm:grid-cols-2">
         <Tile
-          label="Score with your priorities"
+          label={t("Score with your priorities")}
           figure={formatScore(comparison.mean_score_difference)}
         >
-          {`Mean per campaign, ${percent} interval ${formatInterval(
-            comparison.interval_low,
-            comparison.interval_high
-          )}; your plan scores higher in ${comparison.campaigns_won} of ${comparison.campaigns} campaigns.`}
+          {t(
+            "Mean per campaign, {value1} interval {value2}; your plan scores higher in {value3} of {value4} campaigns.",
+            {
+              value1: percent,
+              value2: formatInterval(
+                comparison.interval_low,
+                comparison.interval_high
+              ),
+              value3: comparison.campaigns_won,
+              value4: comparison.campaigns,
+            }
+          )}
         </Tile>
         <Tile
-          label="Bad-year margin"
+          label={t("Bad-year margin")}
           figure={formatOutcomeDelta(
             "margin_usd_ha",
             comparison.lower_tail_margin_difference_usd_ha
           )}
         >
-          Mean margin of the worst {tail} of {comparison.campaigns} held-out
-          campaigns, your plan minus margin only.
+          {t("Mean margin of the worst ")}
+          {tail} {t(" of ")}
+          {comparison.campaigns}{" "}
+          {t(" held-out campaigns, your plan minus margin only.")}
         </Tile>
       </div>
     </ResultSection>

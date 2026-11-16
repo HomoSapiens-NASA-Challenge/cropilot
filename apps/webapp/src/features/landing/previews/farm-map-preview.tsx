@@ -3,6 +3,7 @@ import {
   PlaceholderLine,
   PreviewWindow,
 } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 // Made-up parcel shapes, drawn only to show how the map looks.
 const LOTS = [
@@ -15,8 +16,9 @@ const LOTS = [
 ] as const
 
 export function FarmMapPreview({ className }: { className?: string }) {
+  const { t } = useI18n("landing")
   return (
-    <PreviewWindow title="Farm map" className={className}>
+    <PreviewWindow title={t("Farm map")} className={className}>
       <div className="relative">
         <svg
           viewBox="0 0 360 232"
@@ -47,7 +49,7 @@ export function FarmMapPreview({ className }: { className?: string }) {
           <PlaceholderLine className="h-2.5 w-16" />
           <PlaceholderLine className="w-24" />
           <span className="text-[0.65rem] text-muted-foreground">
-            Illustrative shapes, not real lots
+            {t("Illustrative shapes, not real lots")}
           </span>
         </div>
       </div>

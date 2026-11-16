@@ -3,9 +3,8 @@ import Svg, { Path } from "react-native-svg"
 import { SVG_COLORS } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
-// Traced from the Cropilot logotype (cropilot-logotype.jpeg) with potrace. The letters
-// are drawn in the foreground color; the cuts and the orbit over the "i" carry the
-// accent. The orbit alone is the app icon.
+// Traced from the logotype with potrace. Letters take the foreground color; the cuts and
+// the orbit over the "i" take the accent.
 const LOGOTYPE_VIEWBOX = "0 -1 1367 435"
 const LOGOTYPE_VIEWBOX_WIDTH = 1367
 const LOGOTYPE_VIEWBOX_HEIGHT = 435
@@ -25,7 +24,6 @@ const ORBIT_PATH =
 // A square around the orbit, which fills 74% of its width.
 const ORBIT_VIEWBOX = "801.5 -42.6 176.8 176.8"
 
-/** The Cropilot app icon: the orbit of the logotype on the accent color. */
 export function BrandLogo({ className }: { className?: string }) {
   return (
     <View
@@ -46,10 +44,7 @@ export function BrandLogo({ className }: { className?: string }) {
   )
 }
 
-/**
- * The Cropilot logotype. Letters take the foreground color; the accents, the theme's
- * primary. The default height keeps the footprint of the previous wordmark.
- */
+// Letters take the foreground color; the accents, the theme's primary.
 export function BrandMark({ className }: { className?: string }) {
   return (
     <View

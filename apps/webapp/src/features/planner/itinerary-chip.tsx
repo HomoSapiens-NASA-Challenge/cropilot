@@ -6,6 +6,7 @@ import {
   ACTION_SHORT,
 } from "@/features/planner/planner-format"
 import { CROPS } from "@/lib/data-colors"
+import { useI18n } from "@/lib/i18n"
 
 /**
  * Itineraries of a repeating cycle with a stable key: the crops plus how many times the same
@@ -34,7 +35,6 @@ function CropBlock({ action }: { action: Itinerary["winter"] }) {
   )
 }
 
-/** One campaign's crops as two stacked blocks, winter above summer, each in its crop color. */
 export function ItineraryChip({
   itinerary,
   className,
@@ -42,10 +42,15 @@ export function ItineraryChip({
   itinerary: Itinerary
   className?: string
 }) {
+  const { t } = useI18n("app")
+
   return (
     <span
       role="img"
-      aria-label={`Winter ${ACTION_LABEL[itinerary.winter]}, summer ${ACTION_LABEL[itinerary.summer]}`}
+      aria-label={t("Winter {value1}, summer {value2}", {
+        value1: t(ACTION_LABEL[itinerary.winter]),
+        value2: t(ACTION_LABEL[itinerary.summer]),
+      })}
       className={cn("flex flex-col gap-px", className)}
     >
       <CropBlock action={itinerary.winter} />

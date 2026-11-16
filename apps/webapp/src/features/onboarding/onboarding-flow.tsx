@@ -15,6 +15,7 @@ import { cn } from "cn"
 import { ArrowLeft, ArrowRight, LogOut } from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { BrandMark } from "@/components/brand-mark"
+import { LanguageSelector } from "@/components/language-selector"
 import { RegionPicker } from "@/components/region-picker"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,6 +29,7 @@ import {
   WelcomeStep,
   YearsLikeThisStep,
 } from "@/features/onboarding/tour-steps"
+import { useI18n } from "@/lib/i18n"
 
 function referenceRegion(regions: ReadonlyArray<Region>): Region {
   const region = regions.find((candidate) => candidate.is_reference_case)
@@ -38,19 +40,25 @@ function referenceRegion(regions: ReadonlyArray<Region>): Region {
 }
 
 function StepHeading({ index, title }: { index: number; title: string }) {
+  const { t } = useI18n("app")
+
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-primary tabular-nums">
-        Step {index + 1} of {ONBOARDING_STEP_IDS.length}
+        {t("Step ")}
+        {index + 1} {t(" of ")}
+        {ONBOARDING_STEP_IDS.length}
       </p>
       <h1 className="text-3xl/10 font-light tracking-tight sm:text-4xl/12">
-        {title}
+        {t(title)}
       </h1>
     </div>
   )
 }
 
 function StepProgress({ currentIndex }: { currentIndex: number }) {
+  const { t } = useI18n("app")
+
   return (
     <ol className="grid grid-cols-5 gap-2">
       {ONBOARDING_STEP_IDS.map((stepId, index) => (
@@ -71,7 +79,7 @@ function StepProgress({ currentIndex }: { currentIndex: number }) {
               index === currentIndex && "text-foreground"
             )}
           >
-            {ONBOARDING_STEP_LABELS[stepId]}
+            {t(ONBOARDING_STEP_LABELS[stepId])}
           </span>
         </li>
       ))}
@@ -90,6 +98,8 @@ export function OnboardingFlow({
   onStepChange: (step: OnboardingStepId) => void
   onSignOut: () => void
 }) {
+  const { t } = useI18n("app")
+
   const queryClient = useQueryClient()
   const { data: regions } = useSuspenseQuery(listRegionsOptions())
   const { data: workspace } = useSuspenseQuery(getWorkspaceOptions())
@@ -123,7 +133,7 @@ export function OnboardingFlow({
           heading={
             <StepHeading
               index={stepIndex}
-              title={`Welcome to Cropilot, ${firstName}`}
+              title={t("Welcome to Cropilot, {value1}", { value1: firstName })}
             />
           }
         />
@@ -133,7 +143,7 @@ export function OnboardingFlow({
       content = (
         <YearsLikeThisStep
           heading={
-            <StepHeading index={stepIndex} title="Years like this one" />
+            <StepHeading index={stepIndex} title={t("Years like this one")} />
           }
         />
       )
@@ -144,7 +154,7 @@ export function OnboardingFlow({
           heading={
             <StepHeading
               index={stepIndex}
-              title="Compare at least three rotations"
+              title={t("Compare at least three rotations")}
             />
           }
         />
@@ -154,11 +164,11 @@ export function OnboardingFlow({
       content = (
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-3">
-            <StepHeading index={stepIndex} title="Choose your region" />
+            <StepHeading index={stepIndex} title={t("Choose your region")} />
             <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Cropilot scopes every analysis to one department: its NASA POWER
-              climate cell, its soil and its MAGyP yields. You can change it
-              later.
+              {t(
+                "Cropilot scopes every analysis to one department: its NASA POWER climate cell, its soil and its MAGyP yields. You can change it later."
+              )}
             </p>
           </div>
           <RegionPicker
@@ -176,7 +186,9 @@ export function OnboardingFlow({
           heading={
             <StepHeading
               index={stepIndex}
-              title={`${workspace.region.name} is your region`}
+              title={t("{value1} is your region", {
+                value1: workspace.region.name,
+              })}
             />
           }
         />
@@ -189,9 +201,10 @@ export function OnboardingFlow({
       <header className="mx-auto flex w-full max-w-316 items-center justify-between gap-4 px-6 py-5">
         <BrandMark />
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           {stepIndex < regionStepIndex && (
             <Button variant="ghost" onClick={() => goTo(regionStepIndex)}>
-              Skip intro
+              {t("Skip intro")}
             </Button>
           )}
           {workspace ? (
@@ -200,12 +213,12 @@ export function OnboardingFlow({
               nativeButton={false}
               render={<Link to="/overview" />}
             >
-              Back to Cropilot
+              {t("Back to Cropilot")}
             </Button>
           ) : (
             <Button variant="ghost" onClick={onSignOut}>
               <LogOut data-icon="inline-start" />
-              Sign out
+              {t("Sign out")}
             </Button>
           )}
         </div>
@@ -228,7 +241,7 @@ export function OnboardingFlow({
               onClick={() => goTo(stepIndex - 1)}
             >
               <ArrowLeft data-icon="inline-start" />
-              Back
+              {t("Back")}
             </Button>
             <div className="flex flex-col items-end gap-2">
               {visibleStep === "region" ? (
@@ -241,7 +254,7 @@ export function OnboardingFlow({
                     })
                   }
                 >
-                  {saveWorkspace.isPending ? "Saving…" : "Save region"}
+                  {saveWorkspace.isPending ? t("Saving…") : t("Save region")}
                   <ArrowRight data-icon="inline-end" />
                 </Button>
               ) : visibleStep === "ready" ? (
@@ -252,26 +265,26 @@ export function OnboardingFlow({
                     nativeButton={false}
                     render={<Link to="/map" />}
                   >
-                    Open the farm map
+                    {t("Open the farm map")}
                   </Button>
                   <Button
                     size="lg"
                     nativeButton={false}
                     render={<Link to="/overview" />}
                   >
-                    Go to overview
+                    {t("Go to overview")}
                     <ArrowRight data-icon="inline-end" />
                   </Button>
                 </div>
               ) : (
                 <Button size="lg" onClick={() => goTo(stepIndex + 1)}>
-                  Continue
+                  {t("Continue")}
                   <ArrowRight data-icon="inline-end" />
                 </Button>
               )}
               {saveWorkspace.isError && (
                 <p role="alert" className="text-sm text-destructive">
-                  Could not save the region. Try again.
+                  {t("Could not save the region. Try again.")}
                 </p>
               )}
             </div>
