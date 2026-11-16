@@ -21,6 +21,7 @@ import { Sheet } from "@/components/ui/sheet"
 import { Text } from "@/components/ui/text"
 import { NotAvailable, NotComputedRow } from "@/features/case/block-section"
 import { DotStrip, stripDomain } from "@/features/case/blocks/compare/dot-strip"
+import { SowingWindow } from "@/features/case/blocks/compare/sowing-window"
 import {
   campaignName,
   formatDate,
@@ -274,6 +275,7 @@ function AvailableWaterDetail({
           ))}
         </ListSection>
       </View>
+      <SowingWindow bundle={bundle} water={water} />
       <Sheet
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
