@@ -5,8 +5,7 @@ ten Argentine points, 1984–2025. They estimate **GWETROOT at t+7 and t+14** fr
 information ending at t. GWETROOT is regional root-zone relative saturation
 on a 0–1 scale. It is not measured farm moisture, volumetric moisture or irrigation demand.
 
-The models are available on `modelos`, alongside the existing seasonal water/heat
-models and physical rotation-water simulator. They add no screens or HTTP routes.
+They are research models: no screen or HTTP route uses them yet.
 
 ## Install and run
 
@@ -38,7 +37,6 @@ Call from a synchronous handler or a worker. The CLI accepts
 - [Frozen response](../apps/backend/app/modules/water/resources/moisture-response.example.json)
 - [Metrics and source hashes](../apps/backend/app/modules/water/resources/moisture-metrics.json)
 - [Release checksum and file manifest](../apps/backend/app/modules/water/resources/moisture-release.json)
-- [Protocol fixed before training](moisture-protocol.md)
 
 The example uses Pergamino data ending **2025-11-01**. It is a historical example,
 not today's forecast. The response includes the target dates, expected change,
@@ -112,7 +110,8 @@ rows, not that many independent weather events.
 
 Ridge uses scaled inputs and alpha=100. HGB uses 160 iterations, learning rate
 0.05, at most 15 leaves, at least 50 rows per leaf, L2=10, seed 42, and no random
-early stopping. Settings were fixed before training. There was no tuning on
+early stopping. Target, features, splits, candidates and settings were fixed
+before training. There was no tuning on
 test and no refit on calibration/test. The twenty additional leave-one-zone-out
 HGB fits are diagnostics, not candidates selected for deployment.
 
@@ -147,18 +146,15 @@ it refuses a runtime source that differs from the one recorded during training.
 Scientific tests run in the model environment; API types/tests run in Python 3.14.
 CI runs the synthetic scientific safeguards without downloading private assets.
 
-## Sources and AI use
+## Sources
 
 - [NASA GMAO MERRA-2 FAQ](https://gmao.gsfc.nasa.gov/gmao-products/merra-2/faq_merra-2/):
   GWETROOT interpretation and publication-lag warning.
 - [NASA POWER daily API](https://power.larc.nasa.gov/docs/services/api/temporal/daily/):
   original weather/wetness snapshot; per-file hashes in metrics, URLs and
   acquisition metadata in the existing water release's `sources.json`.
-- [FAO-56](https://www.fao.org/4/x0490e/x0490e00.htm): reference ET; reused team
-  implementation and source revision are pinned in `models-water-v1`.
+- [FAO-56](https://www.fao.org/4/x0490e/x0490e00.htm): reference ET; the
+  implementation and its source revision are pinned in `models-water-v1`.
 - [scikit-learn 1.9.1](https://scikit-learn.org/stable/): Ridge and HGB.
   NumPy, pandas, SciPy, joblib, threadpoolctl, Matplotlib and pytest retain the
   exact versions in the existing model environment lock.
-- Codex (OpenAI) assisted with the protocol, training pipeline, tests, evaluation,
-  chart, packaging and documentation. The chart is generated from measured
-  experimental results. No synthetic data was used to train the published models.

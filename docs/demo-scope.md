@@ -49,9 +49,6 @@ team in time. The demo therefore uses sources that can be read without that logi
 | OPERA DSWx                                    | 30 m surface water: flooded fields and waterlogged lows         | Not used                                                  |
 | AppEEARS subsets                              | Point and area extracts of NASA products without bulk downloads | Not used                                                  |
 
-The team's research notes record these access requirements and the anonymous routes that
-were tested.
-
 ## Next steps we did not get to
 
 1. **Similar years across zones.** Search every zone for campaigns that started like this
@@ -69,5 +66,9 @@ were tested.
    waterlogging.
 6. **The farmer's own data.** A farm currently stores a name. Connect its geometry, soil,
    water table, management and the rotation it actually runs.
-
-The water-model roadmap is in [`model-candidates.md`](model-candidates.md).
+7. **More water indicators.** The longest dry spell and the largest five-day rainfall inside
+   the critical window, from the NASA POWER daily series already installed. Keep a predictive
+   version only if it beats the regional baseline.
+8. **River nitrate.** Test whether antecedent NASA weather improves estimates of measured
+   nitrate at Argentine monitoring stations (UNEP GEMS/Water), as a separate water-quality
+   study. River-station nitrate cannot be attributed to one field's rotation.
