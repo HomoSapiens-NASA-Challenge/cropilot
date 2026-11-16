@@ -2,6 +2,8 @@ export const esLanding: Record<string, string> = {
   "Sign in": "Iniciar sesión",
   "Get started": "Empezar",
   "Open app": "Abrir la app",
+  "Source code on GitHub (opens in a new tab)":
+    "Código fuente en GitHub (se abre en una pestaña nueva)",
   Illustrative: "Ilustrativo",
   "Open {title}": "Abrir {title}",
   "More in {heading}": "Más en {heading}",

@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { BrandMark } from "@/components/brand-mark"
 import { LanguageSelector } from "@/components/language-selector"
 import { AppEntryLink, CtaLink } from "@/features/landing/cta-link"
+import { RepositoryLink } from "@/features/landing/repository-link"
 import { SiteMobileNav } from "@/features/landing/site-mobile-nav"
 import { SiteNavMenu } from "@/features/landing/site-nav-menu"
 import { useI18n } from "@/lib/i18n"
@@ -32,6 +33,7 @@ export function SiteHeader({ isSignedIn }: { isSignedIn: boolean }) {
           className="hidden lg:block"
         />
         <div className="ml-auto flex items-center gap-2">
+          <RepositoryLink />
           <LanguageSelector />
           {!isSignedIn && (
             <CtaLink
