@@ -17,9 +17,6 @@ __pycache__/
 apps/backend/data/
 apps/backend/models/
 
-# Generated from the verified local handoff snapshot; keep datasets out of Git.
-apps/mobile/assets/map-data/
-
 # Expo
 .expo/
 expo-env.d.ts
