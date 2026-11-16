@@ -2198,4 +2198,65 @@ export const esCase: Record<string, string> = {
   "· Not computed": "· No calculado",
   "· public, read-only, no sign-in":
     "· público, de solo lectura, sin iniciar sesión",
+  "Prepared by": "Elaborado por",
+  "Main original inputs": "Principales datos y referencias originales",
+  "Open calculation or method": "Ver cálculo o metodología",
+  "Original data and references": "Datos y referencias originales",
+  "Calculations and method notes": "Cálculos y notas metodológicas",
+  "Results computed from external inputs. The linked method explains how they were produced; they are not observations published by the data providers.":
+    "Resultados calculados a partir de datos externos. La metodología enlazada explica cómo se obtuvieron; no son observaciones publicadas por los proveedores de datos.",
+  "The method also documents FAO-33, INTA sowing dates, World Bank prices and explicit model assumptions.":
+    "La metodología también documenta FAO-33, fechas de siembra del INTA, precios del Banco Mundial y supuestos explícitos del modelo.",
+  "Crop parameters and sowing dates are documented in the linked simulation method.":
+    "Los parámetros de cultivos y las fechas de siembra se documentan en la metodología de simulación enlazada.",
+  "1 reference": "1 referencia",
+  "{count} references": "{count} referencias",
+  "Additional inputs are documented in the linked method.":
+    "La metodología enlazada documenta otros insumos utilizados.",
+  "NASA POWER daily API, community AG: root-zone soil wetness (GWETROOT), temperature, rain":
+    "API diaria NASA POWER, comunidad AG: humedad de la zona de raíces (GWETROOT), temperatura y lluvia",
+  "Oceanic Nino Index (ONI), three-month seasons":
+    "Índice Oceánico de El Niño (ONI), trimestres",
+  "Estimaciones agricolas: planted and harvested area, production and yield by department":
+    "Estimaciones agrícolas: superficie sembrada y cosechada, producción y rinde por departamento",
+  "Margenes Resultados: costs, rent and gross margins by region (quarterly reports)":
+    "Márgenes Resultados: costos, alquileres y márgenes brutos por región (informes trimestrales)",
+  "A3 Mercados (ex MATba-ROFEX) futures settlements: soybean, maize, wheat":
+    "Precios de ajuste de futuros de A3 Mercados (ex MATba-ROFEX): soja, maíz y trigo",
+  "Harmonized Landsat Sentinel-2 (HLS) v2.0 surface reflectance, NDVI":
+    "Reflectancia superficial y NDVI de Harmonized Landsat Sentinel-2 (HLS) v2.0",
+  "Mapa Nacional de Cultivos (national crop map), winter and summer maps":
+    "Mapa Nacional de Cultivos, mapas de invierno y verano",
+  "Fields of The World (FTW) field boundaries, global map alpha":
+    "Límites de lotes de Fields of The World (FTW), versión alfa del mapa global",
+  "SoilGrids modeled soil properties: water retention at 33 and 1500 kPa":
+    "Propiedades modeladas del suelo de SoilGrids: retención de agua a 33 y 1500 kPa",
+  "Interview with a practising agronomist (WhatsApp, six questions)":
+    "Entrevista con un agrónomo en ejercicio (WhatsApp, seis preguntas)",
+  "Years-like-this market model: analog campaigns, yield anomalies, MAGyP gross margins":
+    "Modelo de mercado de años parecidos: campañas análogas, anomalías de rinde y márgenes brutos de MAGyP",
+  "Backtest of the analog-years method (research/ml-market.md, section 9)":
+    "Evaluación retrospectiva del método de años análogos (research/ml-market.md, sección 9)",
+  "Pergamino water-balance scenarios v1: 1,170 daily runs, FAO-56 bucket":
+    "Escenarios de balance de agua de Pergamino v1: 1.170 corridas diarias, balance de reservorio FAO-56",
+  "Team crop classifier on NASA HLS (LightGBM and U-Net) and per-field diagnostics":
+    "Clasificador de cultivos del equipo con NASA HLS (LightGBM y U-Net) y diagnósticos por lote",
+  "Rotation as a tabular MDP: dynamic programming and Q-learning results":
+    "Rotación como MDP tabular: resultados de programación dinámica y Q-learning",
+  "Reinforcement-learning lab, first pass in Pergamino (research/rl.md)":
+    "Laboratorio de aprendizaje por refuerzo, primera pasada en Pergamino (research/rl.md)",
+  "Years-like-this approach note, with the 2017/18 counterexample":
+    "Nota del enfoque de años parecidos, con el contraejemplo 2017/18",
+  "Efecto sistema de produccion: soybean after a grass crop (about +10%)":
+    "Efecto del sistema de producción: soja después de una gramínea (aproximadamente +10%)",
+  "San Jeronimo Sud trial: first-crop soybean +7-8% after maize (CORE 322642799)":
+    "Ensayo de San Jerónimo Sud: soja de primera +7-8% después de maíz (CORE 322642799)",
+  "Cover-crop cost of about 60 to 80 USD/ha (nominal USD of 2021)":
+    "Costo del cultivo de cobertura de aproximadamente 60 a 80 USD/ha (USD nominales de 2021)",
+  "Short-cycle rye cover crop at about 86 USD/ha (nominal USD of 2012)":
+    "Centeno de ciclo corto como cobertura a aproximadamente 86 USD/ha (USD nominales de 2012)",
+  "Soybean yield after cover crops did not differ from the control":
+    "El rinde de soja después de cultivos de cobertura no difirió del control",
+  "Crop evapotranspiration: guidelines for computing crop water requirements (Paper 56)":
+    "Evapotranspiración de los cultivos: guías para calcular los requerimientos de agua (Documento 56)",
 }
