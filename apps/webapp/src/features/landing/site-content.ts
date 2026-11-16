@@ -899,6 +899,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               headline: "Open the evidence to any AI client.",
               lead: "Cropilot runs a public, read-only MCP server at /api/mcp. An AI client can list the cases, find analog years, compare rotations and read the evidence of a field, with sources, units and missing values kept.",
               preview: "mcp-tools",
+              recording: "mcp-claude",
               highlights: [
                 {
                   icon: Plug,

@@ -8,6 +8,7 @@ export type RecordingId =
   | "compare"
   | "field-map"
   | "planner"
+  | "mcp-claude"
 
 const RECORDINGS: Record<
   RecordingId,
@@ -35,6 +36,13 @@ const RECORDINGS: Record<
     windowTitle: "Rotation planner",
     caption: "A live rotation-planner run.",
     label: "Screen recording of a live rotation-planner run",
+  },
+  "mcp-claude": {
+    windowTitle: "Claude · Cropilot connector",
+    caption:
+      "Claude calling the Cropilot MCP tools and showing the interactive rotation card.",
+    label:
+      "Screen recording of Claude using the Cropilot MCP connector to compare rotations for Pergamino",
   },
 }
 
