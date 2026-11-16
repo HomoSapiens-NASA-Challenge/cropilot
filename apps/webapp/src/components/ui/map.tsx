@@ -1,9 +1,8 @@
-import { useI18n } from "@/lib/i18n"
-
-;("use client")
+"use client"
 
 import type * as MapLibreGL from "maplibre-gl"
 import type { MarkerOptions, PopupOptions } from "maplibre-gl"
+import { translate, useI18n } from "@/lib/i18n"
 import "maplibre-gl/dist/maplibre-gl.css"
 import type * as GeoJSON from "geojson"
 import { Loader2, Locate, Maximize, Minus, Plus, X } from "lucide-react"
@@ -82,6 +81,21 @@ const blankGlobeStyle: MapLibreGL.StyleSpecification = {
       paint: { "background-color": "rgba(128, 128, 128, 0.12)" },
     },
   ],
+}
+
+/** MapLibre writes the cooperative-gesture hint once, when the map is created. */
+function cooperativeGestureText(): Record<string, string> {
+  return {
+    "CooperativeGesturesHandler.WindowsHelpText": translate(
+      "Use Ctrl + scroll to zoom the map"
+    ),
+    "CooperativeGesturesHandler.MacHelpText": translate(
+      "Use ⌘ + scroll to zoom the map"
+    ),
+    "CooperativeGesturesHandler.MobileHelpText": translate(
+      "Use two fingers to move the map"
+    ),
+  }
 }
 
 // Prevent equivalent inline style objects from triggering a full map style reload.
@@ -358,6 +372,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
             compact: true,
           },
           ...props,
+          locale: { ...cooperativeGestureText(), ...props.locale },
           ...viewport,
         })
         if (!instance.painter) throw new lib.GPUInitializationError({}, null)
@@ -470,8 +485,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     <MapContext.Provider value={contextValue}>
       <div
         ref={containerRef}
-        // MapLibre handles wheel zoom; Lenis must not also scroll the page.
-        data-lenis-prevent-wheel={props.scrollZoom !== false ? "" : undefined}
+        // MapLibre owns the wheel when it zooms with it; Lenis must not also scroll
+        // the page. Cooperative gestures leave the plain wheel to the page, and
+        // Lenis already ignores the Ctrl/⌘ + wheel that zooms the map.
+        data-lenis-prevent-wheel={
+          props.scrollZoom !== false && !props.cooperativeGestures
+            ? ""
+            : undefined
+        }
         className={cn("relative h-full w-full", className)}
       >
         {(!isLoaded || loading) && <DefaultLoader />}

@@ -86,7 +86,7 @@ export function FieldMap({
   onSelectLot: (fieldId: string | null) => void
   onToggleCellView: () => void
 }) {
-  const { t } = useI18n("case")
+  const { t, locale } = useI18n("case")
 
   const lotsData = useMemo<FeatureCollection<Polygon, LotFeatureProperties>>(
     () => ({ type: "FeatureCollection", features: field.lots.map(lotFeature) }),
@@ -138,8 +138,10 @@ export function FieldMap({
 
   return (
     <div className="relative isolate h-104 overflow-hidden rounded-xl border bg-secondary md:h-136">
-      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it. */}
+      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it.
+          MapLibre writes that hint once, so a language change recreates the map. */}
       <BaseMap
+        key={locale}
         theme="light"
         center={ringCenter(allPoints)}
         zoom={11}
