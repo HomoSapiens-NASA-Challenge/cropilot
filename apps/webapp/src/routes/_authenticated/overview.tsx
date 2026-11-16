@@ -8,6 +8,7 @@ import { RegionWithoutCase } from "@/features/case/region-case-screen"
 import { StartBlock } from "@/features/case/start-block"
 import { SectionCard } from "@/features/shell/section-card"
 import { appSections } from "@/features/shell/sections"
+import { useI18n } from "@/lib/i18n"
 
 export const Route = createFileRoute("/_authenticated/overview")({
   staticData: { title: appSections.overview.title },
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/overview")({
 })
 
 function OverviewPage() {
+  const { t } = useI18n("app")
+
   const { user, region } = Route.useRouteContext()
   const { data: farms } = useSuspenseQuery(listFarmsOptions())
   const { data: index } = useSuspenseQuery(caseIndexOptions)
@@ -34,8 +37,15 @@ function OverviewPage() {
   return (
     <>
       <PageHeader
-        title={`Welcome back, ${firstName}`}
-        description={`Scoped to ${region.name}, ${region.province}. How the ${index.campaign} campaign starts here and across Argentina, then the years like this one and the rotations compared.`}
+        title={t("Welcome back, {value1}", { value1: firstName })}
+        description={t(
+          "Scoped to {value1}, {value2}. How the {value3} campaign starts here and across Argentina, then the years like this one and the rotations compared.",
+          {
+            value1: region.name,
+            value2: region.province,
+            value3: index.campaign,
+          }
+        )}
       />
       {bundle ? (
         <StartBlock bundle={bundle} />
@@ -54,7 +64,7 @@ function OverviewPage() {
           <p className="text-4xl font-light tracking-tighter">
             {farms.length}
             <span className="ml-2 text-sm font-normal tracking-normal text-muted-foreground">
-              {farms.length === 1 ? "farm" : "farms"}
+              {farms.length === 1 ? t("farm") : t("farms")}
             </span>
           </p>
         </SectionCard>

@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/table"
 import { Panel } from "@/features/case/block-frame"
 import {
+  formatDecimal,
+  formatLotName,
   formatMm,
   formatShare,
   formatSigned,
@@ -34,6 +36,7 @@ import {
   LOT_STATUS,
   LOT_STATUS_IDS,
 } from "@/lib/data-colors"
+import { translate, useI18n } from "@/lib/i18n"
 
 const SOURCE_LABEL = { INTA: "INTA map", model: "Team model" } as const
 
@@ -51,7 +54,7 @@ function StatusDot({ status }: { status: Lot["status"] }) {
 }
 
 function statusLabel(status: Lot["status"]): string {
-  return status ? LOT_STATUS[status].label : "No status"
+  return translate(status ? LOT_STATUS[status].label : "No status")
 }
 
 /** An outline with neither a crop nor a status is there for context only. */
@@ -61,18 +64,22 @@ export function hasLotData(lot: Lot): boolean {
 
 /** Legend of the map: the crops that are on it and what each outline means. */
 export function FieldLegend({ lots }: { lots: ReadonlyArray<Lot> }) {
+  const { t } = useI18n("case")
+
   const withData = lots.filter(hasLotData)
   const onMap = new Set(withData.map((lot) => cropOf(lot.latest_crop)))
   const cropIds = CROP_IDS.filter((crop) => onMap.has(crop))
   return (
     <div className="flex flex-wrap gap-x-8 gap-y-3 text-xs text-muted-foreground">
       <div className="flex flex-col gap-1.5">
-        <span className="font-medium text-foreground">Fill: latest crop</span>
+        <span className="font-medium text-foreground">
+          {t("Fill: latest crop")}
+        </span>
         <ul className="flex flex-wrap gap-x-3 gap-y-1">
           {cropIds.map((crop) => (
             <li key={crop} className="flex items-center gap-1.5">
               <CropSwatch crop={CROPS[crop].label} />
-              {CROPS[crop].label}
+              {t(CROPS[crop].label)}
             </li>
           ))}
           {withData.length < lots.length && (
@@ -81,18 +88,20 @@ export function FieldLegend({ lots }: { lots: ReadonlyArray<Lot> }) {
                 aria-hidden
                 className="inline-block size-2.5 shrink-0 rounded-sm border border-muted-foreground/60 bg-muted"
               />
-              Faint outline: no data, context only
+              {t("Faint outline: no data, context only")}
             </li>
           )}
         </ul>
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="font-medium text-foreground">Outline: status</span>
+        <span className="font-medium text-foreground">
+          {t("Outline: status")}
+        </span>
         <ul className="flex flex-wrap gap-x-3 gap-y-1">
           {LOT_STATUS_IDS.map((status) => (
             <li key={status} className="flex items-center gap-1.5">
               <StatusDot status={status} />
-              {LOT_STATUS[status].label}
+              {t(LOT_STATUS[status].label)}
             </li>
           ))}
         </ul>
@@ -113,7 +122,7 @@ function Measure({ label, value }: { label: ReactNode; value: string }) {
 }
 
 function missingOr<T>(value: T | null, format: (value: T) => string): string {
-  return value === null ? "Missing" : format(value)
+  return value === null ? translate("Missing") : format(value)
 }
 
 /** One lot: crop per campaign, NDVI against the zone, vigor, purity and the reason of its status. */
@@ -126,6 +135,8 @@ export function LotPanel({
   field: FieldBlock
   onBack: () => void
 }) {
+  const { t } = useI18n("case")
+
   const tickLabels = field.ndvi_months.map(monthLabel)
   const series: NdviSeries[] = [
     {
@@ -149,21 +160,23 @@ export function LotPanel({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Back to the lots"
+            aria-label={t("Back to the lots")}
             onClick={onBack}
           >
             <ArrowLeft />
           </Button>
           <div className="flex min-w-0 flex-col gap-1">
-            <h3 className="font-medium">{lot.name}</h3>
+            <h3 className="font-medium">{formatLotName(lot.name)}</h3>
             <p className="text-sm text-muted-foreground tabular-nums">
-              {formatWhole(lot.area_ha)} ha
+              {t("{value1} ha", { value1: formatWhole(lot.area_ha) })}
             </p>
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
-          This outline carries no crop, status or NDVI. It is on the map for
-          context: the numbers exist only for the lots of {field.farm_name}.
+          {t(
+            "This outline carries no crop, status or NDVI. It is on the map for context: the numbers exist only for the lots of {value1}.",
+            { value1: field.farm_name }
+          )}
         </p>
       </div>
     )
@@ -175,15 +188,16 @@ export function LotPanel({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Back to the lots"
+          aria-label={t("Back to the lots")}
           onClick={onBack}
         >
           <ArrowLeft />
         </Button>
         <div className="flex min-w-0 flex-col gap-1">
-          <h3 className="font-medium">{lot.name}</h3>
+          <h3 className="font-medium">{formatLotName(lot.name)}</h3>
           <p className="text-sm text-muted-foreground tabular-nums">
-            {formatWhole(lot.area_ha)} ha
+            {formatWhole(lot.area_ha)}
+            {t(" ha")}
             {lot.is_demo_farm && ` · part of ${field.farm_name}`}
           </p>
         </div>
@@ -194,16 +208,16 @@ export function LotPanel({
           <StatusDot status={lot.status} />
           <span className="font-medium">{statusLabel(lot.status)}</span>
           <span className="text-xs text-muted-foreground">
-            latest campaign, {lot.latest_campaign}
+            {t("latest campaign, {value1}", { value1: lot.latest_campaign })}
           </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          {lot.status_reason ?? "No reason recorded for this status."}
+          {t(lot.status_reason ?? "No reason recorded for this status.")}
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <h4 className="text-sm font-medium">Crop per campaign</h4>
+        <h4 className="text-sm font-medium">{t("Crop per campaign")}</h4>
         <ul className="flex flex-col divide-y rounded-lg border">
           {lot.history.map((entry) => (
             <li
@@ -213,8 +227,8 @@ export function LotPanel({
               <span className="tabular-nums">{entry.campaign}</span>
               <span className="flex items-center gap-2">
                 <CropSwatch crop={entry.crop} />
-                {entry.crop ?? "Not classified"}
-                <Badge variant="outline">{SOURCE_LABEL[entry.source]}</Badge>
+                {t(entry.crop ?? "Not classified")}
+                <Badge variant="outline">{t(SOURCE_LABEL[entry.source])}</Badge>
               </span>
             </li>
           ))}
@@ -223,46 +237,48 @@ export function LotPanel({
 
       <div className="flex flex-col gap-2">
         <h4 className="text-sm font-medium">
-          <Term term="NDVI">NDVI</Term>, September to May
+          <Term term="NDVI">{t("NDVI")}</Term>
+          {t(", September to May")}
         </h4>
         <NdviChart series={series} tickLabels={tickLabels} />
         <p className="flex flex-wrap gap-x-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span aria-hidden className="h-0.5 w-4 bg-primary" />
-            This lot, {lot.latest_campaign}
+            {t("This lot, ")}
+            {lot.latest_campaign}
           </span>
           <span className="flex items-center gap-1.5">
             <span
               aria-hidden
               className="h-0 w-4 border-t-2 border-dashed border-muted-foreground"
             />
-            Zone median for the same crop
+            {t("Zone median for the same crop")}
           </span>
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <Measure
-          label="Vigor gap vs zone"
+          label={t("Vigor gap vs zone")}
           value={missingOr(lot.vigor_gap, (value) => formatSigned(value, 2))}
         />
         <Measure
-          label="Vigor (peak NDVI)"
-          value={missingOr(lot.vigor_ndvi, (value) => value.toFixed(2))}
+          label={t("Vigor (peak NDVI)")}
+          value={missingOr(lot.vigor_ndvi, (value) => formatDecimal(value, 2))}
         />
         <Measure
-          label="Crop purity"
+          label={t("Crop purity")}
           value={missingOr(lot.crop_purity, formatShare)}
         />
         <Measure
-          label="Evenness"
+          label={t("Evenness")}
           value={missingOr(lot.evenness, formatShare)}
         />
       </div>
 
       <EvidenceChip
         meta={field.lots_meta}
-        horizon={`Campaign ${lot.latest_campaign}`}
+        horizon={t("Campaign {value1}", { value1: lot.latest_campaign })}
       />
     </div>
   )
@@ -290,6 +306,8 @@ export function LotList({
   farmName: string
   onSelect: (fieldId: string) => void
 }) {
+  const { t } = useI18n("case")
+
   const severity = (lot: Lot) =>
     lot.status ? LIST_ORDER.indexOf(lot.status) : LIST_ORDER.length
   const withData = lots.filter(hasLotData)
@@ -307,8 +325,9 @@ export function LotList({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
-        Select a lot on the map or in the list to see its crops, NDVI and
-        status.
+        {t(
+          "Select a lot on the map or in the list to see its crops, NDVI and status."
+        )}
         {farmLots.length > 0 && ` These are the lots of ${farmName}.`}
       </p>
       <ul className="flex flex-col gap-1">
@@ -321,9 +340,9 @@ export function LotList({
             >
               <span className="flex min-w-0 items-center gap-2">
                 <CropSwatch crop={lot.latest_crop} />
-                <span className="truncate">{lot.name}</span>
+                <span className="truncate">{formatLotName(lot.name)}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {lot.latest_crop ?? "No crop"}
+                  {t(lot.latest_crop ?? "No crop")}
                 </span>
               </span>
               <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -336,20 +355,29 @@ export function LotList({
       </ul>
       {ordered.length > shown.length && (
         <p className="text-xs text-muted-foreground">
-          Showing {shown.length} of {ordered.length} lots.
+          {t("Showing {value1} of {value2} lots.", {
+            value1: shown.length,
+            value2: ordered.length,
+          })}
         </p>
       )}
       {unlistedWithData > 0 && (
         <p className="text-xs text-muted-foreground">
-          {pluralize(unlistedWithData, "more field")} of the zone{" "}
-          {unlistedWithData === 1 ? "has" : "have"} the same data: select one on
-          the map.
+          {t(
+            "{value1} of the zone {value2} the same data: select one on the map.",
+            {
+              value1: pluralize(unlistedWithData, "more field"),
+              value2: unlistedWithData === 1 ? t("has") : t("have"),
+            }
+          )}
         </p>
       )}
       {contextCount > 0 && (
         <p className="text-xs text-muted-foreground">
-          {contextCount} more outlines of the zone are on the map for context.
-          They carry no crop, status or NDVI.
+          {t(
+            "{value1} more outlines of the zone are on the map for context. They carry no crop, status or NDVI.",
+            { value1: contextCount }
+          )}
         </p>
       )}
     </div>
@@ -370,6 +398,8 @@ export function ReferencePanel({
   reference: ReferenceField
   meta: FieldBlock["reference_meta"]
 }) {
+  const { t } = useI18n("case")
+
   const sampled = reference.ndvi.filter((sample) => sample.ndvi_mean !== null)
   const meanCoverage =
     reference.ndvi.reduce((total, sample) => total + sample.valid_fraction, 0) /
@@ -377,7 +407,7 @@ export function ReferencePanel({
   const series: NdviSeries[] = [
     {
       id: "footprint",
-      label: `Footprint ${reference.field_id}`,
+      label: t("Footprint {value1}", { value1: reference.field_id }),
       values: reference.ndvi.map((sample) => sample.ndvi_mean),
       tone: "primary",
       dotOpacity: reference.ndvi.map(
@@ -395,14 +425,15 @@ export function ReferencePanel({
     <Panel className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h3 className="font-medium">
-          Reference footprint {reference.field_id}
+          {t("Reference footprint {value1}", { value1: reference.field_id })}
         </h3>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          {reference.note}
+          {t(reference.note)}
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="tabular-nums">
-            {reference.area_ha.toFixed(1)} ha
+            {formatDecimal(reference.area_ha, 1)}
+            {t(" ha")}
           </Badge>
           {meta && <EvidenceChip meta={meta} />}
         </div>
@@ -410,15 +441,17 @@ export function ReferencePanel({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <div className="flex min-w-0 flex-col gap-2">
-          <h4 className="text-sm font-medium">INTA crop history</h4>
+          <h4 className="text-sm font-medium">{t("INTA crop history")}</h4>
           <div className="rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Campaign</TableHead>
-                  <TableHead>Season</TableHead>
-                  <TableHead>Crop</TableHead>
-                  <TableHead className="text-right">Of footprint</TableHead>
+                  <TableHead>{t("Campaign")}</TableHead>
+                  <TableHead>{t("Season")}</TableHead>
+                  <TableHead>{t("Crop")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("Of footprint")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -429,11 +462,11 @@ export function ReferencePanel({
                     <TableCell className="tabular-nums">
                       {entry.campaign}
                     </TableCell>
-                    <TableCell>{SEASON_LABEL[entry.season]}</TableCell>
+                    <TableCell>{t(SEASON_LABEL[entry.season])}</TableCell>
                     <TableCell>
                       <span className="flex items-center gap-2">
                         <CropSwatch crop={entry.crop} />
-                        {entry.crop}
+                        {t(entry.crop)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
@@ -449,18 +482,24 @@ export function ReferencePanel({
         <div className="flex min-w-0 flex-col gap-6">
           <div className="flex flex-col gap-2">
             <h4 className="text-sm font-medium">
-              Monthly <Term term="NDVI">NDVI</Term>
+              {t("Monthly ")}
+              <Term term="NDVI">{t("NDVI")}</Term>
             </h4>
             <NdviChart series={series} tickLabels={tickLabels} />
             <p className="text-xs text-muted-foreground tabular-nums">
-              {sampled.length} monthly values out of {reference.ndvi.length}{" "}
-              months. Valid coverage averages {formatShare(meanCoverage)} of the
-              footprint. Fainter dots have less valid coverage.
+              {t(
+                "{value1} monthly values out of {value2} months. Valid coverage averages {value3} of the footprint. Fainter dots have less valid coverage.",
+                {
+                  value1: sampled.length,
+                  value2: reference.ndvi.length,
+                  value3: formatShare(meanCoverage),
+                }
+              )}
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <h4 className="text-sm font-medium">
-              Soil water capacity by depth
+              {t("Soil water capacity by depth")}
             </h4>
             <ul className="flex flex-col divide-y rounded-lg border text-sm">
               {reference.soil_capacity.map((entry) => (
@@ -469,7 +508,7 @@ export function ReferencePanel({
                   className="flex items-center justify-between px-3 py-2"
                 >
                   <span className="text-muted-foreground">
-                    {entry.depth_m} m
+                    {t("{value1} m", { value1: entry.depth_m })}
                   </span>
                   <span className="tabular-nums">
                     {formatMm(entry.capacity_mm)}

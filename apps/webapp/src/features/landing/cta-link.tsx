@@ -3,6 +3,7 @@ import { cn } from "cn"
 import { ChevronRight } from "lucide-react"
 import type { ComponentProps } from "react"
 import { buttonVariants } from "@/components/ui/button"
+import { useI18n } from "@/lib/i18n"
 
 const CTA_SIZES = {
   default: "h-12 px-6 text-base",
@@ -89,6 +90,7 @@ export function AppEntryLink({
   size?: keyof typeof CTA_SIZES
   className?: string
 }) {
+  const { t } = useI18n("landing")
   return (
     <CtaLink
       to={isSignedIn ? "/overview" : "/login"}
@@ -96,7 +98,7 @@ export function AppEntryLink({
       withChevron
       className={className}
     >
-      {isSignedIn ? "Open app" : signedOutLabel}
+      {t(isSignedIn ? "Open app" : signedOutLabel)}
     </CtaLink>
   )
 }

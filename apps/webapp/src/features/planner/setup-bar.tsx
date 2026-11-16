@@ -19,6 +19,7 @@ import {
   presetOf,
 } from "@/features/planner/planner-outcomes"
 import type { Situation } from "@/features/planner/planner-situation"
+import { useI18n } from "@/lib/i18n"
 
 type PresetChoice = PresetId | "custom"
 
@@ -57,46 +58,53 @@ export function SetupBar({
   onEdit: () => void
   onRunAgain: () => void
 }) {
+  const { t } = useI18n("app")
+
   const activePreset: PresetChoice = presetOf(weights) ?? "custom"
 
   return (
     <Card className="gap-4 sm:[--card-spacing:--spacing(6)]">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-(--card-spacing)">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-sm font-medium">Your setup</span>
+          <span className="mr-1 text-sm font-medium">{t("Your setup")}</span>
           <Badge variant="outline">
-            Soil water {formatShare(situation.waterFraction)} (
-            {formatWhole(situation.waterFraction * setup.soil_capacity_mm)} mm)
+            {t("Soil water ")}
+            {formatShare(situation.waterFraction)} (
+            {formatWhole(situation.waterFraction * setup.soil_capacity_mm)}{" "}
+            {t(" mm)")}
           </Badge>
           <Badge variant="outline">
-            June: {ENSO_LABEL[situation.ensoJune]}
+            {t("June: ")}
+            {t(ENSO_LABEL[situation.ensoJune])}
           </Badge>
           <Badge variant="outline">
-            August:{" "}
+            {t("August:")}{" "}
             {situation.ensoAugust
-              ? ENSO_LABEL[situation.ensoAugust]
-              : "not known yet"}
+              ? t(ENSO_LABEL[situation.ensoAugust])
+              : t("not known yet")}
           </Badge>
           {activePreset === "custom" && (
-            <Badge variant="outline">Custom priorities</Badge>
+            <Badge variant="outline">{t("Custom priorities")}</Badge>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={onEdit}>
             <Pencil aria-hidden data-icon="inline-start" />
-            Edit setup
+            {t("Edit setup")}
           </Button>
           <Button variant="outline" onClick={onRunAgain}>
             <RotateCcw aria-hidden data-icon="inline-start" />
-            Run again
+            {t("Run again")}
           </Button>
         </div>
       </div>
       <div className="flex flex-wrap items-end gap-x-8 gap-y-4 border-t px-(--card-spacing) pt-4">
         <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Priorities</span>
+          <span className="text-xs text-muted-foreground">
+            {t("Priorities")}
+          </span>
           <SegmentedControl
-            label="Priority presets"
+            label={t("Priority presets")}
             value={activePreset}
             options={PRESET_OPTIONS}
             onChange={(choice) => {
@@ -109,22 +117,23 @@ export function SetupBar({
         </div>
         <div className="flex flex-col gap-2">
           <span className="text-xs text-muted-foreground">
-            Campaigns planned ahead
+            {t("Campaigns planned ahead")}
           </span>
           <SegmentedControl
-            label="Campaigns planned ahead"
+            label={t("Campaigns planned ahead")}
             value={String(horizon)}
             options={HORIZON_OPTIONS}
             onChange={(choice) => onHorizon(Number(choice))}
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          Changing either one runs the planner again.
+          {t("Changing either one runs the planner again.")}
         </p>
       </div>
       {region.known_limit && (
         <p className="border-t px-(--card-spacing) pt-4 text-xs text-muted-foreground">
-          Simulated for {region.name}. {region.known_limit}
+          {t("Simulated for ")}
+          {region.name}. {t(region.known_limit)}
         </p>
       )}
     </Card>

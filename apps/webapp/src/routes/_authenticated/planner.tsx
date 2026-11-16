@@ -11,6 +11,7 @@ import { Notice } from "@/features/planner/planner-notice"
 import { rotationPlanSetupOptions } from "@/features/planner/planner-queries"
 import { PlannerScreen } from "@/features/planner/planner-screen"
 import { appSections } from "@/features/shell/sections"
+import { useI18n } from "@/lib/i18n"
 
 const section = appSections.rotationPlanner
 
@@ -25,12 +26,17 @@ export const Route = createFileRoute("/_authenticated/planner")({
 })
 
 function PlannerPage() {
+  const { t } = useI18n("app")
+
   const { region } = Route.useRouteContext()
   const { data: setup } = useSuspenseQuery(rotationPlanSetupOptions(region.id))
 
   return (
     <>
-      <PageHeader title={section.title} description={section.description} />
+      <PageHeader
+        title={t(section.title)}
+        description={t(section.description)}
+      />
       {/* A new region starts a new wizard: nothing of the old one carries over. */}
       <PlannerScreen key={region.id} region={region} setup={setup} />
     </>
@@ -39,23 +45,28 @@ function PlannerPage() {
 
 /** The planner could not load its setup, for instance a region the simulator has no field for. */
 function PlannerError({ error }: ErrorComponentProps) {
+  const { t } = useI18n("app")
+
   const router = useRouter()
   const message =
     error instanceof Error ? error.message : "The planner could not load"
 
   return (
     <>
-      <PageHeader title={section.title} description={section.description} />
+      <PageHeader
+        title={t(section.title)}
+        description={t(section.description)}
+      />
       <Notice
         action={
           <Button variant="outline" onClick={() => router.invalidate()}>
             <RotateCcw aria-hidden data-icon="inline-start" />
-            Try again
+            {t("Try again")}
           </Button>
         }
       >
-        {message.replace(/\.$/, "")}. You can also switch region from the
-        sidebar.
+        {message.replace(/\.$/, "")}
+        {t(". You can also switch region from the sidebar.")}
       </Notice>
     </>
   )

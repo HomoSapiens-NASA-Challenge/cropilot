@@ -11,6 +11,7 @@ import {
   MarkerLabel,
   useMap,
 } from "@/components/ui/map"
+import { useI18n } from "@/lib/i18n"
 
 const MAP_PADDING_PX = 48
 
@@ -44,11 +45,12 @@ export function RegionPicker({
   selectedRegionId: string
   onSelect: (regionId: string) => void
 }) {
+  const { t } = useI18n()
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 lg:grid-cols-[20rem_1fr]">
         <ul
-          aria-label="Regions"
+          aria-label={t("Regions")}
           className="flex max-h-104 flex-col gap-2 overflow-y-auto pr-1"
         >
           {regions.map((region) => {
@@ -69,12 +71,12 @@ export function RegionPicker({
                     {region.name}
                     {region.is_reference_case && (
                       <Badge variant="outline" className="font-normal">
-                        Reference case
+                        {t("Reference case")}
                       </Badge>
                     )}
                     {region.known_limit && (
                       <TriangleAlert
-                        aria-label="Known limit"
+                        aria-label={t("Known limit")}
                         className="ml-auto size-3.5 text-muted-foreground"
                       />
                     )}
@@ -84,7 +86,7 @@ export function RegionPicker({
                   </span>
                   {isSelected && region.known_limit && (
                     <span className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                      {region.known_limit}
+                      {t(region.known_limit)}
                     </span>
                   )}
                 </button>
@@ -124,8 +126,9 @@ export function RegionPicker({
         </div>
       </div>
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Each region is anchored on one rural SoilGrids pixel of the department,
-        picked by the team. These reference points are not surveyed fields.
+        {t(
+          "Each region is anchored on one rural SoilGrids pixel of the department, picked by the team. These reference points are not surveyed fields."
+        )}
       </p>
     </div>
   )

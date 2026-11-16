@@ -23,6 +23,7 @@ import type { Situation } from "@/features/planner/planner-situation"
 import { WizardHorizonStep } from "@/features/planner/wizard-horizon-step"
 import { WizardPrioritiesStep } from "@/features/planner/wizard-priorities-step"
 import { WizardStartStep } from "@/features/planner/wizard-start-step"
+import { useI18n } from "@/lib/i18n"
 
 const STEPS = [
   {
@@ -61,6 +62,8 @@ function Stepper({
   reached: StepId
   onStep: (step: StepId) => void
 }) {
+  const { t } = useI18n("app")
+
   return (
     <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
       {STEPS.map((entry, index) => {
@@ -106,7 +109,7 @@ function Stepper({
                     "group-hover/step:text-foreground"
                 )}
               >
-                {entry.label}
+                {t(entry.label)}
               </span>
             </button>
           </li>
@@ -149,6 +152,8 @@ export function PlannerWizard({
   onRun: () => void
   onClose: () => void
 }) {
+  const { t } = useI18n("app")
+
   const [step, setStep] = useState<StepId>(1)
   const [reached, setReached] = useState<StepId>(isReopened ? LAST_STEP : 1)
   const titleRef = useRef<HTMLDivElement>(null)
@@ -201,16 +206,18 @@ export function PlannerWizard({
             {isReopened && (
               <Button type="button" variant="ghost" size="sm" onClick={onClose}>
                 <X aria-hidden data-icon="inline-start" />
-                Close
+                {t("Close")}
               </Button>
             )}
           </div>
           <div className="flex flex-col gap-1 border-t pt-4">
             <CardTitle ref={titleRef} tabIndex={-1} className="outline-none">
-              Step {current.id} of {STEPS.length}: {current.label}
+              {t("Step ")}
+              {current.id} {t(" of ")}
+              {STEPS.length}: {t(current.label)}
             </CardTitle>
             <CardDescription className="max-w-3xl">
-              {current.lead}
+              {t(current.lead)}
             </CardDescription>
           </div>
         </CardHeader>
@@ -249,7 +256,7 @@ export function PlannerWizard({
             onClick={() => goTo(stepOf(step - 1))}
           >
             <ArrowLeft aria-hidden data-icon="inline-start" />
-            Back
+            {t("Back")}
           </Button>
           {isLast ? (
             <Button type="submit" disabled={!hasPriority || isStarting}>
@@ -262,11 +269,11 @@ export function PlannerWizard({
               ) : (
                 <Play aria-hidden data-icon="inline-start" />
               )}
-              {isStarting ? "Starting" : "Run planner"}
+              {isStarting ? t("Starting") : t("Run planner")}
             </Button>
           ) : (
             <Button type="submit" disabled={!canContinue}>
-              Continue
+              {t("Continue")}
               <ArrowRight aria-hidden data-icon="inline-end" />
             </Button>
           )}

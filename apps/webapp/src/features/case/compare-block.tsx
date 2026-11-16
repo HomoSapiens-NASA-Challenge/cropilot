@@ -24,6 +24,7 @@ import {
 } from "@/features/case/compare-margins"
 import { WaterRow } from "@/features/case/compare-water"
 import { EvidenceChip } from "@/features/case/evidence-chip"
+import { useI18n } from "@/lib/i18n"
 
 const ANSWERS = [
   { key: "why", title: "Why it is suggested" },
@@ -37,6 +38,8 @@ const ANSWERS = [
 }>
 
 function StrategyHeader({ strategy }: { strategy: Strategy }) {
+  const { t } = useI18n("case")
+
   return (
     <article
       className={cn(
@@ -45,8 +48,8 @@ function StrategyHeader({ strategy }: { strategy: Strategy }) {
       )}
     >
       <div className="flex flex-col items-start gap-2">
-        {strategy.is_current && <Badge>Now · to confirm</Badge>}
-        <h3 className="font-medium text-balance">{strategy.label}</h3>
+        {strategy.is_current && <Badge>{t("Now · to confirm")}</Badge>}
+        <h3 className="font-medium text-balance">{t(strategy.label)}</h3>
       </div>
       <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
         {strategy.sequence.map((crop, position) => (
@@ -55,27 +58,31 @@ function StrategyHeader({ strategy }: { strategy: Strategy }) {
             {position > 0 && <ArrowRight aria-hidden className="size-3" />}
             <span className="inline-flex items-center gap-1">
               <CropSwatch crop={crop} />
-              {crop}
+              {t(crop)}
             </span>
           </Fragment>
         ))}
       </p>
       {strategy.current_note && (
-        <p className="text-sm text-muted-foreground">{strategy.current_note}</p>
+        <p className="text-sm text-muted-foreground">
+          {t(strategy.current_note)}
+        </p>
       )}
     </article>
   )
 }
 
 function ClaimList({ claims }: { claims: ReadonlyArray<Claim> }) {
+  const { t } = useI18n("case")
+
   if (claims.length === 0) {
-    return <p className="text-sm text-muted-foreground">None listed.</p>
+    return <p className="text-sm text-muted-foreground">{t("None listed.")}</p>
   }
   return (
     <ul className="flex flex-col gap-3">
       {claims.map((claim) => (
         <li key={claim.text} className="flex flex-col gap-1.5">
-          <p className="text-sm">{claim.text}</p>
+          <p className="text-sm">{t(claim.text)}</p>
           <EvidenceChip sourceIds={claim.source_ids} />
         </li>
       ))}
@@ -85,6 +92,8 @@ function ClaimList({ claims }: { claims: ReadonlyArray<Claim> }) {
 
 /** The five answers the challenge asks of every strategy, each one opening on its claims. */
 function AnswerList({ strategy }: { strategy: Strategy }) {
+  const { t } = useI18n("case")
+
   return (
     <div className="flex flex-col divide-y rounded-lg border">
       {ANSWERS.map((answer) => (
@@ -94,7 +103,7 @@ function AnswerList({ strategy }: { strategy: Strategy }) {
           className="group/answer px-3 py-2.5"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
-            {answer.title}
+            {t(answer.title)}
             <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open/answer:rotate-180" />
           </summary>
           <div className="pt-2.5">
@@ -117,6 +126,8 @@ export function CompareBlock({
   bundle: CaseBundle
   id?: string
 }) {
+  const { t } = useI18n("case")
+
   const [marginKind, setMarginKind] = useState<MarginKind>("gross")
   const { compare, modules } = bundle
 
@@ -124,8 +135,15 @@ export function CompareBlock({
     <CaseReferencesProvider sources={bundle.sources} glossary={bundle.glossary}>
       <BlockSection
         id={id}
-        title="Compare rotations"
-        lead={`${compare.strategies.length} rotations for ${bundle.zone_name}, side by side. Margins and water are shown for the real campaigns that started like ${bundle.years_like_this.current.campaign}.`}
+        title={t("Compare rotations")}
+        lead={t(
+          "{value1} rotations for {value2}, side by side. Margins and water are shown for the real campaigns that started like {value3}.",
+          {
+            value1: compare.strategies.length,
+            value2: bundle.zone_name,
+            value3: bundle.years_like_this.current.campaign,
+          }
+        )}
       >
         <StrategyGrid>
           {compare.strategies.map((strategy) => (
@@ -143,7 +161,11 @@ export function CompareBlock({
             <UnharvestedRow compare={compare} />
           </>
         ) : (
-          <NotAvailable description="Margins by analog campaign need market data for this zone." />
+          <NotAvailable
+            description={t(
+              "Margins by analog campaign need market data for this zone."
+            )}
+          />
         )}
 
         {modules.water === "available" && compare.water ? (
@@ -154,20 +176,24 @@ export function CompareBlock({
           />
         ) : (
           <ComparisonRow
-            title="Water: unmet crop water on the field footprint"
+            title={t("Water: unmet crop water on the field footprint")}
             evidence={null}
           >
             <NotAvailable
-              title="Not available for this region yet"
-              description="The water runs exist for the Pergamino reference footprint only."
+              title={t("Not available for this region yet")}
+              description={t(
+                "The water runs exist for the Pergamino reference footprint only."
+              )}
               className="py-8"
             />
           </ComparisonRow>
         )}
 
         <ComparisonRow
-          title="The five answers, for every strategy"
-          description="Why it is suggested, the evidence, the benefits, what is missing and what to check in the field. Every claim names its sources."
+          title={t("The five answers, for every strategy")}
+          description={t(
+            "Why it is suggested, the evidence, the benefits, what is missing and what to check in the field. Every claim names its sources."
+          )}
           evidence={null}
         >
           <StrategyGrid>
@@ -182,18 +208,21 @@ export function CompareBlock({
         {modules.margins === "available" && <RiskSummary compare={compare} />}
 
         <Panel className="flex flex-col gap-3">
-          <h3 className="font-medium">Not computed</h3>
+          <h3 className="font-medium">{t("Not computed")}</h3>
           <ul className="flex flex-col gap-2">
             {compare.not_computed.map((entry) => (
               <li key={entry.metric}>
-                <NotComputedRow title={entry.metric} reason={entry.reason} />
+                <NotComputedRow
+                  title={t(entry.metric)}
+                  reason={t(entry.reason)}
+                />
               </li>
             ))}
           </ul>
         </Panel>
 
         <p className="text-center text-lg font-light tracking-tight text-balance">
-          Cropilot picks no winner. You and the producer decide.
+          {t("Cropilot picks no winner. You and the producer decide.")}
         </p>
       </BlockSection>
     </CaseReferencesProvider>

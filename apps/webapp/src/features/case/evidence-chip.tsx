@@ -15,6 +15,7 @@ import {
   type Provenance,
   SCALE_LABEL,
 } from "@/features/case/case-format"
+import { useI18n } from "@/lib/i18n"
 
 type EvidenceMeta = Pick<
   BlockMeta,
@@ -48,21 +49,23 @@ function ProvenanceDot({ provenance }: { provenance: Provenance }) {
 }
 
 function SourceEntry({ source }: { source: SourceRef }) {
+  const { t } = useI18n("case")
+
   return (
     <li className="flex flex-col gap-1 border-t pt-2.5 first:border-t-0 first:pt-0">
       <span className="font-medium">{source.dataset}</span>
       <span className="text-xs text-muted-foreground">
-        {source.provider} · {source.nature.replace("_", " ")}
+        {source.provider} · {t(source.nature.replaceAll("_", " "))}
       </span>
       <dl className="mt-1 grid grid-cols-[4.5rem_1fr] gap-x-2 gap-y-0.5 text-xs">
-        <dt className="text-muted-foreground">Period</dt>
-        <dd>{source.period}</dd>
-        <dt className="text-muted-foreground">Location</dt>
-        <dd>{source.location}</dd>
+        <dt className="text-muted-foreground">{t("Period")}</dt>
+        <dd>{t(source.period)}</dd>
+        <dt className="text-muted-foreground">{t("Location")}</dt>
+        <dd>{t(source.location)}</dd>
         {source.license && (
           <>
-            <dt className="text-muted-foreground">License</dt>
-            <dd>{source.license}</dd>
+            <dt className="text-muted-foreground">{t("License")}</dt>
+            <dd>{t(source.license)}</dd>
           </>
         )}
       </dl>
@@ -73,7 +76,7 @@ function SourceEntry({ source }: { source: SourceRef }) {
           rel="noreferrer"
           className="mt-1 inline-flex w-fit items-center gap-1 rounded-lg text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          Open the source
+          {t("Open the source")}
           <ExternalLink className="size-3" />
         </a>
       )}
@@ -92,37 +95,39 @@ function EvidenceDetails({
   scaleLabel: string | undefined
   horizon: string | undefined
 }) {
+  const { t } = useI18n("case")
+
   const sources = useSources(sourceIds)
   return (
     <>
       <PopoverHeader>
-        <PopoverTitle>Evidence</PopoverTitle>
+        <PopoverTitle>{t("Evidence")}</PopoverTitle>
         {meta && (
           <PopoverDescription>
-            {PROVENANCE[meta.provenance].description}
+            {t(PROVENANCE[meta.provenance].description)}
           </PopoverDescription>
         )}
       </PopoverHeader>
       {meta && (
         <dl className="grid grid-cols-[4.5rem_1fr] gap-x-2 gap-y-0.5 text-xs">
-          <dt className="text-muted-foreground">Scale</dt>
-          <dd>{scaleLabel ?? SCALE_LABEL[meta.scale]}</dd>
+          <dt className="text-muted-foreground">{t("Scale")}</dt>
+          <dd>{t(scaleLabel ?? SCALE_LABEL[meta.scale])}</dd>
           {horizon && (
             <>
-              <dt className="text-muted-foreground">Horizon</dt>
-              <dd>{horizon}</dd>
+              <dt className="text-muted-foreground">{t("Horizon")}</dt>
+              <dd>{t(horizon)}</dd>
             </>
           )}
           {meta.unit && (
             <>
-              <dt className="text-muted-foreground">Unit</dt>
-              <dd>{meta.unit}</dd>
+              <dt className="text-muted-foreground">{t("Unit")}</dt>
+              <dd>{t(meta.unit)}</dd>
             </>
           )}
           {meta.note && (
             <>
-              <dt className="text-muted-foreground">Note</dt>
-              <dd>{meta.note}</dd>
+              <dt className="text-muted-foreground">{t("Note")}</dt>
+              <dd>{t(meta.note)}</dd>
             </>
           )}
         </dl>
@@ -147,6 +152,8 @@ export function EvidenceChip({
   horizon,
   className,
 }: EvidenceChipProps) {
+  const { t } = useI18n("case")
+
   const ids = meta ? meta.source_ids : sourceIds
   if (!ids) return null
   if (ids.length === 0) {
@@ -157,17 +164,21 @@ export function EvidenceChip({
           className
         )}
       >
-        No source listed
+        {t("No source listed")}
       </span>
     )
   }
 
   const parts: string[] = []
   if (meta) {
-    parts.push(PROVENANCE[meta.provenance].label)
-    parts.push(scaleLabel ?? SCALE_LABEL[meta.scale])
+    parts.push(t(PROVENANCE[meta.provenance].label))
+    parts.push(t(scaleLabel ?? SCALE_LABEL[meta.scale]))
   }
-  parts.push(ids.length === 1 ? "1 source" : `${ids.length} sources`)
+  parts.push(
+    ids.length === 1
+      ? t("1 source")
+      : t("{count} sources", { count: ids.length })
+  )
 
   return (
     <Popover>

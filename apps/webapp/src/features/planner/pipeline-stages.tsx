@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { formatDuration, formatWhole } from "@/features/planner/planner-format"
 import type { StageId } from "@/features/planner/planner-types"
+import { translate, useI18n } from "@/lib/i18n"
 
 type StageMeta = {
   title: string
@@ -61,7 +62,7 @@ export function stageFraction(stage: StageProgress): number {
 
 /** The counter of a stage in its own unit: `4,312 / 4,620 campaigns`. */
 export function stageCounter(stage: StageProgress): string {
-  return `${formatWhole(stage.completed)} / ${formatWhole(stage.total)} ${stage.unit}`
+  return `${formatWhole(stage.completed)} / ${formatWhole(stage.total)} ${translate(stage.unit)}`
 }
 
 function StageNode({
@@ -140,6 +141,8 @@ export function PipelineStages({
   stages: ReadonlyArray<StageProgress>
   compact?: boolean
 }) {
+  const { t } = useI18n("app")
+
   return (
     <ol
       className={cn(
@@ -171,11 +174,11 @@ export function PipelineStages({
                   stage.status === "pending" && "text-muted-foreground"
                 )}
               >
-                {meta.title}
+                {t(meta.title)}
               </span>
               {!compact && (
                 <span className="text-xs text-muted-foreground">
-                  {meta.subtitle}
+                  {t(meta.subtitle)}
                 </span>
               )}
             </div>
@@ -184,7 +187,7 @@ export function PipelineStages({
             ) : (
               <div className="mt-auto flex flex-col gap-1.5 text-xs tabular-nums">
                 {stage.status === "pending" ? (
-                  <span className="text-muted-foreground">Waiting</span>
+                  <span className="text-muted-foreground">{t("Waiting")}</span>
                 ) : (
                   <>
                     <span className="text-foreground">

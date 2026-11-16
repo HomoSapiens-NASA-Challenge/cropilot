@@ -1,7 +1,9 @@
 import { BrandLogo } from "@/components/brand-mark"
+import { useI18n } from "@/lib/i18n"
 
 /** Shown by the router when a page takes long to load. Fast navigations never reach it. */
 export function PageLoader() {
+  const { t } = useI18n()
   return (
     <div
       role="status"
@@ -15,7 +17,7 @@ export function PageLoader() {
       >
         <div className="h-full w-1/4 animate-route-progress bg-primary motion-reduce:w-full motion-reduce:animate-none motion-reduce:opacity-60" />
       </div>
-      <span className="sr-only">Loading</span>
+      <span className="sr-only">{t("Loading")}</span>
     </div>
   )
 }

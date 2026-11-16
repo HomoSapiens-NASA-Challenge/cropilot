@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { CtaLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 const SOURCES: ReadonlyArray<{
   icon: LucideIcon
@@ -45,16 +46,18 @@ const SOURCES: ReadonlyArray<{
 ]
 
 export function DataSection() {
+  const { t } = useI18n("landing")
   return (
     <Band id="data" tone="inverse" className="scroll-mt-18">
       <div className="flex flex-col items-start gap-8 px-4 pt-20 pb-14 sm:px-6 lg:pt-24">
         <SplitHeading
           tone="inverse"
-          lead="NASA Earth data at the center of every comparison."
+          lead={t("NASA Earth data at the center of every comparison.")}
           className="max-w-3xl"
         >
-          Two signals known when the decision is made define what a similar year
-          is. Everything shown can be traced back to them.
+          {t(
+            "Two signals known when the decision is made define what a similar year is. Everything shown can be traced back to them."
+          )}
         </SplitHeading>
         <div className="flex flex-wrap gap-2">
           <CtaLink
@@ -62,14 +65,14 @@ export function DataSection() {
             params={{ sectionSlug: "data", pageSlug: "nasa-power" }}
             withChevron
           >
-            Read about the data
+            {t("Read about the data")}
           </CtaLink>
           <CtaLink
             to="/$sectionSlug/$pageSlug"
             params={{ sectionSlug: "data", pageSlug: "similar-years" }}
             variant="inverse"
           >
-            How similar years are found
+            {t("How similar years are found")}
           </CtaLink>
         </div>
       </div>
@@ -81,11 +84,11 @@ export function DataSection() {
           >
             <source.icon className="size-5 text-highlight" />
             <p className="mt-2 text-xs tracking-wide text-inverse-muted-foreground uppercase">
-              {source.provider}
+              {t(source.provider)}
             </p>
-            <h3 className="text-lg font-medium">{source.title}</h3>
+            <h3 className="text-lg font-medium">{t(source.title)}</h3>
             <p className="leading-relaxed text-inverse-muted-foreground">
-              {source.description}
+              {t(source.description)}
             </p>
           </li>
         ))}

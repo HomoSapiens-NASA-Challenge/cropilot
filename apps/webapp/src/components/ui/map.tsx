@@ -1,4 +1,6 @@
-"use client"
+import { useI18n } from "@/lib/i18n"
+
+;("use client")
 
 import type * as MapLibreGL from "maplibre-gl"
 import type { MarkerOptions, PopupOptions } from "maplibre-gl"
@@ -675,11 +677,12 @@ function DefaultMarkerIcon() {
 }
 
 function PopupCloseButton({ onClick }: { onClick: () => void }) {
+  const { t } = useI18n()
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Close popup"
+      aria-label={t("Close popup")}
       className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
       <X className="size-3.5" />
@@ -905,10 +908,11 @@ function ControlButton({
   children: React.ReactNode
   disabled?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <button
       onClick={onClick}
-      aria-label={label}
+      aria-label={t(label)}
       type="button"
       className={cn(
         "flex size-8 items-center justify-center transition-colors",

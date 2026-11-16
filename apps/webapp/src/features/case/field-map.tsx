@@ -15,6 +15,7 @@ import {
 import { hasLotData } from "@/features/case/field-panels"
 import { cropColor, LOT_STATUS, MAP_ACCENT_COLOR } from "@/lib/data-colors"
 import { type LngLat, pointsBounds, ringCenter } from "@/lib/geo"
+import { useI18n } from "@/lib/i18n"
 import { powerCellAt } from "@/lib/nasa-power-grid"
 
 const NO_STATUS = { color: "#94a3b8", width: 1 } as const
@@ -85,6 +86,8 @@ export function FieldMap({
   onSelectLot: (fieldId: string | null) => void
   onToggleCellView: () => void
 }) {
+  const { t } = useI18n("case")
+
   const lotsData = useMemo<FeatureCollection<Polygon, LotFeatureProperties>>(
     () => ({ type: "FeatureCollection", features: field.lots.map(lotFeature) }),
     [field.lots]
@@ -192,7 +195,7 @@ export function FieldMap({
           >
             <MarkerContent>
               <span className="block rounded-4xl bg-primary px-2.5 py-1 text-xs font-medium whitespace-nowrap text-primary-foreground shadow-sm">
-                Footprint {reference.field_id}
+                {t("Footprint {value1}", { value1: reference.field_id })}
               </span>
             </MarkerContent>
           </MapMarker>
@@ -213,7 +216,7 @@ export function FieldMap({
           )}
         >
           <Crosshair data-icon="inline-start" />
-          {isCellView ? "Back to the lots" : "Show the NASA POWER cell"}
+          {isCellView ? t("Back to the lots") : t("Show the NASA POWER cell")}
         </Button>
       </div>
     </div>

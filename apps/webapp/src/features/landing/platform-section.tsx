@@ -1,6 +1,7 @@
 import { type LucideIcon, Mic, Plug, Smartphone } from "lucide-react"
 import { ArrowLink } from "@/features/landing/cta-link"
 import { Band, SplitHeading } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 const CHANNELS: ReadonlyArray<{
   icon: LucideIcon
@@ -39,15 +40,17 @@ const CHANNELS: ReadonlyArray<{
 ]
 
 export function PlatformSection() {
+  const { t } = useI18n("landing")
   return (
     <Band tone="tinted" frameClassName="border-t">
       <div className="flex flex-col gap-12 px-4 py-20 sm:px-6 lg:py-24">
         <SplitHeading
-          lead="The same evidence, wherever the advisor works."
+          lead={t("The same evidence, wherever the advisor works.")}
           className="max-w-3xl"
         >
-          Ask about it, connect it to your own tools, or carry it to the field.
-          Every answer keeps its sources, its dates and its limits.
+          {t(
+            "Ask about it, connect it to your own tools, or carry it to the field. Every answer keeps its sources, its dates and its limits."
+          )}
         </SplitHeading>
         <ul className="grid gap-10 md:grid-cols-3">
           {CHANNELS.map((channel) => (
@@ -55,9 +58,9 @@ export function PlatformSection() {
               <span className="flex size-10 items-center justify-center rounded-lg border bg-background text-primary">
                 <channel.icon className="size-5" />
               </span>
-              <h3 className="mt-2 text-lg font-medium">{channel.title}</h3>
+              <h3 className="mt-2 text-lg font-medium">{t(channel.title)}</h3>
               <p className="leading-relaxed text-muted-foreground">
-                {channel.description}
+                {t(channel.description)}
               </p>
               {channel.link && (
                 <ArrowLink
@@ -67,7 +70,7 @@ export function PlatformSection() {
                     pageSlug: channel.link.pageSlug,
                   }}
                 >
-                  {channel.link.label}
+                  {t(channel.link.label)}
                 </ArrowLink>
               )}
             </li>

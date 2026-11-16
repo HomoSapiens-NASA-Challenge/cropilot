@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
 import { BrandMark } from "@/components/brand-mark"
+import { LanguageSelector } from "@/components/language-selector"
 import {
   Card,
   CardContent,
@@ -12,6 +13,7 @@ import {
 import { GoogleSignInButton } from "@/features/auth/google-sign-in-button"
 import { sessionOptions } from "@/features/auth/session"
 import { StrandsArt } from "@/features/landing/strands-art"
+import { useI18n } from "@/lib/i18n"
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
@@ -24,6 +26,8 @@ export const Route = createFileRoute("/login")({
 })
 
 function LoginPage() {
+  const { t } = useI18n("app")
+
   return (
     <div className="relative isolate flex min-h-svh flex-col overflow-hidden bg-secondary">
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -34,31 +38,36 @@ function LoginPage() {
         <Link to="/" className="rounded-lg">
           <BrandMark />
         </Link>
-        <Link
-          to="/"
-          className="flex items-center gap-1 rounded-lg text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Back to home
-        </Link>
+        <div className="flex items-center gap-4">
+          <LanguageSelector />
+          <Link
+            to="/"
+            className="flex items-center gap-1 rounded-lg text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" />
+            {t("Back to home")}
+          </Link>
+        </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-6 pb-20">
         <Card className="w-full max-w-md gap-6 border border-background/80 bg-background/75 py-10 shadow-2xl ring-0 backdrop-blur-lg [--card-spacing:--spacing(10)]">
           <CardHeader className="gap-2">
             <CardTitle className="text-3xl font-light tracking-tight">
-              Sign in to Cropilot
+              {t("Sign in to Cropilot")}
             </CardTitle>
             <CardDescription className="text-base">
-              Compare crop rotations with the past campaigns that started like
-              this one.
+              {t(
+                "Compare crop rotations with the past campaigns that started like this one."
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <GoogleSignInButton />
           </CardContent>
           <CardFooter className="border-t bg-transparent pt-6 text-xs text-muted-foreground">
-            New here? Signing in with Google creates your account. Cropilot
-            supports the agronomist's judgment and never replaces it.
+            {t(
+              "New here? Signing in with Google creates your account. Cropilot supports the agronomist's judgment and never replaces it."
+            )}
           </CardFooter>
         </Card>
       </main>

@@ -6,6 +6,7 @@ import {
   Tractor,
 } from "lucide-react"
 import { Band, SplitHeading } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 const STEPS: ReadonlyArray<{
   icon: LucideIcon
@@ -39,15 +40,17 @@ const STEPS: ReadonlyArray<{
 ]
 
 export function HowItWorksSection() {
+  const { t } = useI18n("landing")
   return (
     <Band id="how-it-works" className="scroll-mt-18">
       <div className="px-4 pt-20 pb-14 sm:px-6 lg:pt-24">
         <SplitHeading
-          lead="From the field to the campaigns that started the same way."
+          lead={t("From the field to the campaigns that started the same way.")}
           className="max-w-3xl"
         >
-          Cropilot does not predict the weather. It looks back at real campaigns
-          that began like this one and shows what happened.
+          {t(
+            "Cropilot does not predict the weather. It looks back at real campaigns that began like this one and shows what happened."
+          )}
         </SplitHeading>
       </div>
       <ol className="grid divide-y border-t lg:grid-cols-4 lg:divide-x lg:divide-y-0">
@@ -64,9 +67,9 @@ export function HowItWorksSection() {
                 0{index + 1}
               </span>
             </div>
-            <h3 className="mt-2 text-lg font-medium">{step.title}</h3>
+            <h3 className="mt-2 text-lg font-medium">{t(step.title)}</h3>
             <p className="leading-relaxed text-muted-foreground">
-              {step.description}
+              {t(step.description)}
             </p>
           </li>
         ))}

@@ -1,11 +1,14 @@
 import { listFarmsOptions } from "@cropilot/api"
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { useI18n } from "@/lib/i18n"
 
 export function FarmList() {
+  const { t } = useI18n("app")
+
   const { data: farms } = useSuspenseQuery(listFarmsOptions())
 
   if (farms.length === 0) {
-    return <p className="text-sm text-muted-foreground">No farms yet.</p>
+    return <p className="text-sm text-muted-foreground">{t("No farms yet.")}</p>
   }
 
   return (

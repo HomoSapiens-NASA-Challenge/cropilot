@@ -2,6 +2,7 @@ import type { OutcomeValues } from "@cropilot/api"
 import { cn } from "cn"
 import { formatOutcomeDelta } from "@/features/planner/planner-format"
 import { OUTCOMES } from "@/features/planner/planner-outcomes"
+import { useI18n } from "@/lib/i18n"
 
 function betterOrWorse(
   id: keyof OutcomeValues,
@@ -24,6 +25,8 @@ export function OutcomeDeltas({
   deltas: OutcomeValues
   className?: string
 }) {
+  const { t } = useI18n("app")
+
   return (
     <dl
       className={cn(
@@ -33,7 +36,7 @@ export function OutcomeDeltas({
     >
       {OUTCOMES.map((outcome) => (
         <div key={outcome.id} className="flex flex-col gap-0.5">
-          <dt className="text-xs text-muted-foreground">{outcome.label}</dt>
+          <dt className="text-xs text-muted-foreground">{t(outcome.label)}</dt>
           <dd className="text-xl font-light tracking-tight tabular-nums">
             {formatOutcomeDelta(outcome.id, deltas[outcome.id])}
           </dd>

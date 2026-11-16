@@ -19,10 +19,13 @@ import {
   Wheat,
 } from "lucide-react"
 import type { ReactNode } from "react"
+import { translate, useI18n } from "@/lib/i18n"
 
 type TourPoint = { icon: LucideIcon; title: string; description: string }
 
 function TourPoints({ points }: { points: ReadonlyArray<TourPoint> }) {
+  const { t } = useI18n("app")
+
   return (
     <ul className="flex flex-col gap-5">
       {points.map((point) => (
@@ -31,9 +34,9 @@ function TourPoints({ points }: { points: ReadonlyArray<TourPoint> }) {
             <point.icon className="size-5" />
           </span>
           <div className="flex flex-col gap-1">
-            <p className="font-medium">{point.title}</p>
+            <p className="font-medium">{t(point.title)}</p>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              {point.description}
+              {t(point.description)}
             </p>
           </div>
         </li>
@@ -49,9 +52,11 @@ function AsidePanel({
   title: string
   children: ReactNode
 }) {
+  const { t } = useI18n("app")
+
   return (
     <aside className="flex flex-col gap-4 rounded-xl border bg-background p-6">
-      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <p className="text-sm font-medium text-muted-foreground">{t(title)}</p>
       {children}
     </aside>
   )
@@ -62,6 +67,8 @@ function AsideList({
 }: {
   items: ReadonlyArray<{ icon?: LucideIcon; title: string; detail?: string }>
 }) {
+  const { t } = useI18n("app")
+
   return (
     <ul className="flex flex-col divide-y">
       {items.map((item) => (
@@ -73,9 +80,9 @@ function AsideList({
             <item.icon className="mt-0.5 size-4 shrink-0 text-primary" />
           )}
           <div className="flex flex-col gap-0.5">
-            <span>{item.title}</span>
+            <span>{t(item.title)}</span>
             {item.detail && (
-              <span className="text-muted-foreground">{item.detail}</span>
+              <span className="text-muted-foreground">{t(item.detail)}</span>
             )}
           </div>
         </li>
@@ -96,13 +103,15 @@ export function TourStepLayout({
   points: ReadonlyArray<TourPoint>
   aside: ReactNode
 }) {
+  const { t } = useI18n("app")
+
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
           {heading}
           <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
-            {lead}
+            {t(lead)}
           </p>
         </div>
         <TourPoints points={points} />
@@ -113,10 +122,14 @@ export function TourStepLayout({
 }
 
 export function WelcomeStep({ heading }: { heading: ReactNode }) {
+  const { t } = useI18n("app")
+
   return (
     <TourStepLayout
       heading={heading}
-      lead="Plan crop rotations for the farms you advise, with the past campaigns that started like this one as evidence."
+      lead={t(
+        "Plan crop rotations for the farms you advise, with the past campaigns that started like this one as evidence."
+      )}
       points={[
         {
           icon: Tractor,
@@ -137,7 +150,7 @@ export function WelcomeStep({ heading }: { heading: ReactNode }) {
         },
       ]}
       aside={
-        <AsidePanel title="What you can expect">
+        <AsidePanel title={t("What you can expect")}>
           <AsideList
             items={[
               {
@@ -166,10 +179,14 @@ export function WelcomeStep({ heading }: { heading: ReactNode }) {
 }
 
 export function YearsLikeThisStep({ heading }: { heading: ReactNode }) {
+  const { t } = useI18n("app")
+
   return (
     <TourStepLayout
       heading={heading}
-      lead="Cropilot does not forecast the weather. It finds the real campaigns that began like this one and shows what happened in each."
+      lead={t(
+        "Cropilot does not forecast the weather. It finds the real campaigns that began like this one and shows what happened in each."
+      )}
       points={[
         {
           icon: Waves,
@@ -191,7 +208,7 @@ export function YearsLikeThisStep({ heading }: { heading: ReactNode }) {
         },
       ]}
       aside={
-        <AsidePanel title="Data behind the match">
+        <AsidePanel title={t("Data behind the match")}>
           <AsideList
             items={[
               {
@@ -220,10 +237,14 @@ export function YearsLikeThisStep({ heading }: { heading: ReactNode }) {
 }
 
 export function RotationsStep({ heading }: { heading: ReactNode }) {
+  const { t } = useI18n("app")
+
   return (
     <TourStepLayout
       heading={heading}
-      lead="Your farm's current rotation is always one of them. Each one is shown across the matched campaigns, so no single score hides the spread."
+      lead={t(
+        "Your farm's current rotation is always one of them. Each one is shown across the matched campaigns, so no single score hides the spread."
+      )}
       points={[
         {
           icon: Tractor,
@@ -244,7 +265,7 @@ export function RotationsStep({ heading }: { heading: ReactNode }) {
         },
       ]}
       aside={
-        <AsidePanel title="Every strategy shows">
+        <AsidePanel title={t("Every strategy shows")}>
           <AsideList
             items={[
               { icon: Lightbulb, title: "Why it is suggested" },
@@ -271,15 +292,26 @@ export function ReadyStep({
   heading: ReactNode
   region: Region
 }) {
+  const { t } = useI18n("app")
+
   return (
     <TourStepLayout
       heading={heading}
-      lead="Every analysis is scoped to this department. You can change it from the sidebar at any time."
+      lead={t(
+        "Every analysis is scoped to this department. You can change it from the sidebar at any time."
+      )}
       points={[
         {
           icon: MapPin,
           title: "Reference point",
-          description: `${region.latitude_deg.toFixed(2)}°, ${region.longitude_deg.toFixed(2)}°: one rural SoilGrids pixel in ${region.department} department, picked by the team. It is not a surveyed field.`,
+          description: translate(
+            "{value1}°, {value2}°: one rural SoilGrids pixel in {value3} department, picked by the team. It is not a surveyed field.",
+            {
+              value1: region.latitude_deg.toFixed(2),
+              value2: region.longitude_deg.toFixed(2),
+              value3: region.department,
+            }
+          ),
         },
         {
           icon: CloudSun,
@@ -290,21 +322,25 @@ export function ReadyStep({
         {
           icon: Wheat,
           title: "Yields",
-          description: `MAGyP estimates for ${region.department} department, ${region.province}.`,
+          description: translate(
+            "MAGyP estimates for {value1} department, {value2}.",
+            { value1: region.department, value2: region.province }
+          ),
         },
       ]}
       aside={
-        <AsidePanel title="Your region">
+        <AsidePanel title={t("Your region")}>
           <div className="flex flex-col gap-1">
             <p className="text-2xl font-light tracking-tight">{region.name}</p>
             <p className="text-sm text-muted-foreground">
-              {region.department} department, {region.province}
+              {region.department} {t(" department, ")}
+              {region.province}
             </p>
           </div>
           {region.known_limit && (
             <p className="flex gap-2 border-t pt-4 text-sm text-muted-foreground">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-primary" />
-              {region.known_limit}
+              {t(region.known_limit)}
             </p>
           )}
         </AsidePanel>

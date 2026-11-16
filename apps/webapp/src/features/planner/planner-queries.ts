@@ -5,6 +5,7 @@ import {
   getRotationPlanSetupQueryKey,
 } from "@cropilot/api"
 import { queryOptions } from "@tanstack/react-query"
+import { translate } from "@/lib/i18n"
 
 const RUN_NOT_FOUND_STATUS = 404
 
@@ -32,7 +33,9 @@ export function rotationPlanOptions(runId: string) {
       if (data) return data
       if (response?.status === RUN_NOT_FOUND_STATUS) throw new RunGoneError()
       throw new Error(
-        `Could not read the planner run (${response?.status ?? "no response"})`
+        translate("Could not read the planner run ({value1})", {
+          value1: response?.status ?? "no response",
+        })
       )
     },
   })
@@ -64,7 +67,9 @@ export function rotationPlanSetupOptions(regionId: string) {
       if (data) return data
       throw new Error(
         errorDetail(error) ??
-          `Could not load the planner setup (${response?.status ?? "no response"})`
+          translate("Could not load the planner setup ({value1})", {
+            value1: response?.status ?? "no response",
+          })
       )
     },
   })

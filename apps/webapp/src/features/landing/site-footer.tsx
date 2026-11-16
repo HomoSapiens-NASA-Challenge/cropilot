@@ -3,8 +3,10 @@ import { BrandMark } from "@/components/brand-mark"
 import { ArrowLink } from "@/features/landing/cta-link"
 import { Band } from "@/features/landing/frame"
 import { SITE_MENUS } from "@/features/landing/site-content"
+import { useI18n } from "@/lib/i18n"
 
 export function SiteFooter({ isSignedIn }: { isSignedIn: boolean }) {
+  const { t } = useI18n("landing")
   return (
     <footer>
       <Band tone="tinted" frameClassName="border-t">
@@ -12,10 +14,10 @@ export function SiteFooter({ isSignedIn }: { isSignedIn: boolean }) {
           {SITE_MENUS.map((menu) => (
             <nav
               key={menu.sectionSlug}
-              aria-label={menu.label}
+              aria-label={t(menu.label)}
               className="flex flex-col gap-4 px-4 py-10 sm:px-6 lg:py-16"
             >
-              <h2 className="text-sm font-medium">{menu.label}</h2>
+              <h2 className="text-sm font-medium">{t(menu.label)}</h2>
               <ul className="flex flex-col gap-2">
                 {menu.columns
                   .flatMap((column) => column.pages)
@@ -29,7 +31,7 @@ export function SiteFooter({ isSignedIn }: { isSignedIn: boolean }) {
                         }}
                         className="rounded-lg text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        {page.title}
+                        {t(page.title)}
                       </Link>
                     </li>
                   ))}
@@ -41,16 +43,16 @@ export function SiteFooter({ isSignedIn }: { isSignedIn: boolean }) {
           <div className="flex flex-col items-start gap-3">
             <BrandMark />
             <p className="max-w-xl text-sm text-muted-foreground">
-              Built for the NASA Space Apps Challenge 2026 · Field Shift:
-              Adapting Farms with NASA Data. Cropilot supports the agronomist's
-              judgment and never replaces it.
+              {t(
+                "Built for the NASA Space Apps Challenge 2026 · Field Shift: Adapting Farms with NASA Data. Cropilot supports the agronomist's judgment and never replaces it."
+              )}
             </p>
           </div>
           <ArrowLink
             to={isSignedIn ? "/overview" : "/login"}
             className="text-sm"
           >
-            {isSignedIn ? "Open app" : "Sign in"}
+            {t(isSignedIn ? "Open app" : "Sign in")}
           </ArrowLink>
         </div>
       </Band>
