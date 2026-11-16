@@ -2291,4 +2291,63 @@ export const esCase: Record<string, string> = {
   "{value1} of {value2}": "{value1} de {value2}",
   "One reference footprint ({value1}) of {value2}, {value3} m of soil starting at {value4} of available water, NASA POWER weather. Not a sowing recommendation: check soil temperature, waterlogging and the cultivar on the lot.":
     "Un contorno de referencia ({value1}) de {value2}, {value3} m de suelo con {value4} del agua útil al inicio y clima de NASA POWER. No es una recomendación de siembra: revisá la temperatura del suelo, el anegamiento y el cultivar en el lote.",
+  "What you might miss": "Lo que se te puede pasar",
+  "What you might miss this campaign": "Lo que se te puede pasar esta campaña",
+  "Facts from the record of {zone} that bear on the {campaign} decision. Each one names its source and links to its detail. None of them picks a rotation.":
+    "Hechos del historial de {zone} que pesan en la decisión de {campaign}. Cada uno nombra su fuente y lleva a su detalle. Ninguno elige una rotación.",
+  "No past campaign started this strong":
+    "Ninguna campaña anterior arrancó tan fuerte",
+  "ONI of July to September. The highest before was {oni} in {campaign}, so the years like this one are the closest on record, not equals.":
+    "ONI de julio a septiembre. El más alto anterior fue {oni} en {campaign}, así que los años como este son los más cercanos del registro, no iguales.",
+  "See the start": "Ver el arranque",
+  "No rotation wins every time": "Ninguna rotación gana siempre",
+  "{count} rotations": "{count} rotaciones",
+  "That many different rotations had the highest gross margin in the {campaigns} analog campaigns.":
+    "Esa cantidad de rotaciones distintas tuvo el mayor margen bruto en las {campaigns} campañas análogas.",
+  " {swaps} of {pairs} pairs of rotations swap order from one campaign to another.":
+    " {swaps} de {pairs} pares de rotaciones cambian de orden de una campaña a otra.",
+  "See the margins": "Ver los márgenes",
+  "One rotation leads, on margin alone":
+    "Una sola rotación lidera, solo por margen",
+  "{rotation} had the highest gross margin in every analog campaign. The margin compares single campaigns: what repeating a crop does to soil, weeds and diseases is not in it.":
+    "{rotation} tuvo el mayor margen bruto en todas las campañas análogas. El margen compara campañas sueltas: no incluye lo que repetir un cultivo le hace al suelo, las malezas y las enfermedades.",
+  "Rent takes the margin": "El arrendamiento se lleva el margen",
+  "Analog campaigns in which {rotation}, the rotation taken as current, ended below rent.":
+    "Campañas análogas en las que {rotation}, la rotación tomada como actual, quedó por debajo del arrendamiento.",
+  "Analog campaigns in which no rotation covered rent.":
+    "Campañas análogas en las que ninguna rotación cubrió el arrendamiento.",
+  " In {count} of them no rotation covered it: {campaigns}.":
+    " En {count} de ellas ninguna rotación lo cubrió: {campaigns}.",
+  " Rent is today's regional value, applied to each past campaign.":
+    " El arrendamiento es el valor regional de hoy, aplicado a cada campaña pasada.",
+  "See after rent": "Ver después del arrendamiento",
+  "Sowing date moves water stress":
+    "La fecha de siembra mueve el estrés hídrico",
+  "{fewest} to {most} of {episodes}": "{fewest} a {most} de {episodes}",
+  "{from} to {to}": "{from} a {to}",
+  "Historical episodes in which sowing the summer crops {days} days later lowered unmet crop water, in each of the {rotations} rotations simulated: a median of {reduction} mm less. A scenario on one footprint, not validated in the field.":
+    "Episodios históricos en los que sembrar los cultivos de verano {days} días después bajó la demanda hídrica del cultivo no satisfecha, en cada una de las {rotations} rotaciones simuladas: una mediana de {reduction} mm menos. Es un escenario sobre un contorno de referencia, sin validar a campo.",
+  "See the water runs": "Ver las corridas de agua",
+  "Most area lost under {phase}": "La mayor pérdida de área fue con {phase}",
+  "Share of the soybean area planted in {campaign} that was not harvested.":
+    "Parte del área de soja sembrada en {campaign} que no se cosechó.",
+  "Mean share of the soybean area planted that was not harvested.":
+    "Parte media del área de soja sembrada que no se cosechó.",
+  " The {count} {phase} campaigns average {mean}%, against {currentMean}% in the {currentCount} {currentPhase} campaigns on record.":
+    " Las {count} campañas con {phase} promedian {mean}%, contra {currentMean}% en las {currentCount} campañas con {currentPhase} del registro.",
+  " The {count} {phase} campaigns average {mean}%, the highest of any phase.":
+    " Las {count} campañas con {phase} promedian {mean}%, el valor más alto de todas las fases.",
+  " It is an area loss; the source does not give its cause.":
+    " Es una pérdida de área; la fuente no da la causa.",
+  "See by phase": "Ver por fase",
+  "Fields below their neighbours": "Lotes por debajo de sus vecinos",
+  "Each field of the zone": "Cada lote de la zona",
+  "Fields read in {campaign} whose peak greenness is under that of the zone's fields with the same crop.":
+    "Lotes leídos en {campaign} cuyo pico de verdor queda por debajo del de los lotes de la zona con el mismo cultivo.",
+  " {count} more need a look: no zone reference or no recognised summer crop.":
+    " Otros {count} hay que revisarlos: sin referencia de zona o sin cultivo de verano reconocido.",
+  " Greenness is not yield.": " El verdor no es rinde.",
+  "See the map": "Ver el mapa",
+  "These come from the record and from scenarios, not from a forecast.":
+    "Salen del registro y de escenarios, no de un pronóstico.",
 }

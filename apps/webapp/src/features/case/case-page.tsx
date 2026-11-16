@@ -7,6 +7,7 @@ import { NotAvailable } from "@/features/case/block-frame"
 import { CaseNav, type CaseSection } from "@/features/case/case-nav"
 import { CompareBlock } from "@/features/case/compare-block"
 import { FieldMapBlock } from "@/features/case/field-block"
+import { HighlightsBlock } from "@/features/case/highlights-block"
 import { MethodBlock } from "@/features/case/method-block"
 import { NationalBlock } from "@/features/case/national-block"
 import { StartBlock } from "@/features/case/start-block"
@@ -15,6 +16,7 @@ import { useI18n } from "@/lib/i18n"
 import { REFERENCE_CASE_ZONE_ID } from "@/lib/reference-case"
 
 const SECTIONS: ReadonlyArray<CaseSection> = [
+  { id: "highlights", label: "What you might miss" },
   { id: "campaign", label: "Campaign" },
   { id: "start", label: "Start" },
   { id: "years", label: "Years like this" },
@@ -93,6 +95,7 @@ export function CasePage({
             )}
           </p>
         </header>
+        <HighlightsBlock id="highlights" bundle={bundle} />
         <NationalBlock
           id="campaign"
           index={index}
