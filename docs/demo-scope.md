@@ -52,6 +52,32 @@ team in time. The demo therefore uses sources that can be read without that logi
 The team's research notes record these access requirements and the anonymous routes that
 were tested.
 
+## The sowing window: a first, brief version
+
+Compare also shows a **sowing window** for maize: which summer sowing date held up best in
+the campaigns that started like this one. The scope is deliberately narrow. It reuses the
+water scenarios already in the case: one Pergamino reference footprint (268949), 1 m of soil
+starting half full, NASA POWER weather, and summer sowing moved up to 14 days earlier or
+later. It counts the days of water stress at the crop's critical stage in the five analog
+campaigns that have runs. That is the data that was ready in the challenge window, not the
+intended scope.
+
+The full version would weigh every condition that decides a sowing date, with NASA data at
+its core:
+
+| Condition at sowing and through the season | NASA data                                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------ |
+| Water in the root zone                     | SMAP L4 root-zone moisture; NASA POWER `GWETROOT` (used today)           |
+| Waterlogged lots and field access          | OPERA DSWx surface water; SMAP L4 surface moisture                       |
+| Soil temperature for emergence             | Soil temperature by layer from GLDAS or SMAP L4                          |
+| Frost after emergence, heat at flowering   | NASA POWER minimum and maximum air temperature                           |
+| Rain and humidity around sowing            | NASA POWER and GPM IMERG precipitation; NASA POWER relative humidity     |
+| How the lot's crop is developing           | HLS vegetation of the lot (the crop map and NDVI already shown in Field) |
+
+It would also cover late (December) maize and delayed soybean, translate each date into yield
+and margin, run for every zone and lot, and be checked against INTA sowing-date trials before
+it is shown as more than a historical comparison.
+
 ## Next steps we did not get to
 
 1. **Similar years across zones.** Search every zone for campaigns that started like this
