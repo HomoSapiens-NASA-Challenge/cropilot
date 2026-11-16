@@ -140,10 +140,6 @@ function ZoneRow({
   )
 }
 
-/**
- * B0. How the campaign starts in every zone with a case: the headline, a map of
- * Argentina with one marker per zone, and the same zones as a list.
- */
 export function NationalBlock({
   index,
   glossary,

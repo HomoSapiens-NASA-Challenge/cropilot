@@ -19,10 +19,7 @@ export function StrategyGrid({
   )
 }
 
-/**
- * The cell of one strategy inside a row. The strategy name repeats here and is hidden
- * where the header cards line up above it, so a stacked cell still says whose it is.
- */
+/** The strategy name repeats in each cell and is hidden where the header cards line up above it. */
 export function StrategyCell({
   strategy,
   children,
@@ -42,7 +39,6 @@ export function StrategyCell({
   )
 }
 
-/** A row of the comparison: what it measures, the evidence chips, then its cells. */
 export function ComparisonRow({
   title,
   description,

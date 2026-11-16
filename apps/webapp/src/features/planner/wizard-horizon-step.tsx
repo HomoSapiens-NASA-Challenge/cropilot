@@ -58,7 +58,6 @@ function prioritiesSummary(weights: PriorityWeights): string {
   return translate("Custom: {value1}", { value1: weighted })
 }
 
-/** Step 3: how far ahead to plan, and a last look at the three choices before the run. */
 export function WizardHorizonStep({
   setup,
   situation,

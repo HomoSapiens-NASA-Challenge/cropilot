@@ -10,10 +10,7 @@ import { AssistantPanel } from "@/components/assistant-panel"
 
 const SelectRun = createContext<(runId: string | undefined) => void>(() => {})
 
-/**
- * The assistant bubble on every signed-in page. It explains the region's published case,
- * or the planner run a page selects with `useAssistantRun`.
- */
+/** Explains the region's published case, or the planner run a page selects with `useAssistantRun`. */
 export function AppAssistant({
   region,
   children,

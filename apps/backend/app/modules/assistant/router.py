@@ -48,7 +48,7 @@ def ask_case_assistant(data: AssistantRequest) -> AssistantResponse:
 
 @router.post("/planner-messages", response_model=AssistantResponse)
 def ask_planner_assistant(data: PlannerAssistantRequest, user: CurrentUser) -> AssistantResponse:
-    """Explain only a run owned by the authenticated caller; never start or modify a run."""
+    """Explain only a run owned by the caller's handle; never start or modify a run."""
     return _answer(data, user.id, data.run_id)
 
 
@@ -75,5 +75,5 @@ def transcribe_case_question(data: TranscriptionRequest) -> TranscriptionRespons
 def transcribe_private_question(
     data: TranscriptionRequest, user: CurrentUser
 ) -> TranscriptionResponse:
-    """Authenticated voice input, independent of whether anonymous demo chat is enabled."""
+    """Voice input with a user handle, independent of whether anonymous demo chat is enabled."""
     return _transcribe(data, user.id)

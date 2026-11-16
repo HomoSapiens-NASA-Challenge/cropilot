@@ -22,7 +22,7 @@ export type ScreenshotId =
   | "method-sources"
   | "method-glossary"
 
-// Captures of the running public case, taken on 2026-11-15.
+// Captures of the running public case.
 const SCREENSHOTS: Record<
   ScreenshotId,
   { windowTitle: string; caption: string }
@@ -110,7 +110,6 @@ const SCREENSHOTS: Record<
   },
 }
 
-/** A still capture of the running app, framed like the product previews. */
 export function Screenshot({
   id,
   className,

@@ -70,11 +70,7 @@ function takeaway(rows: ReadonlyArray<Row>): string {
   )
 }
 
-/**
- * Forest plot of the held-out comparison: for each baseline, the exact optimum's mean score
- * minus the baseline's on the same campaigns, with the interval of that mean. A whisker that
- * crosses the dashed zero line means the data cannot tell the two apart.
- */
+/** A whisker that crosses the dashed zero line means the data cannot tell the two policies apart. */
 export function HeldOutChart({ result }: { result: RotationPlanResult }) {
   const { t } = useI18n("app")
 

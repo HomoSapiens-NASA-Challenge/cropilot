@@ -457,9 +457,9 @@ def not_computed(has_water: bool, has_field_view: bool) -> list[NotComputed]:
     ]
 
 
-# The market model writes its assumptions for the research team. Three of them name things this case
-# does not have (soil and carbon modules) or use Spanish crop names, so they are restated here. The
-# build stops if the market text changes, so a stale rewrite can never ship.
+# Three of the market model's assumptions name things this case does not have (soil and carbon
+# modules) or use Spanish crop names, so they are restated here. The build stops if the market
+# text changes, so a stale rewrite can never ship.
 ASSUMPTION_REWRITES = {
     "Yield = MAGyP regional model yield x (1 + observed department anomaly vs its linear trend in "
     "that campaign).": (
@@ -770,7 +770,7 @@ def campaign_notes(
     points: list[CampaignPoint],
     soybean_unharvested_pct: dict[int, float],
 ) -> dict[str, list[CampaignNote]]:
-    """Notes derived from the data, plus the three team notes that only exist for Pergamino."""
+    """Notes derived from the data, plus the three curated notes that only exist for Pergamino."""
     notes: dict[str, list[CampaignNote]] = {}
     by_campaign = {point.campaign: point for point in points}
     first, last = points[0].campaign, points[-1].campaign

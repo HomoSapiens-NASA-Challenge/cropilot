@@ -4,7 +4,6 @@ import { SVG_COLORS } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
 const STRAND_COUNT = 64
-/** One strand in every eight carries the accent: most campaigns are not like this one. */
 const ACCENT_EVERY = 8
 
 type Strand = { id: number; path: string; isAccent: boolean }
@@ -27,12 +26,7 @@ const STRANDS: ReadonlyArray<Strand> = Array.from(
   }
 )
 
-/**
- * Decorative ribbon of the brand, ported from the web's StrandsArt. It is a
- * drawing, not a chart: the lines carry no data. The parent sets the box; the
- * art fills it from the top right. Same tones as the web: muted strands at 25%,
- * accent strands in primary at 70%.
- */
+// Decorative: the lines carry no data. Muted strands at 25% opacity, accent strands in primary at 70%.
 export function StrandsArt({
   className,
   tone = "plain",

@@ -81,10 +81,6 @@ function leadersOf(analog: AnalogMargins, kind: MarginKind): string[] {
   return values.filter((entry) => entry.value === best).map((entry) => entry.id)
 }
 
-/**
- * Margin rows: a dot strip per strategy, who leads in each analog campaign, and the
- * worst analog campaign. One toggle switches all of them between gross and after rent.
- */
 export function MarginRows({
   compare,
   kind,

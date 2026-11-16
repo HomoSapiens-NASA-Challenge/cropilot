@@ -7,10 +7,7 @@ const BAND_TONES = {
   inverse: "bg-inverse text-inverse-foreground",
 } as const
 
-/**
- * A full-width band of the page with the centered frame inside. Stacked bands
- * line up their side borders into the two guides that run down the whole page.
- */
+/** Stacked bands line up their side borders into two guides that run down the whole page. */
 export function Band({
   tone = "plain",
   className,

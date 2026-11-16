@@ -36,10 +36,6 @@ function statusLine(run: RotationPlanRun): string {
   return `${translate(title)}: ${stageCounter(active)}`
 }
 
-/**
- * The live view of a run: its pipeline and, once the agent starts learning, the convergence
- * chart. Everything on it is read from the run snapshot the browser polls.
- */
 export function TrainingConsole({
   run,
   compact = false,

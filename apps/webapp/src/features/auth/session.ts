@@ -3,9 +3,8 @@ import { type QueryClient, queryOptions } from "@tanstack/react-query"
 import { redirect } from "@tanstack/react-router"
 
 /**
- * Cropilot has no accounts. The reader types a name or handle; its handle is the user id and
- * travels as the API's bearer credential. Anyone who types the same name opens the same
- * workspace, which is the intended trade for a demo that judges open without signing up.
+ * There are no accounts: the handle derived from the typed name is the user id and the API's
+ * bearer credential, so the same name opens the same workspace.
  */
 export type Session = { user: { id: string; name: string } }
 
@@ -33,19 +32,16 @@ function currentSession(): Session | null {
   return current
 }
 
-/** The current session, or `null` when no name was given yet. */
 export const sessionOptions = queryOptions({
   queryKey: ["session"],
   queryFn: currentSession,
   staleTime: Number.POSITIVE_INFINITY,
 })
 
-/** The handle the API reads as the user, if any. */
 export async function getHandle(): Promise<string | undefined> {
   return currentSession()?.user.id
 }
 
-/** The current session for a page that needs one; asks for a name otherwise. */
 export async function requireSession(queryClient: QueryClient) {
   const session = await queryClient.ensureQueryData(sessionOptions)
   if (!session) {

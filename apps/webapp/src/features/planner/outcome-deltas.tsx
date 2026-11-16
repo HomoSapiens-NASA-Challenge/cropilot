@@ -13,11 +13,7 @@ function betterOrWorse(
   return delta > 0 === isHigherBetter ? "better" : "worse"
 }
 
-/**
- * The five outcomes as differences in real units, first policy minus second, with a word for
- * whether the first policy is better, worse or the same on each. Margin counts up, the other
- * four count down.
- */
+/** Differences in real units, first policy minus second. Margin counts up, the other four count down. */
 export function OutcomeDeltas({
   deltas,
   className,

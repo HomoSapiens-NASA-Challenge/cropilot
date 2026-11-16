@@ -93,11 +93,7 @@ function Tile({
   )
 }
 
-/**
- * What weighing the other four outcomes costs and buys: the exact optimum for the reader's
- * priorities against the optimum for margin alone, on the held-out campaigns and in real units.
- * It exists only when the priorities are not already margin only.
- */
+/** Exists only when the priorities are not already margin only. */
 export function PriorityTradeoffCard({
   result,
 }: {

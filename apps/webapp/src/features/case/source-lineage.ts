@@ -1,5 +1,4 @@
 // Main input references, not a replacement for each calculation's full method.
-// Traced through scripts/demo_case/build.py and the reports linked by SourceRef.
 const MARKET_INPUTS = [
   "nasa_power",
   "noaa_oni",

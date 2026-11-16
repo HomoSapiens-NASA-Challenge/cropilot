@@ -9,7 +9,6 @@ import { SiteMobileNav } from "@/features/landing/site-mobile-nav"
 import { SiteNavMenu } from "@/features/landing/site-nav-menu"
 import { useI18n } from "@/lib/i18n"
 
-/** Sticky glass header of the public site. */
 export function SiteHeader({ isSignedIn }: { isSignedIn: boolean }) {
   const { t } = useI18n("landing")
   const frameRef = useRef<HTMLDivElement>(null)

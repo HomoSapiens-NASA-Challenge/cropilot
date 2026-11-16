@@ -2,7 +2,6 @@ import { useRouterState } from "@tanstack/react-router"
 import { cn } from "cn"
 import { useI18n } from "@/lib/i18n"
 
-/** A slim indeterminate bar at the top of the window while the router loads a page. */
 export function RouteProgress() {
   const { t } = useI18n()
   const isNavigating = useRouterState({

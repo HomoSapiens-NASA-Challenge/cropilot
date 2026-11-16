@@ -21,7 +21,6 @@ export function HideBlockHeaders({ children }: { children: ReactNode }) {
   )
 }
 
-/** One block of the case: an anchor, a title, a one-line lead and the content. */
 export function BlockSection({
   id,
   title,

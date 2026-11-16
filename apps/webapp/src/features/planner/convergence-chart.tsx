@@ -38,10 +38,8 @@ function groupBySeed(points: ReadonlyArray<ConvergencePoint>): AgentLine[] {
 }
 
 /**
- * How the learning agents close in on the exact optimum. Each agent trains from its own random
- * seed; every point is a checkpoint scored exactly on the decision process, so a line is not
- * noise from single episodes. Agent 1 is the one reported everywhere else. Below the scores,
- * the share of states where each agent already picks the optimal action.
+ * Each agent trains from its own random seed and every point is a checkpoint scored exactly,
+ * so a line is not noise from single episodes. Agent 1 is the one reported elsewhere.
  */
 export function ConvergenceChart({
   points,

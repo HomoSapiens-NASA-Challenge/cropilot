@@ -119,11 +119,7 @@ function Stepper({
   )
 }
 
-/**
- * Three steps in one card: where the campaign starts, what matters, and how far ahead to plan.
- * Enter advances; the last step runs the planner. Step 1 only chooses what the results are read
- * for, so the run request holds the priorities and the horizon alone.
- */
+/** Step 1 only chooses what the results are read for, so the run request holds the priorities and the horizon alone. */
 export function PlannerWizard({
   region,
   setup,

@@ -57,10 +57,6 @@ export function CaseNotFound({ zoneId }: { zoneId: string }) {
   )
 }
 
-/**
- * The public case of one zone, no sign-in needed: the national campaign, how it starts
- * here, the years like this, the rotations compared, the field, and the method.
- */
 export function CasePage({
   index,
   bundle,

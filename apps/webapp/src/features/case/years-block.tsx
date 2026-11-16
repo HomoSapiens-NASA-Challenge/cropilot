@@ -216,10 +216,6 @@ function AnalogTable({
   )
 }
 
-/**
- * B2. The campaigns that started like this one: all past campaigns on a scatter of the
- * two signals, the analogs ranked below it, the method, and its measured limit.
- */
 export function YearsBlock({
   bundle,
   id,

@@ -212,11 +212,7 @@ function juneTakeaway(cells: ReadonlyArray<DecisionCell>): string {
   )
 }
 
-/**
- * The policy of the first campaign: what the exact optimum plants in each state, and where
- * the learning agent chose differently. The reader's situation is outlined, and clicking a cell
- * moves it there.
- */
+/** Clicking a cell moves the reader's situation there. */
 export function DecisionMap({
   result,
   situation,

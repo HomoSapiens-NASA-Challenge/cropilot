@@ -49,11 +49,7 @@ export function waterLevelOfFraction(fraction: number, levels: number): number {
   return Math.round(Math.min(Math.max(fraction, 0), 1) * (levels - 1))
 }
 
-/**
- * The situation the NOAA record puts the 2026/27 campaign in, with the simulator's own soil
- * water assumption. Without a published reading the phase falls back to neutral, which the
- * wizard labels as a placeholder.
- */
+/** Without a published NOAA reading the phase falls back to neutral, which the wizard labels as a placeholder. */
 export function defaultSituation(setup: RotationPlanSetup): Situation {
   return {
     waterFraction: waterFractionOfLevel(
@@ -69,11 +65,7 @@ function isSameWater(cell: DecisionCell, waterFraction: number): boolean {
   return Math.abs(cell.water_fraction - waterFraction) < WATER_TOLERANCE
 }
 
-/**
- * What the plan does in the first campaign from this situation: the June crop and, for each
- * possible August phase, the summer decision that follows it. August reads the June 1 soil
- * water, as the August decision never sees August soil water.
- */
+/** August reads the June 1 soil water: the August decision never sees August soil water. */
 export function nextCampaign(
   result: RotationPlanResult,
   situation: Situation

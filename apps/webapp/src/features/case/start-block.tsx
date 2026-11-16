@@ -13,10 +13,6 @@ import { EvidenceChip } from "@/features/case/evidence-chip"
 import { Term } from "@/features/case/glossary-term"
 import { useI18n } from "@/lib/i18n"
 
-/**
- * B1. How the campaign starts in this zone: the two signals known at the end of
- * August, the decision they inform and the scale they describe.
- */
 export function StartBlock({
   bundle,
   id,

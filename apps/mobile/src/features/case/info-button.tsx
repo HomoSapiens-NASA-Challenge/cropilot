@@ -4,7 +4,6 @@ import { Pressable } from "react-native"
 import { Icon } from "@/components/ui/icon"
 import { Sheet } from "@/components/ui/sheet"
 
-/** Opens contextual information from a native header. */
 export function InfoButton({
   title,
   children,

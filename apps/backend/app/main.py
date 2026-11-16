@@ -17,7 +17,6 @@ from app.modules.rotation_planner.router import router as rotation_planner_route
 from app.modules.water.router import router as water_router
 from app.modules.workspaces.router import router as workspaces_router
 
-# Every module router is registered here, under the `/api` prefix.
 ROUTERS: list[APIRouter] = [
     assistant_router,
     health_router,

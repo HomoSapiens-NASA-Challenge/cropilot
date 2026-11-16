@@ -21,15 +21,12 @@ configureApi({ baseUrl: API_URL, getToken: getHandle })
 
 const queryClient = new QueryClient()
 
-// Anyone can open the public case; the private screens (farms) need the name
-// the reader typed on the sign-in screen.
-// Light only, like the web's visual system.
 export default function RootLayout() {
   // `undefined` while the stored identity loads: the guard below must not
   // decide yet, or a signed-in reader would flash the signed-out stack.
   const identity = useIdentity()
-  // Geist, like the web. Each weight is its own font family on native, so the
-  // font-light/normal/medium utilities map to these names in tailwind.config.js.
+  // Each weight is its own font family on native; tailwind.config.js maps the
+  // font-light/normal/medium utilities to these names.
   const [fontsLoaded, fontError] = useFonts({
     Geist_300Light,
     Geist_400Regular,

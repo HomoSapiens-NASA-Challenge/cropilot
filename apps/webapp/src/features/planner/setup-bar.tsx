@@ -33,10 +33,7 @@ const HORIZON_OPTIONS: ReadonlyArray<SegmentedOption<string>> = HORIZONS.map(
   })
 )
 
-/**
- * The wizard once a run exists: what was chosen, as chips, with the priorities and the horizon
- * still at hand. Changing either re-runs the planner at once.
- */
+/** Changing the priorities or the horizon re-runs the planner at once. */
 export function SetupBar({
   region,
   setup,

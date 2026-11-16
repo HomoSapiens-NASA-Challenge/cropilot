@@ -14,10 +14,7 @@ import {
 const POLL_INTERVAL_MS = 250
 const MAX_READ_RETRIES = 3
 
-/**
- * One planner run at a time: start it, poll its snapshot while it is queued or running, and
- * keep the last finished run around so its results stay on screen while the next one computes.
- */
+/** Keeps the last finished run so its results stay on screen while the next one computes. */
 export function usePlannerRun() {
   const queryClient = useQueryClient()
   const [runId, setRunId] = useState<string | null>(null)

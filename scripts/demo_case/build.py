@@ -3,13 +3,13 @@
 Run it with the backend environment, so it imports the contract and the water loader:
 
     uv run --directory cropilot/apps/backend python ../../scripts/demo_case/build.py \
-        --hub-data /path/to/hub/data --out app/modules/cases/resources
+        --hub-data /path/to/data --out app/modules/cases/resources
 
 Inputs (all under --hub-data, see README.md): `market_runs/<Zone>_2026.json` for the ten zones,
 `raw/magyp.csv` (MAGyP estimates) and `pergamino/` (the Pergamino package); the water scenarios and
 the crop map by field (`crop-map-v1`) are read from the backend data directory.
-`--refresh-field` rebuilds only the field blocks of the committed bundles from the crop map, with no
-hub data.
+`--refresh-field` rebuilds only the field blocks of the committed bundles from the crop map, with
+no `--hub-data`.
 Every output is built as a contract object and serialized from it, so nothing invalid is written.
 """
 

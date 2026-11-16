@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dialog"
 import { useI18n } from "@/lib/i18n"
 
-/** Changes the region the workspace is scoped to, without leaving the page. */
 export function RegionDialog({
   currentRegion,
   open,

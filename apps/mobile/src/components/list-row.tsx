@@ -11,7 +11,6 @@ type ListRowProps = {
   onPress?: () => void
   accessibilityLabel?: string
 }
-/** Displays a divided row, with navigation affordance when pressable. */
 export function ListRow({
   title,
   subtitle,
@@ -49,7 +48,6 @@ export function ListRow({
   )
 }
 
-/** Groups related list rows under an optional title. */
 export function ListSection({
   title,
   children,

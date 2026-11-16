@@ -11,7 +11,6 @@ const CaseReferencesContext = createContext<CaseReferences | null>(null)
 
 const NO_GLOSSARY: ReadonlyArray<GlossaryTerm> = []
 
-/** Gives evidence chips and glossary hints the sources and terms of the bundle they sit in. */
 export function CaseReferencesProvider({
   sources,
   glossary = NO_GLOSSARY,
@@ -72,7 +71,6 @@ export function useEvidenceSources(ids: ReadonlyArray<string>): SourceRef[] {
   return [...references.values()]
 }
 
-/** The glossary entry for a term, matched without regard to case. */
 export function useGlossaryEntry(term: string): GlossaryTerm | undefined {
   const { glossary } = useCaseReferences()
   const wanted = term.toLowerCase()

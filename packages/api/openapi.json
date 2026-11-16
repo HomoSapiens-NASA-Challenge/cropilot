@@ -53,7 +53,7 @@
           "assistant"
         ],
         "summary": "Ask Planner Assistant",
-        "description": "Explain only a run owned by the authenticated caller; never start or modify a run.",
+        "description": "Explain only a run owned by the caller's handle; never start or modify a run.",
         "operationId": "ask_planner_assistant",
         "requestBody": {
           "content": {
@@ -142,7 +142,7 @@
           "assistant"
         ],
         "summary": "Transcribe Private Question",
-        "description": "Authenticated voice input, independent of whether anonymous demo chat is enabled.",
+        "description": "Voice input with a user handle, independent of whether anonymous demo chat is enabled.",
         "operationId": "transcribe_private_question",
         "requestBody": {
           "content": {
@@ -314,7 +314,7 @@
           "workspace"
         ],
         "summary": "Get Workspace",
-        "description": "The signed-in user's workspace, or `null` until onboarding picks a region.",
+        "description": "The caller's workspace, or `null` until onboarding picks a region.",
         "operationId": "get_workspace",
         "responses": {
           "200": {

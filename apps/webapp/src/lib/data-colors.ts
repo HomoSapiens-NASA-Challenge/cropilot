@@ -58,14 +58,11 @@ export const LOT_STATUS_IDS = Object.keys(LOT_STATUS) as LotStatus[]
 export const MAP_ACCENT_COLOR = "#314ec7"
 export const MAP_INK_COLOR = "#0d1d32"
 
-/**
- * Yield anomaly of one campaign: grey at zero, ink-red for losses and the accent for gains.
- * Saturation grows with the size of the anomaly, up to `limitPct`.
- */
 const ANOMALY_LOSS_COLOR = "#c0392b"
 const ANOMALY_GAIN_COLOR = "var(--primary)"
 const ANOMALY_ZERO_COLOR = "#d6dbe4"
 
+/** Grey at zero, ink-red for losses and the accent for gains; saturation grows up to `limitPct`. */
 export function anomalyColor(anomalyPct: number, limitPct: number): string {
   const share = Math.min(Math.abs(anomalyPct) / limitPct, 1)
   const end = anomalyPct < 0 ? ANOMALY_LOSS_COLOR : ANOMALY_GAIN_COLOR

@@ -295,11 +295,6 @@ function BranchTile({
   )
 }
 
-/**
- * The first campaign of the plan from the starting point the reader chose: the winter crop on
- * June 1, then the summer crop for each El Niño phase the end of August can bring, with how
- * often training campaigns took each path.
- */
 export function NextCampaignCard({
   result,
   situation,

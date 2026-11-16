@@ -42,7 +42,6 @@ const hydrated = SecureStore.getItemAsync(STORAGE_KEY)
     if (current === undefined) publish(identity)
   })
 
-/** The stored identity, once it has loaded. */
 export async function getIdentity(): Promise<Identity | null> {
   await hydrated
   return current ?? null
@@ -70,7 +69,6 @@ function subscribe(listener: () => void) {
   }
 }
 
-/** The signed-in identity, `null` when signed out, `undefined` while it loads. */
 export function useIdentity(): Identity | null | undefined {
   return useSyncExternalStore(
     subscribe,

@@ -11,10 +11,6 @@ import {
 import { useGlossaryEntry } from "@/features/case/case-context"
 import { useI18n } from "@/lib/i18n"
 
-/**
- * A term of the page. When the bundle's glossary defines it, a small
- * "What is this?" popover sits next to it; otherwise it is plain text.
- */
 export function Term({
   term,
   children,

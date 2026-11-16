@@ -1,5 +1,5 @@
 // Fails when UI code breaks the visual rules that theme tokens cannot enforce.
-// The rules themselves are in AGENTS.md, under "Sistema visual".
+// The rules themselves are in CONTRIBUTING.md, under "Visual system".
 import { readdirSync, readFileSync } from "node:fs"
 import { join, relative } from "node:path"
 
@@ -62,7 +62,7 @@ for (const file of sourceFiles(SOURCE_DIR)) {
 
 if (violations.length > 0) {
   console.error(
-    `Design rules: ${violations.length} violation(s). See "Sistema visual" in AGENTS.md.\n`
+    `Design rules: ${violations.length} violation(s). See "Visual system" in CONTRIBUTING.md.\n`
   )
   console.error(violations.join("\n"))
   process.exit(1)

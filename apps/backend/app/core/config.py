@@ -26,8 +26,8 @@ def get_settings() -> Settings:
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-# `.parent` instead of `parents[4]`: in the container the backend is `/app` and has no
-# grandparent, so `parents[4]` raised at import. There the path is `/.env`, which never exists.
+# In the container the backend lives at /app, which has no grandparent: the root `.env` is
+# looked up at `/.env` and simply does not exist there.
 ROOT_ENV_FILE = BACKEND_DIR.parent.parent / ".env"
 
 

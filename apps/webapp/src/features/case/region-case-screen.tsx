@@ -18,10 +18,6 @@ export function RegionWithoutCase({ region }: { region: Region }) {
   )
 }
 
-/**
- * Body of an app screen scoped to the workspace region. Without a case for the region it
- * shows the empty state and no numbers; with one, the screen's block under its page header.
- */
 export function RegionCaseScreen({
   bundle,
   region,

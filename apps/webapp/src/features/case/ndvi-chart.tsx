@@ -53,10 +53,7 @@ function segmentsOf(
   return segments
 }
 
-/**
- * NDVI, the greenness index from 0 to 1, as lines over time. Missing months leave a gap.
- * `tickLabels` has one entry per point: the text under it, or `null` for none.
- */
+/** `tickLabels` has one entry per point: the text under it, or `null` for none. */
 export function NdviChart({
   series,
   tickLabels,

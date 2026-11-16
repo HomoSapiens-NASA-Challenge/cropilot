@@ -275,11 +275,7 @@ function CumulativeChart({
   )
 }
 
-/**
- * The held-out campaigns, one column each: the crops every policy would have grown, the score
- * it would have earned, and the El Niño phase the campaign started in. Hovering a row
- * highlights that policy here and in the cumulative chart below.
- */
+/** Hovering a row highlights that policy here and in the cumulative chart below. */
 export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
   const { t } = useI18n("app")
 

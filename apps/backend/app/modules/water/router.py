@@ -1,4 +1,4 @@
-"""Authenticated access to a shared, public-source demonstration dataset."""
+"""A shared, public-source demonstration dataset; requires a user handle."""
 
 from fastapi import APIRouter, HTTPException
 

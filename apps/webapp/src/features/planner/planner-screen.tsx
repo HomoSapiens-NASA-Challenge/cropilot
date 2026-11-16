@@ -21,10 +21,6 @@ import { useI18n } from "@/lib/i18n"
 
 const DEFAULT_HORIZON_CAMPAIGNS = 3
 
-/**
- * The rotation planner: a three-step wizard, then a setup bar above a live run and the
- * results of the last finished run. The setup lives here; a new region remounts the screen.
- */
 export function PlannerScreen({
   region,
   setup,
@@ -64,7 +60,6 @@ export function PlannerScreen({
     : previousRun?.result
       ? { run: previousRun, result: previousRun.result, isDimmed: true }
       : null
-  // The app's assistant bubble explains the run on screen.
   useAssistantRun(shown?.run.run_id)
   const runAgain = (
     <Button variant="outline" onClick={() => run(weights, horizon)}>

@@ -67,10 +67,7 @@ function takeaway(policies: ReadonlyArray<PolicyResult>): string | null {
   )
 }
 
-/**
- * Every policy on one axis: the mean score on the campaigns it was fitted on (hollow) and on
- * the held-out campaigns (filled). A policy that is only good on the first is overfitted.
- */
+/** A policy that is only good on the campaigns it was fitted on (hollow) is overfitted. */
 export function PolicyComparison({ result }: { result: RotationPlanResult }) {
   const { t } = useI18n("app")
 

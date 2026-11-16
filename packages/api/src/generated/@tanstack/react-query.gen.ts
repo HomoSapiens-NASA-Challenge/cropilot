@@ -28,7 +28,7 @@ export const askCaseAssistantMutation = (options?: Partial<Options<AskCaseAssist
 /**
  * Ask Planner Assistant
  *
- * Explain only a run owned by the authenticated caller; never start or modify a run.
+ * Explain only a run owned by the caller's handle; never start or modify a run.
  */
 export const askPlannerAssistantMutation = (options?: Partial<Options<AskPlannerAssistantData>>): UseMutationOptions<AskPlannerAssistantResponse, AskPlannerAssistantError, Options<AskPlannerAssistantData>> => {
     const mutationOptions: UseMutationOptions<AskPlannerAssistantResponse, AskPlannerAssistantError, Options<AskPlannerAssistantData>> = {
@@ -66,7 +66,7 @@ export const transcribeCaseQuestionMutation = (options?: Partial<Options<Transcr
 /**
  * Transcribe Private Question
  *
- * Authenticated voice input, independent of whether anonymous demo chat is enabled.
+ * Voice input with a user handle, independent of whether anonymous demo chat is enabled.
  */
 export const transcribePrivateQuestionMutation = (options?: Partial<Options<TranscribePrivateQuestionData>>): UseMutationOptions<TranscribePrivateQuestionResponse, TranscribePrivateQuestionError, Options<TranscribePrivateQuestionData>> => {
     const mutationOptions: UseMutationOptions<TranscribePrivateQuestionResponse, TranscribePrivateQuestionError, Options<TranscribePrivateQuestionData>> = {
@@ -193,7 +193,7 @@ export const getWorkspaceQueryKey = (options?: Options<GetWorkspaceData>) => cre
 /**
  * Get Workspace
  *
- * The signed-in user's workspace, or `null` until onboarding picks a region.
+ * The caller's workspace, or `null` until onboarding picks a region.
  */
 export const getWorkspaceOptions = (options?: Options<GetWorkspaceData>) => queryOptions<GetWorkspaceResponse, DefaultError, GetWorkspaceResponse, ReturnType<typeof getWorkspaceQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {

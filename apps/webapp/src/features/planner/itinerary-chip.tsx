@@ -35,7 +35,6 @@ function CropBlock({ action }: { action: Itinerary["winter"] }) {
   )
 }
 
-/** One campaign's crops as two stacked blocks, winter above summer, each in its crop color. */
 export function ItineraryChip({
   itinerary,
   className,

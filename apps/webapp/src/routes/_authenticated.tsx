@@ -13,10 +13,7 @@ import { AppAssistant } from "@/features/shell/app-assistant"
 import { AppBreadcrumb } from "@/features/shell/app-breadcrumb"
 import { AppSidebar } from "@/features/shell/app-sidebar"
 
-/**
- * Layout of every signed-in page. Routes under `_authenticated/` require a session
- * and a workspace region; without a region the reader goes through onboarding first.
- */
+/** Without a workspace region the reader goes through onboarding first. */
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context }) => {
     const session = await requireSession(context.queryClient)

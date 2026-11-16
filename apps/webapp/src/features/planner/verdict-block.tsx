@@ -25,10 +25,7 @@ const HEADLINE_VERB = {
   inconclusive: "cannot be told apart from",
 } as const
 
-/**
- * The sentence is composed from the held-out comparison of the run: when the optimum is not
- * clearly better than the best fixed rotation, it says so instead of rounding the gap into a win.
- */
+/** When the optimum is not clearly better than the best fixed rotation, it says so instead of rounding the gap into a win. */
 function verdictSentence(
   result: RotationPlanResult,
   versusFixed: HeldOutComparison,
@@ -89,7 +86,6 @@ function Tile({
   )
 }
 
-/** The headline of a finished run: how the optimum fares on the held-out campaigns, in four tiles. */
 export function VerdictBlock({ result }: { result: RotationPlanResult }) {
   const { t } = useI18n("app")
 
