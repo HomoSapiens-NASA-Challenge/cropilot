@@ -12,9 +12,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file="../../.env", extra="ignore")
 
     database_url: str
-    # Public origin of the auth service: the issuer and audience of every access token.
-    better_auth_url: str
-    auth_jwks_url: str
+    # Public origin of the app, e.g. https://cropilot.app: the MCP server's allowed host.
+    public_url: str
 
     @property
     def sqlalchemy_url(self) -> str:

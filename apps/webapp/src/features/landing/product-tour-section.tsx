@@ -79,7 +79,7 @@ export function ProductTourSection({ isSignedIn }: { isSignedIn: boolean }) {
       <div className="flex flex-col gap-10 px-4 py-20 sm:px-6 lg:py-24">
         <SplitHeading lead={t("See the running app.")} className="max-w-3xl">
           {t(
-            "Four screen recordings of Cropilot as it runs today. The case is public and needs no sign-in; the planner needs an account."
+            "Four screen recordings of Cropilot as it runs today. The case is public; the planner only asks for your name."
           )}
         </SplitHeading>
         <Tabs defaultValue={TOUR_STOPS[0].id} className="gap-8">

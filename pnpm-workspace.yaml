@@ -12,9 +12,6 @@ catalog:
   "@types/react-dom": ^19
   "@tanstack/react-query": ^5.107.1
   "@tanstack/react-form": ^1.33.5
-  # Client and server must stay on the same Better Auth version.
-  better-auth: ^1.7.23
-  "@better-auth/expo": ^1.7.23
   # 6.x: the API client generator does not support TypeScript 7 yet.
   typescript: ~6.0.3
   "@types/node": ^24

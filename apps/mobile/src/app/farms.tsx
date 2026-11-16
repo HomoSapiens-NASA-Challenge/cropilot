@@ -2,12 +2,11 @@ import { Stack } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { UserMenu } from "@/features/auth/user-menu"
 import { FarmList } from "@/features/farms/farm-list"
-import { authClient } from "@/lib/auth"
+import { useIdentity } from "@/lib/auth"
 
 export default function FarmsScreen() {
-  const session = authClient.useSession()
-  // Stack.Protected only renders this screen with a session.
-  const userName = session.data?.user.name
+  // Stack.Protected only renders this screen with an identity.
+  const identity = useIdentity()
 
   return (
     <SafeAreaView
@@ -17,7 +16,7 @@ export default function FarmsScreen() {
       <Stack.Screen
         options={{
           headerRight: () =>
-            userName === undefined ? null : <UserMenu name={userName} />,
+            identity ? <UserMenu identity={identity} /> : null,
         }}
       />
       <FarmList />

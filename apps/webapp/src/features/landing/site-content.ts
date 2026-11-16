@@ -444,7 +444,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "farms",
             title: "Farms",
-            summary: "The farms you advise, saved to your account",
+            summary: "The farms you advise, saved under your name",
             content: {
               headline: "Keep the farms you advise in one place.",
               lead: "Signed in, you list the farms you advise by name. Today a farm is a saved name: the evidence in Cropilot describes the region and the demo field, not yet each farm you add.",
@@ -452,9 +452,9 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               highlights: [
                 {
                   icon: Tractor,
-                  title: "Your farms, your account",
+                  title: "Your farms, under your name",
                   description:
-                    "Add a farm by name and it is saved to your account. Each signed-in user sees their own list.",
+                    "Add a farm by name and it is saved under your handle. Each handle sees its own list.",
                 },
                 {
                   icon: MapPinned,
@@ -2036,7 +2036,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             summary: "From signing in to the first comparison.",
             content: {
               headline: "From the public case to your first planner run.",
-              lead: "You can read a full case with no account. Sign in with Google to pick your region, run the rotation planner and ask Cropilot about a result.",
+              lead: "You can read a full case with no account. Type your name to pick your region, run the rotation planner and ask Cropilot about a result.",
               screenshot: "case-hero",
               highlights: [
                 {
@@ -2047,9 +2047,9 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
                 },
                 {
                   icon: MapPinned,
-                  title: "2 · Sign in, pick a region",
+                  title: "2 · Type your name, pick a region",
                   description:
-                    "Sign in with Google, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.",
+                    "Type your name, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.",
                 },
                 {
                   icon: SlidersHorizontal,
@@ -2225,7 +2225,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
                   {
                     title: "Do I need an account?",
                     description:
-                      "Not to read the public cases. The planner and the assistant on a planner run need a Google sign-in.",
+                      "No. The public cases open directly, and the planner and its assistant only ask for a name or handle, with no password.",
                   },
                   {
                     title: "Is La Celina a real farm?",

@@ -138,7 +138,6 @@ export const esApp: Record<string, string> = {
     "Compará las rotaciones y sus compromisos de agua.",
   "Computed in ": "Calculado en ",
   Continue: "Continuar",
-  "Continue with Google": "Continuar con Google",
   Conversation: "Conversación",
   "Could not encode the recording": "No se pudo codificar la grabación",
   "Could not load the session": "No se pudo cargar la sesión",
@@ -345,8 +344,14 @@ export const esApp: Record<string, string> = {
   "Named strategy": "Estrategia con nombre",
   Neutral: "Neutral",
   "New conversation": "Nueva conversación",
-  "New here? Signing in with Google creates your account. Cropilot supports the agronomist's judgment and never replaces it.":
-    "¿Primera vez? Iniciar sesión con Google crea tu cuenta. Cropilot apoya el criterio del agrónomo y nunca lo reemplaza.",
+  "Anyone who types the same name opens the same workspace, so pick one that is yours. Cropilot supports the agronomist's judgment and never replaces it.":
+    "Quien escriba el mismo nombre abre el mismo espacio de trabajo, así que elegí uno propio. Cropilot apoya el criterio del agrónomo y nunca lo reemplaza.",
+  "Type your name or a handle to save your region, farms and planner runs. No account, no password.":
+    "Escribí tu nombre o un usuario para guardar tu región, tus campos y tus ejecuciones del planificador. Sin cuenta ni contraseña.",
+  "Use at least two letters or numbers.": "Usá al menos dos letras o números.",
+  "What should we call you?": "¿Cómo te llamamos?",
+  "You will be @{value1}.": "Vas a ser @{value1}.",
+  "Your name or handle": "Tu nombre o usuario",
   "Next campaign": "Próxima campaña",
   Niña: "Niña",
   Niño: "Niño",
@@ -405,7 +410,6 @@ export const esApp: Record<string, string> = {
   "Recording is too large. Try a shorter question.":
     "La grabación es demasiado grande. Probá con una pregunta más corta.",
   "Recording · ": "Grabando · ",
-  "Redirecting to Google…": "Redirigiendo a Google…",
   "Reference point": "Punto de referencia",
   Region: "Región",
   "Region: {value1}": "Región: {value1}",
@@ -446,7 +450,6 @@ export const esApp: Record<string, string> = {
   "Shares are relative: only the proportions between the sliders matter.":
     "Las proporciones son relativas: solo importa la relación entre los controles.",
   "Side by side": "Lado a lado",
-  "Sign in to Cropilot": "Iniciá sesión en Cropilot",
   "Sign out": "Cerrar sesión",
   "Simulate campaigns": "Simular campañas",
   "Simulated for ": "Simulado para ",

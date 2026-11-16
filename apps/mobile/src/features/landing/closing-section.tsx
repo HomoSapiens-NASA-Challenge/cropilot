@@ -45,7 +45,7 @@ export function ClosingSection() {
             Ready to get started?
           </Text>
           <Text className="text-xl font-light text-muted-foreground">
-            Sign in with Google and add your first farm.
+            Type your name and add your first farm.
           </Text>
           <View className="mt-3 flex-row flex-wrap gap-2">
             <AppEntryLink signedOutLabel="Start now" />

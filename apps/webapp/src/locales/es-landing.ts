@@ -39,8 +39,8 @@ export const esLanding: Record<string, string> = {
     "Cada comparación parte de un lote y de la rotación que se hace hoy en él.",
   "Farm map": "Mapa del campo",
   "Ready to get started?": "¿Listo para empezar?",
-  "Open the public case with no sign-in, or sign in with Google to add your farm and run the rotation planner.":
-    "Abrí el caso público sin iniciar sesión, o iniciá sesión con Google para agregar tu campo y usar el planificador de rotaciones.",
+  "Open the public case right away, or type your name to add your farm and run the rotation planner.":
+    "Abrí el caso público directamente, o escribí tu nombre para agregar tu campo y usar el planificador de rotaciones.",
   "Start now": "Empezar ahora",
   "See how it works": "Ver cómo funciona",
   "NASA POWER · GWETROOT": "NASA POWER · GWETROOT",
@@ -167,8 +167,8 @@ export const esLanding: Record<string, string> = {
     "Un asistente de tres pasos configura la ejecución. Luego, el planificador resuelve el óptimo exacto, entrena cinco agentes de Q-learning y vuelve a simular cada política en campañas reservadas para evaluación.",
   "Open the public case": "Abrir el caso público",
   "See the running app.": "Ver la app en funcionamiento.",
-  "Four screen recordings of Cropilot as it runs today. The case is public and needs no sign-in; the planner needs an account.":
-    "Cuatro grabaciones de pantalla de Cropilot tal como funciona hoy. El caso es público y no requiere iniciar sesión; el planificador requiere una cuenta.",
+  "Four screen recordings of Cropilot as it runs today. The case is public; the planner only asks for your name.":
+    "Cuatro grabaciones de pantalla de Cropilot tal como funciona hoy. El caso es público; el planificador solo te pide tu nombre.",
   "Public case · Years like this": "Caso público · Años como este",
   "The public case finding past campaigns that started like 2026/27.":
     "El caso público que encuentra campañas pasadas que empezaron como 2026/27.",
@@ -410,15 +410,15 @@ export const esLanding: Record<string, string> = {
     "Tu pregunta, los últimos intercambios y la evidencia seleccionada se envían a OpenAI desde el servidor, nunca desde el navegador. Cropilot no almacena grabaciones ni respuestas habladas. El procesamiento por parte del proveedor es independiente.",
   Field: "Lote",
   Farms: "Campos",
-  "The farms you advise, saved to your account":
-    "Los campos que asesorás, guardados en tu cuenta",
+  "The farms you advise, saved under your name":
+    "Los campos que asesorás, guardados con tu nombre",
   "Keep the farms you advise in one place.":
     "Reuní en un solo lugar los campos que asesorás.",
   "Signed in, you list the farms you advise by name. Today a farm is a saved name: the evidence in Cropilot describes the region and the demo field, not yet each farm you add.":
     "Con la sesión iniciada, registrás por nombre los campos que asesorás. Hoy un campo es un nombre guardado: la evidencia de Cropilot describe la región y el lote de la demo, todavía no cada campo que agregás.",
-  "Your farms, your account": "Tus campos, tu cuenta",
-  "Add a farm by name and it is saved to your account. Each signed-in user sees their own list.":
-    "Agregá un campo por nombre y queda guardado en tu cuenta. Cada usuario que inicia sesión ve su propia lista.",
+  "Your farms, under your name": "Tus campos, con tu nombre",
+  "Add a farm by name and it is saved under your handle. Each handle sees its own list.":
+    "Agregá un campo por nombre y queda guardado con tu usuario. Cada usuario ve su propia lista.",
   "A region sets the scope": "Una región define el alcance",
   "After signing in you choose one of the ten reference departments, with Pergamino preselected. Comparisons, the planner and the assistant work on that region, and you can change it later.":
     "Después de iniciar sesión, elegís uno de los diez departamentos de referencia, con Pergamino preseleccionado. Las comparaciones, el planificador y el asistente trabajan sobre esa región, y podés cambiarla más adelante.",
@@ -1106,14 +1106,15 @@ export const esLanding: Record<string, string> = {
     "Desde el inicio de sesión hasta la primera comparación.",
   "From the public case to your first planner run.":
     "Desde el caso público hasta tu primera simulación en el planificador.",
-  "You can read a full case with no account. Sign in with Google to pick your region, run the rotation planner and ask Cropilot about a result.":
-    "Podés leer un caso completo sin una cuenta. Iniciá sesión con Google para elegir tu región, ejecutar el planificador de rotaciones y preguntarle a Cropilot sobre un resultado.",
+  "You can read a full case with no account. Type your name to pick your region, run the rotation planner and ask Cropilot about a result.":
+    "Podés leer un caso completo sin una cuenta. Escribí tu nombre para elegir tu región, ejecutar el planificador de rotaciones y preguntarle a Cropilot sobre un resultado.",
   "1 · Open a case": "1 · Abrir un caso",
   "No sign-in. Pergamino and Paraná are public. Read the years like this, compare rotations and look at the field map.":
     "Sin iniciar sesión. Pergamino y Paraná son públicos. Consultá los años como este, compará rotaciones y mirá el mapa de lotes.",
-  "2 · Sign in, pick a region": "2 · Iniciar sesión y elegir una región",
-  "Sign in with Google, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.":
-    "Iniciá sesión con Google y después elegí uno de los diez departamentos de referencia. Pergamino viene preseleccionado y podés cambiarlo más adelante.",
+  "2 · Type your name, pick a region":
+    "2 · Escribir tu nombre y elegir una región",
+  "Type your name, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.":
+    "Escribí tu nombre y después elegí uno de los diez departamentos de referencia. Pergamino viene preseleccionado y podés cambiarlo más adelante.",
   "3 · Plan and ask": "3 · Planificar y preguntar",
   "Set your priorities and a horizon in the planner, watch the run, then ask Cropilot to explain the result with its sources.":
     "Definí tus prioridades y un horizonte en el planificador, seguí la simulación y después pedile a Cropilot que explique el resultado con sus fuentes.",
@@ -1194,8 +1195,8 @@ export const esLanding: Record<string, string> = {
     "Cada indicador identifica su conjunto de datos, período y ubicación. Los valores supuestos y faltantes están señalados.",
   "More questions": "Más preguntas",
   "Do I need an account?": "¿Necesito una cuenta?",
-  "Not to read the public cases. The planner and the assistant on a planner run need a Google sign-in.":
-    "No para leer los casos públicos. El planificador y el asistente de una ejecución del planificador requieren iniciar sesión con Google.",
+  "No. The public cases open directly, and the planner and its assistant only ask for a name or handle, with no password.":
+    "No. Los casos públicos se abren directamente, y el planificador y su asistente solo piden un nombre o usuario, sin contraseña.",
   "Is La Celina a real farm?": "¿La Celina es un campo real?",
   "No. The name is invented, and the app says so. Its 18 lots are real field outlines.":
     "No. El nombre es inventado y la app lo aclara. Sus 18 lotes son contornos de lotes reales.",

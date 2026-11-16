@@ -14,12 +14,12 @@ The demo is simplified for the challenge: similar years are searched within each
 Requires Node 24, pnpm, uv and Docker.
 
 ```sh
-cp .env.example .env   # set BETTER_AUTH_SECRET and the Google OAuth client
+cp .env.example .env
 pnpm install
 pnpm dev               # http://localhost:5173
 ```
 
-Mobile app: `cp apps/mobile/.env.example apps/mobile/.env`, then `pnpm mobile`. The demo opens public cases without sign-in or account creation. Set `EXPO_PUBLIC_API_URL` to the deployed HTTPS origin, or use a simulator against `localhost` (Android: `adb reverse tcp:5173 tcp:5173`). A physical phone needs a reachable server address; its `localhost` is the phone itself.
+Mobile app: `cp apps/mobile/.env.example apps/mobile/.env`, then `pnpm mobile`. The demo opens public cases without a name; farms ask for a name or handle, with no account or password. Set `EXPO_PUBLIC_API_URL` to the deployed HTTPS origin, or use a simulator against `localhost` (Android: `adb reverse tcp:5173 tcp:5173`). A physical phone needs a reachable server address; its `localhost` is the phone itself.
 
 ## What is inside
 
@@ -28,16 +28,14 @@ Mobile app: `cp apps/mobile/.env.example apps/mobile/.env`, then `pnpm mobile`. 
 | `apps/webapp`  | Web app                                                                                | Vite, React, TanStack Router, Query and Form, Tailwind, shadcn/ui |
 | `apps/mobile`  | Mobile app                                                                             | Expo, Expo Router, TanStack Query                                 |
 | `apps/backend` | API and model core                                                                     | FastAPI, SQLAlchemy, Alembic, Postgres                            |
-| `apps/auth`    | Sign-in with Google                                                                    | Better Auth                                                       |
 | `packages/api` | Typed API client shared by web and mobile, generated from the backend's OpenAPI schema | Hey API                                                           |
 
 ```
-webapp (Vite)  ─┐                ┌─ /api/auth/*  → auth    (Better Auth)
-mobile (Expo)  ─┴─ one origin ───┤
-                                 └─ /api/*       → backend (FastAPI) → Postgres
+webapp (Vite)  ─┐
+mobile (Expo)  ─┴─ one origin ─── /api/* → backend (FastAPI) → Postgres
 ```
 
-Traefik in production and the Vite proxy in development route by path, so every client talks to a single origin. The auth service signs users in and issues short-lived access tokens; the backend verifies them against the auth service's public keys.
+Traefik in production and the Vite proxy in development route by path, so every client talks to a single origin. There are no accounts: the reader types a name or handle, its handle is the user id and travels as the bearer credential. Anyone who types the same name opens the same workspace, so the demo opens for judges without signing up.
 
 ## Commands
 
@@ -76,9 +74,8 @@ One VPS, Docker Compose, Traefik with automatic TLS.
 
 1. Point the domain's DNS at the VPS and open ports 80 and 443.
 2. On the VPS, clone the repo into `~/cropilot` and create `.env` from `.env.example` with `DOMAIN`, `ACME_EMAIL` and production secrets.
-3. Add `https://<DOMAIN>/api/auth/callback/google` to the Google OAuth client's authorized redirect URIs.
-4. Provision and verify the frozen water results with `scripts/deploy/prepare-strategies.sh`. The public map is included in the case bundle; the separate authenticated crop-map API needs its [own release](docs/crop-map.md#install-and-read).
-5. Run `scripts/deploy/deploy.sh` to build, verify the mounted files, start healthy services and check the public routes and MCP.
+3. Provision and verify the frozen water results with `scripts/deploy/prepare-strategies.sh`. The public map is included in the case bundle; the separate authenticated crop-map API needs its [own release](docs/crop-map.md#install-and-read).
+4. Run `scripts/deploy/deploy.sh` to build, verify the mounted files, start healthy services and check the public routes and MCP.
 
 Follow the [deployment runbook](docs/deployment.md) for required host settings, public-only operation, mobile connectivity, seven-day operation and rollback. Automatic deployment is opt-in after a verified manual deployment and uses the tested commit; the runbook describes the repository variables and secret. Configuration in this repository does not mean a VPS has been provisioned.
 

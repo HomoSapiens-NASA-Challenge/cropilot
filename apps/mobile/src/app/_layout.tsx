@@ -13,18 +13,21 @@ import { ThemeProvider } from "expo-router/react-navigation"
 import { StatusBar } from "expo-status-bar"
 import { headerOptions } from "@/features/shell/header-options"
 import { appSections } from "@/features/shell/sections"
-import { accessToken } from "@/lib/auth"
+import { getHandle, useIdentity } from "@/lib/auth"
 import { API_URL } from "@/lib/env"
 import { NAV_THEME } from "@/lib/theme"
 
-configureApi({ baseUrl: API_URL, getToken: accessToken.get })
+configureApi({ baseUrl: API_URL, getToken: getHandle })
 
 const queryClient = new QueryClient()
 
-// Demo build: anyone can enter; the public case API supplies the evidence
-// without requiring an authenticated session.
+// Anyone can open the public case; the private screens (farms) need the name
+// the reader typed on the sign-in screen.
 // Light only, like the web's visual system.
 export default function RootLayout() {
+  // `undefined` while the stored identity loads: the guard below must not
+  // decide yet, or a signed-in reader would flash the signed-out stack.
+  const identity = useIdentity()
   // Geist, like the web. Each weight is its own font family on native, so the
   // font-light/normal/medium utilities map to these names in tailwind.config.js.
   const [fontsLoaded, fontError] = useFonts({
@@ -35,7 +38,7 @@ export default function RootLayout() {
   if (fontError) {
     throw fontError
   }
-  if (!fontsLoaded) {
+  if (!fontsLoaded || identity === undefined) {
     return null
   }
 
@@ -67,10 +70,12 @@ export default function RootLayout() {
               title: appSections.rotationPlanner.title,
             }}
           />
-          <Stack.Screen
-            name="farms"
-            options={{ ...headerOptions, title: "Farms" }}
-          />
+          <Stack.Protected guard={identity !== null}>
+            <Stack.Screen
+              name="farms"
+              options={{ ...headerOptions, title: "Farms" }}
+            />
+          </Stack.Protected>
         </Stack>
         <PortalHost />
       </ThemeProvider>

@@ -212,7 +212,7 @@ sticky-session requirement. The SDK handles MCP protocol negotiation, including 
 `initialize` clients and current `server/discover` clients.
 
 DNS-rebinding protection remains enabled. MCP accepts the host and origin from the existing
-`BETTER_AUTH_URL` setting. Production Compose sets it to `https://${DOMAIN}`; the proxy must
+`PUBLIC_URL` setting. Production Compose sets it to `https://${DOMAIN}`; the proxy must
 preserve that Host. When that setting is a loopback origin, loopback hosts/ports are also
 accepted so local clients can reach the backend or Vite proxy. An untrusted Host returns 421;
 an untrusted browser Origin returns 403. Non-browser clients may omit Origin. The application

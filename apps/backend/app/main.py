@@ -42,7 +42,7 @@ def create_app() -> FastAPI:
         json_response=True,
         stateless_http=True,
         max_request_body_size=64 * 1024,
-        transport_security=transport_security(get_settings().better_auth_url),
+        transport_security=transport_security(get_settings().public_url),
     )
 
     @asynccontextmanager

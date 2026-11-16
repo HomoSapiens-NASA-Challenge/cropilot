@@ -131,9 +131,7 @@ def test_planner_chat_requires_login() -> None:
 
 def test_planner_uses_server_owner_before_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="alice", name="Alice", email="a@test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="alice")
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-not-a-real-key")
     calls = []
 

@@ -2,20 +2,19 @@ Contexto del equipo: ../AGENTS.md. Leerlo primero si no está cargado.
 
 # Cropilot
 
-Monorepo del producto: web, mobile, backend y auth. El core de modelos (suelo, mercado, agua, RL, CV) vive dentro del backend, un módulo por dominio.
+Monorepo del producto: web, mobile y backend. El core de modelos (suelo, mercado, agua, RL, CV) vive dentro del backend, un módulo por dominio.
 
 ## Arquitectura
 
 ```
-webapp (Vite)  ─┐                  ┌─ /api/auth/*  → auth (Better Auth, Node)
-mobile (Expo)  ─┴─ un solo origen ─┤
-                                   └─ /api/*       → backend (FastAPI) → Postgres
+webapp (Vite)  ─┐
+mobile (Expo)  ─┴─ un solo origen ─── /api/* → backend (FastAPI) → Postgres
 ```
 
 - **Un solo origen.** Traefik en producción y el proxy de Vite en desarrollo enrutan por path. No hay CORS.
-- **Auth.** El login es con Google, en `auth`. `auth` emite un JWT de 15 minutos y `backend` lo verifica contra `/api/auth/jwks`. El backend nunca lee las tablas de auth.
+- **Identidad sin login.** No hay cuentas ni contraseñas: el usuario escribe un nombre o handle y `handleFromName` (`packages/api/src/identity.ts`) lo convierte en su id. Viaja como `Authorization: Bearer <handle>` y `apps/backend/app/core/auth.py` lo valida con la misma regla. Identifica, no autentica: quien escriba el mismo nombre abre el mismo espacio. Se eligió así para que los jueces entren sin registrarse.
 - **Contrato.** El OpenAPI del backend genera `packages/api`: cliente, tipos, query options y schemas Zod que usan web y mobile.
-- **Base de datos.** Un Postgres con dos dueños: schema `auth` (Better Auth, `apps/auth/src/migrate.ts`) y schema `public` (backend, Alembic).
+- **Base de datos.** Un Postgres, schema `public`, migrado con Alembic por el backend. Las tablas de Better Auth (`auth`) que quedaron de antes no las usa nadie.
 
 ## Comandos
 
@@ -29,7 +28,7 @@ Desde la raíz:
 | `pnpm typecheck`            | `tsc` y `ty`                                                   |
 | `pnpm test`                 | `pytest` y `node --test`                                       |
 | `pnpm generate`             | Regenera `packages/api` desde el backend                       |
-| `pnpm migrate`              | Aplica las migraciones de backend y auth                       |
+| `pnpm migrate`              | Aplica las migraciones del backend                             |
 
 - Migración nueva: `cd apps/backend && uv run alembic revision --autogenerate -m "<qué cambia>"`.
 - Dependencias: `pnpm --filter @cropilot/<paquete> add <lib>`, `uv add <lib>` en `apps/backend`, `pnpm exec expo install <lib>` en `apps/mobile`.
@@ -69,7 +68,7 @@ main.py        registra los routers en ROUTERS
 - **Modelos de ML.** Misma estructura de módulo. El trabajo de CPU (inferencia) nunca corre dentro de un `async def`: va en un endpoint `def` o en `run_in_threadpool`. Los pesos y los datos no van a git: un script los deja en `apps/backend/models/` y `apps/backend/data/`.
 - **Casos de demo.** `modules/cases` sirve, sin login y de solo lectura, el contrato `case-v1` (`schemas.py`): un índice nacional y un caso por región. Los JSON de `resources/` se arman offline con `scripts/demo_case/` desde lo que ya calcularon los modelos del equipo; HTTP no calcula nada. Para regenerarlos, ver `scripts/demo_case/README.md`.
 - **Planificador de rotaciones.** `modules/rotation_planner` corre en vivo el simulador `rotation_sim`, vendorizado en `apps/backend/vendor/rotation-sim` (copia byte a byte del repo `simulator`, commit 672a222; no se edita a mano, se refresca como dice `scripts/rotation_sim/install.sh`). Sus entradas van a `apps/backend/data/rotation-sim` con ese script. Las corridas viven en memoria y las ejecuta un único hilo: el backend tiene que correr en un solo proceso. El detalle del modelo está en `docs/rotation-planner.md`.
-- **MCP público.** `modules/mcp` expone vistas acotadas de esos mismos casos en `/api/mcp`, con el SDK oficial, sin sesión ni acceso a granjas privadas. Conserva fuentes y límites; no ejecuta inferencia. La aplicación administra el ciclo de vida del transporte y valida host/origin contra `BETTER_AUTH_URL`.
+- **MCP público.** `modules/mcp` expone vistas acotadas de esos mismos casos en `/api/mcp`, con el SDK oficial, sin sesión ni acceso a granjas privadas. Conserva fuentes y límites; no ejecuta inferencia. La aplicación administra el ciclo de vida del transporte y valida host/origin contra `PUBLIC_URL`.
 - **Schema.** Solo cambia por migración de Alembic autogenerada y revisada. Nunca `create_all`.
 - **Tests** en `tests/`, donde un número mal calculado engañaría a un agrónomo (transformaciones, scoring) y en seguridad.
 
@@ -110,7 +109,7 @@ Vale para la landing, la plataforma y todo componente de shadcn, nuevo o existen
 - Usa el mismo `@cropilot/api` que la web. La lógica sin interfaz que sirva a las dos va a `packages/`.
 - Es una app, no la web achicada: abre en una bienvenida de una pantalla (`app/index.tsx`), la landing completa vive en `app/tour.tsx` (secciones en `features/landing/`) y las páginas públicas salen de `features/landing/site-content.ts` (copia de la web) en `app/site/[sectionSlug]/[pageSlug].tsx`. Si la web cambia un texto, se cambia acá también.
 - El caso público (`case-v1`) se muestra en pestañas inferiores (`app/(tabs)/`: Home, Years, Strategies, Map) y en `app/case/[zoneId]/` para cualquier zona, con los bloques de `features/case/blocks/`. Cada pestaña es una cosa para mirar (tarjeta, gráfico o mapa) más filas que abren pantallas de detalle con encabezado nativo y vuelta atrás (`app/case/[zoneId]/…`, rutas en `features/case/routes.ts`, siempre con la zona). Los textos de la web se copian tal cual, pero las explicaciones largas van al botón de información del encabezado (`features/case/info-button.tsx`), no arriba de la pantalla. Las hojas inferiores usan `components/ui/sheet.tsx` y nunca se abre una hoja desde otra.
-- Build de demo: `app/sign-in.tsx` identifica explícitamente el acceso público, sin sesión ni creación de cuenta. `src/features/fields/` (diagnósticos de lotes desde `assets/map-data/`, ignorado por Git) ya no lo usa ninguna pantalla. `app/farms.tsx` queda para cuando vuelva el login real.
+- Build de demo: el caso público abre sin nombre. `app/sign-in.tsx` pide un nombre o handle (mismo contrato que la web, guardado en `expo-secure-store`) y solo `app/farms.tsx` lo exige. `src/features/fields/` (diagnósticos de lotes desde `assets/map-data/`, ignorado por Git) ya no lo usa ninguna pantalla.
 - Componentes de React Native Reusables en `src/components/ui/`, adaptados al sistema visual de la web: se agregan con su CLI y se ajustan a sus reglas (sección Sistema visual).
 - Estilos con clases de NativeWind (Tailwind v3) y los tokens de `src/global.css`, que replican los de `apps/webapp/src/index.css`. Solo modo claro. La navegación nativa toma los mismos valores de `src/lib/theme.ts`: si cambia un token, se cambian los dos.
 - `react-native-css-interop` es dependencia directa porque el JSX que genera NativeWind la importa y pnpm no la expone. Su versión es la que fija `nativewind`: se suben juntas.
@@ -119,11 +118,6 @@ Vale para la landing, la plataforma y todo componente de shadcn, nuevo o existen
 ## Contrato de API · `packages/api`
 
 Si cambia un endpoint o un schema: `pnpm generate` y se commitean `openapi.json` y `src/generated/`. CI falla si quedaron desactualizados. Un cambio de contrato pide review.
-
-## Auth · `apps/auth`
-
-- Toda la configuración está en `src/auth.ts`.
-- El payload del JWT (`definePayload`) es un contrato con `apps/backend/app/core/auth.py`. Se cambian juntos.
 
 ## Antes de abrir un PR
 

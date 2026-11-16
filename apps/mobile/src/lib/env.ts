@@ -3,5 +3,5 @@ if (!apiUrl) {
   throw new Error("Missing environment variable: EXPO_PUBLIC_API_URL")
 }
 
-/** Origin that serves the API and the auth service. */
+/** Origin that serves the API. */
 export const API_URL = apiUrl
