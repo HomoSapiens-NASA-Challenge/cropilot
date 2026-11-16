@@ -7,6 +7,8 @@ Cropilot supports the agronomist's judgment. It never replaces it.
 The web starts in English. Choose **EN / ES** in the header for Spanish; your explicit
 choice persists while navigating and on the next visit. See [web languages](docs/languages.md).
 
+The demo is simplified for the challenge: similar years are searched within each zone only, with two signals, and several NASA products could not be used because Earthdata access was not enabled in time. See [demo scope and next steps](docs/demo-scope.md).
+
 ## Run it
 
 Requires Node 24, pnpm, uv and Docker.
