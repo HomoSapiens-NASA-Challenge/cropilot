@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { cn } from "cn"
 import { useEffect, useMemo, useState } from "react"
+import { useI18n } from "@/lib/i18n"
 
 export type CaseSection = { id: string; label: string }
 
@@ -39,12 +40,14 @@ export function CaseNav({
   zoneId: string
   sections: ReadonlyArray<CaseSection>
 }) {
+  const { t } = useI18n("case")
+
   const ids = useMemo(() => sections.map((section) => section.id), [sections])
   const active = useActiveSection(ids)
 
   return (
     <nav
-      aria-label="On this page"
+      aria-label={t("On this page")}
       className="sticky top-18 z-40 border-b border-border/70 bg-background/75 backdrop-blur-lg"
     >
       <ul className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 whitespace-nowrap sm:px-6">
@@ -60,7 +63,7 @@ export function CaseNav({
                 section.id === active && "bg-accent font-medium text-primary"
               )}
             >
-              {section.label}
+              {t(section.label)}
             </Link>
           </li>
         ))}

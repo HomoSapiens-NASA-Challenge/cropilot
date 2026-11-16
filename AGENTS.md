@@ -47,7 +47,7 @@ Valen para todo el repo. El linter, el type checker y los hooks cubren el format
 - **Nombres.** Completos y descriptivos, con la unidad cuando hay una (`precip_mm`). Archivos en kebab-case (TypeScript) y snake_case (Python).
 - **Comentarios.** En inglés, solo para explicar el porqué.
 - **Datos.** Nunca un número inventado. Lo mock o sintético lo dice en el nombre y en la interfaz. Cada indicador que se muestra lleva su fuente: dataset, período y ubicación.
-- **Interfaz en inglés.**
+- **Interfaz en inglés por defecto, con español mediante el selector EN / ES** (pedido de Joaco, 2026-11-15). Los textos se traducen al renderizar con `lib/i18n`; nunca traducir IDs, URLs, enums del API ni valores científicos. La preferencia se guarda localmente.
 - **No se editan a mano:** `packages/api/src/generated/`, `packages/api/openapi.json`, `routeTree.gen.ts`, `pnpm-lock.yaml`, `uv.lock`, `apps/backend/app/modules/cases/resources/` (los genera `scripts/demo_case/build.py`).
 - **Hooks.** No se saltean con `--no-verify`.
 

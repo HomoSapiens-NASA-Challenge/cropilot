@@ -19,6 +19,7 @@ import { NotComputedRow } from "@/features/case/block-frame"
 import {
   campaignName,
   formatDate,
+  formatDecimal,
   formatMm,
   formatShare,
   formatSigned,
@@ -31,17 +32,22 @@ import {
 import { DotStrip, type StripDot, stripDomain } from "@/features/case/dot-strip"
 import { EvidenceChip } from "@/features/case/evidence-chip"
 import { Term } from "@/features/case/glossary-term"
+import { translate, useI18n } from "@/lib/i18n"
 
 const WATER_HORIZON = "Three continuous campaigns from June of the start year"
 
 function shiftLabel(days: number): string {
   return days === 0
-    ? "Default date"
-    : `${days > 0 ? "+" : "-"}${Math.abs(days)} days`
+    ? translate("Default date")
+    : translate("{days} days", undefined, {
+        days: `${days > 0 ? "+" : "-"}${Math.abs(days)}`,
+      })
 }
 
 /** Lower, equal and higher, as one bar and a sentence. Ink for higher, accent for lower. */
 function CountsBar({ counts }: { counts: PairedCounts }) {
+  const { t } = useI18n("case")
+
   const parts = [
     {
       key: "lower",
@@ -67,7 +73,7 @@ function CountsBar({ counts }: { counts: PairedCounts }) {
       <div
         role="img"
         aria-label={parts
-          .map((part) => `${part.label} ${part.count}`)
+          .map((part) => `${t(part.label)} ${part.count}`)
           .join(", ")}
         className="flex h-2 w-full gap-px overflow-hidden rounded-full"
       >
@@ -80,39 +86,50 @@ function CountsBar({ counts }: { counts: PairedCounts }) {
         ))}
       </div>
       <p className="text-sm tabular-nums">
-        {parts.map((part) => `${part.label} ${part.count}`).join(" · ")}
+        {parts.map((part) => `${t(part.label)} ${part.count}`).join(" · ")}
         <span className="text-muted-foreground">
-          {" "}
-          of {counts.count} episodes
+          {t(" of {value1} episodes", { value1: counts.count })}
         </span>
       </p>
       <p className="text-xs text-muted-foreground tabular-nums">
-        Difference in unmet crop water: median{" "}
-        {formatSigned(counts.median_mm, 0)} mm, from{" "}
-        {formatSigned(counts.minimum_mm, 0)} to{" "}
-        {formatSigned(counts.maximum_mm, 0)} mm.
+        {t(
+          "Difference in unmet crop water: median {value1} mm, from {value2} to {value3} mm.",
+          {
+            value1: formatSigned(counts.median_mm, 0),
+            value2: formatSigned(counts.minimum_mm, 0),
+            value3: formatSigned(counts.maximum_mm, 0),
+          }
+        )}
       </p>
     </div>
   )
 }
 
 function EpisodeDetail({ episode }: { episode: WaterEpisode }) {
+  const { t } = useI18n("case")
+
   return (
     <div className="flex flex-col gap-2 rounded-lg border p-3">
       <p className="text-sm font-medium">
-        Three campaigns from June {episode.start_year}
+        {t("Three campaigns from June {value1}", {
+          value1: episode.start_year,
+        })}
       </p>
       <p className="text-sm tabular-nums">
-        {formatShare(episode.crop_demand_unmet_fraction)} of crop water unmet ·{" "}
-        {formatMm(episode.crop_et_deficit_mm)}
+        {t("{value1} of crop water unmet · {value2}", {
+          value1: formatShare(episode.crop_demand_unmet_fraction),
+          value2: formatMm(episode.crop_et_deficit_mm),
+        })}
       </p>
       <p className="text-xs text-muted-foreground tabular-nums">
-        Modeled crop demand: {formatMm(episode.crop_et_potential_mm)}. Water at
-        episode end: {formatMm(episode.water_end_mm)}.
+        {t("Modeled crop demand: {value1}. Water at episode end: {value2}.", {
+          value1: formatMm(episode.crop_et_potential_mm),
+          value2: formatMm(episode.water_end_mm),
+        })}
       </p>
       <details>
         <summary className="w-fit cursor-pointer rounded-lg text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
-          Crops and sowing dates
+          {t("Crops and sowing dates")}
         </summary>
         <div className="mt-2 flex flex-col gap-3">
           {episode.crops.map((crop) => (
@@ -121,26 +138,35 @@ function EpisodeDetail({ episode }: { episode: WaterEpisode }) {
               className="flex flex-col gap-1 border-t pt-2 text-xs"
             >
               <p className="font-medium">
-                {crop.crop} · {campaignName(crop.campaign_year)}
-              </p>
-              <p>Sown {formatDate(crop.sowing_date)}</p>
-              <p>
-                Water at sowing: {formatMm(crop.water_at_sowing_mm)} · unmet
-                crop water: {formatMm(crop.crop_et_deficit_mm)}
+                {t(crop.crop)} · {campaignName(crop.campaign_year)}
               </p>
               <p>
-                Mid-season stress: {crop.mid_season_stress_days} days · with
-                maximum temperature above 35°C:{" "}
-                {crop.coincident_stress_heat_days} days
+                {t("Sown {value1}", { value1: formatDate(crop.sowing_date) })}
+              </p>
+              <p>
+                {t("Water at sowing: {value1} · unmet crop water: {value2}", {
+                  value1: formatMm(crop.water_at_sowing_mm),
+                  value2: formatMm(crop.crop_et_deficit_mm),
+                })}
+              </p>
+              <p>
+                {t(
+                  "Mid-season stress: {value1} days · with maximum temperature above 35°C: {value2} days",
+                  {
+                    value1: crop.mid_season_stress_days,
+                    value2: crop.coincident_stress_heat_days,
+                  }
+                )}
               </p>
             </div>
           ))}
           <p className="text-xs text-muted-foreground">
-            Generic crop stages and the 35°C heat screen are research
-            assumptions, not observed flowering or validated crop damage.
+            {t(
+              "Generic crop stages and the 35°C heat screen are research assumptions, not observed flowering or validated crop damage."
+            )}
           </p>
           <p className="break-all text-xs text-muted-foreground">
-            Released run: {episode.run_id}
+            {t("Released run: {value1}", { value1: episode.run_id })}
           </p>
         </div>
       </details>
@@ -163,11 +189,13 @@ function WaterCell({
   domain: [number, number] | null
   scenarioId: string | null
 }) {
+  const { t } = useI18n("case")
+
   if (strategy.water_strategy_id === null) {
     return (
       <NotComputedRow
-        title="Water"
-        reason="Cropilot has no water simulation for this rotation."
+        title={t("Water")}
+        reason={t("Cropilot has no water simulation for this rotation.")}
       />
     )
   }
@@ -185,7 +213,15 @@ function WaterCell({
     return {
       key: episode.run_id,
       value: episode.crop_demand_unmet_fraction,
-      description: `${campaignName(episode.start_year)}${rank ? ` (analog ${rank})` : ""}: ${formatShare(episode.crop_demand_unmet_fraction)} of crop water unmet, ${formatMm(episode.crop_et_deficit_mm)}`,
+      description: t(
+        "{campaign}{analog}: {share} of crop water unmet, {deficit}",
+        {
+          campaign: campaignName(episode.start_year),
+          analog: rank ? t(" (analog {rank})", { rank }) : "",
+          share: formatShare(episode.crop_demand_unmet_fraction),
+          deficit: formatMm(episode.crop_et_deficit_mm),
+        }
+      ),
     }
   })
 
@@ -206,24 +242,25 @@ function WaterCell({
     <>
       {strategy.water_match === "closest" && (
         <p className="rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
-          Closest match: same crops, a different phase of the cycle.
+          {t("Closest match: same crops, a different phase of the cycle.")}
         </p>
       )}
       {selectedEpisode ? (
         <EpisodeDetail episode={selectedEpisode} />
       ) : (
         <p className="text-sm text-muted-foreground">
-          No released water run for the selected campaign and settings.
+          {t("No released water run for the selected campaign and settings.")}
         </p>
       )}
       <div className="flex flex-col gap-1">
         <span className="text-xs font-medium">
-          Unmet <Term term="Crop water deficit">crop water</Term>, analog
-          episodes
+          {t("Unmet ")}
+          <Term term="Crop water deficit">{t("crop water")}</Term>
+          {t(", analog episodes")}
         </span>
         {dots.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No run for these settings.
+            {t("No run for these settings.")}
           </p>
         ) : (
           <DotStrip
@@ -236,18 +273,18 @@ function WaterCell({
       <div className="flex flex-col gap-1">
         <span className="text-xs font-medium">
           {isShifted
-            ? "Against the default sowing date, all episodes"
-            : "Against the current rotation, all episodes"}
+            ? t("Against the default sowing date, all episodes")
+            : t("Against the current rotation, all episodes")}
         </span>
         {strategy.is_current && !isShifted ? (
           <p className="text-sm text-muted-foreground">
-            This is the reference: every episode equals itself.
+            {t("This is the reference: every episode equals itself.")}
           </p>
         ) : counts ? (
           <CountsBar counts={counts} />
         ) : (
           <p className="text-sm text-muted-foreground">
-            No paired runs for these settings.
+            {t("No paired runs for these settings.")}
           </p>
         )}
       </div>
@@ -269,6 +306,8 @@ export function WaterRow({
   water: WaterBlock
   campaigns: ReadonlyArray<CampaignPoint>
 }) {
+  const { t } = useI18n("case")
+
   const [settings, setSettings] = useState(() => defaultWaterSettings(water))
   const [dateNotice, setDateNotice] = useState<string | null>(null)
   const analogCampaigns = waterAnalogCampaigns(campaigns)
@@ -322,12 +361,20 @@ export function WaterRow({
 
   return (
     <ComparisonRow
-      title="Water: unmet crop water on the field footprint"
-      description={`Released daily water-balance runs on the reference footprint, for start years ${firstStartYear} to ${lastStartYear}. ${analogWithRuns} of the ${analogCount} analog campaigns have a run. Pick the starting point and the sowing date; the strips and counts show the runs for that choice.`}
+      title={t("Water: unmet crop water on the field footprint")}
+      description={t(
+        "Released daily water-balance runs on the reference footprint, for start years {value1} to {value2}. {value3} of the {value4} analog campaigns have a run. Pick the starting point and the sowing date; the strips and counts show the runs for that choice.",
+        {
+          value1: firstStartYear,
+          value2: lastStartYear,
+          value3: analogWithRuns,
+          value4: analogCount,
+        }
+      )}
       evidence={
         <EvidenceChip
           meta={water.meta}
-          scaleLabel={`Footprint ${water.field_id}`}
+          scaleLabel={t("Footprint {value1}", { value1: water.field_id })}
           horizon={WATER_HORIZON}
         />
       }
@@ -335,14 +382,14 @@ export function WaterRow({
         <div className="grid gap-4 rounded-lg border bg-secondary p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr]">
           <div className="flex flex-col gap-2">
             <span className="text-xs font-medium">
-              Starting point: soil depth
+              {t("Starting point: soil depth")}
             </span>
             <SegmentedControl
-              label="Soil depth and water capacity"
+              label={t("Soil depth and water capacity")}
               value={String(settings.depth_m)}
               options={depths.map(([depth, capacity]) => ({
                 value: String(depth),
-                label: `${depth} m · ${Math.round(capacity)} mm`,
+                label: `${formatDecimal(depth, String(depth).includes(".") ? 1 : 0)} m · ${formatMm(capacity)}`,
               }))}
               onChange={(next) => {
                 changeStartingPoint({ depth_m: Number(next) })
@@ -351,10 +398,10 @@ export function WaterRow({
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-xs font-medium">
-              Starting point: initial water
+              {t("Starting point: initial water")}
             </span>
             <SegmentedControl
-              label="Initial soil water"
+              label={t("Initial soil water")}
               value={String(settings.initial_water_fraction)}
               options={fractions.map((fraction) => ({
                 value: String(fraction),
@@ -367,10 +414,10 @@ export function WaterRow({
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-xs font-medium">
-              Sowing date: summer crops shifted by
+              {t("Sowing date: summer crops shifted by")}
             </span>
             <SegmentedControl
-              label="Summer sowing shift"
+              label={t("Summer sowing shift")}
               value={String(settings.summer_shift_days)}
               options={shifts.map((days) => ({
                 value: String(days),
@@ -391,27 +438,26 @@ export function WaterRow({
               role="status"
               className="text-sm text-muted-foreground sm:col-span-2 lg:col-span-3"
             >
-              {dateNotice}
+              {t(dateNotice)}
             </p>
           )}
           <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-3">
             <span className="text-xs font-medium">
-              Historical start campaign
+              {t("Historical start campaign")}
             </span>
             <SegmentedControl
-              label="Historical start campaign"
+              label={t("Historical start campaign")}
               value={scenarioId ?? ""}
               options={analogCampaigns.map((campaign) => ({
                 value: campaign.scenario_id,
-                label: `${campaign.campaign}${hasWaterRuns(water, settings, campaign.scenario_id) ? "" : " · no run"}`,
+                label: `${campaign.campaign}${hasWaterRuns(water, settings, campaign.scenario_id) ? "" : t(" · no run")}`,
               }))}
               onChange={setScenarioId}
             />
             <p className="text-xs text-muted-foreground">
-              Selected campaign details replay three continuous campaigns. The
-              strips show all available analogs; the counts use all released
-              episodes. Historical scenarios, not forecasts or agronomic
-              recommendations.
+              {t(
+                "Selected campaign details replay three continuous campaigns. The strips show all available analogs; the counts use all released episodes. Historical scenarios, not forecasts or agronomic recommendations."
+              )}
             </p>
           </div>
         </div>
@@ -434,11 +480,11 @@ export function WaterRow({
       {water.limitations.length > 0 && (
         <details className="text-sm">
           <summary className="w-fit cursor-pointer rounded-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
-            Limits of the water runs
+            {t("Limits of the water runs")}
           </summary>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground">
             {water.limitations.map((limitation) => (
-              <li key={limitation}>{limitation}</li>
+              <li key={limitation}>{t(limitation)}</li>
             ))}
           </ul>
         </details>

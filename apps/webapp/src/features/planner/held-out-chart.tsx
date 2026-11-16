@@ -6,15 +6,18 @@ import type {
 import { Badge } from "@/components/ui/badge"
 import { niceTicks, paddedDomain } from "@/features/planner/chart-scale"
 import { ConclusionBadge } from "@/features/planner/conclusion-badge"
+import { plannerText } from "@/features/planner/planner-copy"
 import {
   CONCLUSION_LABEL,
   formatInterval,
+  formatPlannerList,
   formatScore,
   sourcesById,
 } from "@/features/planner/planner-format"
 import { confidencePercent } from "@/features/planner/planner-results"
 import type { Conclusion } from "@/features/planner/planner-types"
 import { ResultSection } from "@/features/planner/result-section"
+import { translate, useI18n } from "@/lib/i18n"
 
 const AXIS_INSET_PCT = 4
 const ROW_HEIGHT_PX = 32
@@ -24,13 +27,12 @@ const CAP_HALF_HEIGHT_PX = 5
 // Shared by the rows and the axis, so every plot column has the same width and scale.
 const GRID_COLUMNS = "sm:grid-cols-[13rem_minmax(0,1fr)_8.5rem]"
 
-const LIST = new Intl.ListFormat("en", { style: "long", type: "conjunction" })
-
 const CONCLUSION_PHRASE = {
-  better: (count) => `better than ${count}`,
-  inconclusive: (count) => `not clearly different from ${count}`,
-  identical: (count) => `identical to ${count}`,
-  worse: (count) => `worse than ${count}`,
+  better: (count) => translate("better than {count}", { count }),
+  inconclusive: (count) =>
+    translate("not clearly different from {value1}", { value1: count }),
+  identical: (count) => translate("identical to {value1}", { value1: count }),
+  worse: (count) => translate("worse than {count}", { count }),
 } as const satisfies Record<Conclusion, (count: number) => string>
 
 const CONCLUSION_SEQUENCE = [
@@ -62,7 +64,10 @@ function takeaway(rows: ReadonlyArray<Row>): string {
     ).length
     return count > 0 ? [CONCLUSION_PHRASE[conclusion](count)] : []
   })
-  return `Of the ${rows.length} baselines shown, the exact optimum is ${LIST.format(phrases)} on the held-out campaigns.`
+  return translate(
+    "Of the {value1} baselines shown, the exact optimum is {value2} on the held-out campaigns.",
+    { value1: rows.length, value2: formatPlannerList(phrases) }
+  )
 }
 
 /**
@@ -71,6 +76,8 @@ function takeaway(rows: ReadonlyArray<Row>): string {
  * crosses the dashed zero line means the data cannot tell the two apart.
  */
 export function HeldOutChart({ result }: { result: RotationPlanResult }) {
+  const { t } = useI18n("app")
+
   const rows = rowsOf(result)
   const first = rows[0]
   if (!first) return null
@@ -93,8 +100,11 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
 
   return (
     <ResultSection
-      title="Held-out comparison"
-      lead={`The exact optimum minus each baseline, on the same ${first.comparison.campaigns} held-out campaigns. Right of the dashed line the optimum scores higher; left of it, the baseline does.`}
+      title={t("Held-out comparison")}
+      lead={t(
+        "The exact optimum minus each baseline, on the same {value1} held-out campaigns. Right of the dashed line the optimum scores higher; left of it, the baseline does.",
+        { value1: first.comparison.campaigns }
+      )}
       sources={sourcesById(result.sources, ["nasa-power", "noaa-oni"])}
     >
       <p className="max-w-3xl text-sm">{takeaway(rows)}</p>
@@ -104,7 +114,7 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
           <svg width="12" height="12" aria-hidden>
             <circle cx="6" cy="6" r="5" className="fill-primary" />
           </svg>
-          Mean difference per campaign
+          {t("Mean difference per campaign")}
         </li>
         <li className="flex items-center gap-1.5">
           <svg width="26" height="12" aria-hidden>
@@ -131,7 +141,7 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
               className="stroke-muted-foreground"
             />
           </svg>
-          {percent} interval of that mean
+          {percent} {t(" interval of that mean")}
         </li>
         <li className="flex items-center gap-1.5">
           <svg width="12" height="12" aria-hidden>
@@ -144,7 +154,7 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
               strokeDasharray="3 3"
             />
           </svg>
-          No difference
+          {t("No difference")}
         </li>
       </ul>
 
@@ -157,12 +167,12 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
-                  {baseline.label}
-                  {baseline.is_current && <Badge>Current</Badge>}
+                  {plannerText(baseline.label)}
+                  {baseline.is_current && <Badge>{t("Current")}</Badge>}
                 </span>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {formatScore(comparison.mean_score_difference)}, {percent}{" "}
-                  interval{" "}
+                  {t("interval")}{" "}
                   {formatInterval(
                     comparison.interval_low,
                     comparison.interval_high
@@ -172,14 +182,30 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
               <div className="flex flex-col items-end gap-1 sm:col-start-3 sm:row-start-1">
                 <ConclusionBadge conclusion={comparison.conclusion} />
                 <span className="text-xs text-muted-foreground tabular-nums">
-                  won {comparison.campaigns_won} of {comparison.campaigns}
+                  {t("won ")}
+                  {comparison.campaigns_won} {t(" of ")}
+                  {comparison.campaigns}
                 </span>
               </div>
               <svg
                 height={ROW_HEIGHT_PX}
                 className="col-span-2 block w-full sm:col-span-1 sm:col-start-2 sm:row-start-1"
                 role="img"
-                aria-label={`Optimum minus ${baseline.label}: ${formatScore(comparison.mean_score_difference)} per campaign, ${percent} interval ${formatInterval(comparison.interval_low, comparison.interval_high)}, ${CONCLUSION_LABEL[comparison.conclusion].toLowerCase()}`}
+                aria-label={t(
+                  "Optimum minus {value1}: {value2} per campaign, {value3} interval {value4}, {value5}",
+                  {
+                    value1: plannerText(baseline.label),
+                    value2: formatScore(comparison.mean_score_difference),
+                    value3: percent,
+                    value4: formatInterval(
+                      comparison.interval_low,
+                      comparison.interval_high
+                    ),
+                    value5: t(
+                      CONCLUSION_LABEL[comparison.conclusion]
+                    ).toLowerCase(),
+                  }
+                )}
               >
                 {ticks
                   .filter((tick) => tick !== 0)
@@ -256,9 +282,13 @@ export function HeldOutChart({ result }: { result: RotationPlanResult }) {
             ))}
           </svg>
           <p className="text-xs text-muted-foreground sm:col-start-2">
-            Score difference per campaign, unitless. The interval resamples{" "}
-            {bootstrap.blocks} blocks of {bootstrap.block_campaigns} consecutive
-            campaigns in every order ({bootstrap.resamples} resamples).
+            {t(
+              "Score difference per campaign, unitless. The interval resamples"
+            )}{" "}
+            {bootstrap.blocks} {t(" blocks of ")}
+            {bootstrap.block_campaigns}{" "}
+            {t(" consecutive campaigns in every order (")}
+            {bootstrap.resamples} {t(" resamples).")}
           </p>
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { useI18n } from "@/lib/i18n"
 
 const BlockHeadersContext = createContext(true)
 
@@ -137,6 +138,7 @@ export function NotAvailable({
   children?: ReactNode
   className?: string
 }) {
+  const { t } = useI18n("case")
   return (
     <Empty className={cn("border bg-card py-12", className)}>
       <EmptyHeader>
@@ -146,7 +148,7 @@ export function NotAvailable({
         >
           <CircleSlash />
         </EmptyMedia>
-        <EmptyTitle className="text-xl font-light">{title}</EmptyTitle>
+        <EmptyTitle className="text-xl font-light">{t(title)}</EmptyTitle>
         {description && <EmptyDescription>{description}</EmptyDescription>}
       </EmptyHeader>
       {children}
@@ -164,6 +166,8 @@ export function NotComputedRow({
   reason: ReactNode
   className?: string
 }) {
+  const { t } = useI18n("case")
+
   return (
     <div
       className={cn(
@@ -178,7 +182,7 @@ export function NotComputedRow({
       <span className="font-medium">
         {title}{" "}
         <span className="font-normal text-muted-foreground">
-          · Not computed
+          {t("· Not computed")}
         </span>
       </span>
       <span className="text-muted-foreground">{reason}</span>

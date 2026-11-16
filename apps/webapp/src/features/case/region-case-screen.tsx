@@ -2,12 +2,18 @@ import type { CaseBundle, Region } from "@cropilot/api"
 import type { ReactNode } from "react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { HideBlockHeaders, NotAvailable } from "@/features/case/block-frame"
+import { useI18n } from "@/lib/i18n"
 
 /** The sentence under "Not available for this region yet". It carries no figure. */
 export function RegionWithoutCase({ region }: { region: Region }) {
+  const { t } = useI18n("case")
+
   return (
     <NotAvailable
-      description={`${region.name} has no 2026/27 case yet. Change the region in the sidebar to open one that has.`}
+      description={t(
+        "{value1} has no 2026/27 case yet. Change the region in the sidebar to open one that has.",
+        { value1: region.name }
+      )}
     />
   )
 }

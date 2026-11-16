@@ -1,4 +1,5 @@
 import type { BlockMeta, CampaignPoint } from "@cropilot/api"
+import { getLocale, translate } from "@/lib/i18n"
 
 export type Provenance = BlockMeta["provenance"]
 export type SpatialScale = BlockMeta["scale"]
@@ -45,39 +46,60 @@ export const SCALE_LABEL = {
 export function formatSigned(value: number, digits = 2): string {
   const rounded = Number(value.toFixed(digits))
   const sign = rounded > 0 ? "+" : rounded < 0 ? "-" : ""
-  return `${sign}${Math.abs(rounded).toFixed(digits)}`
+  return `${sign}${formatDecimal(Math.abs(rounded), digits)}`
 }
 
 export function formatPercentSigned(value: number): string {
   return `${formatSigned(value, 0)}%`
 }
 
-const WHOLE_NUMBER = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 0,
-})
+function numberLocale(): string {
+  return getLocale() === "es" ? "es-AR" : "en-US"
+}
+
+export function formatDecimal(value: number, digits = 2): string {
+  const rounded = Number(value.toFixed(digits))
+  return new Intl.NumberFormat(numberLocale(), {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(rounded)
+}
+
+export function formatLotName(name: string): string {
+  const match = /^(Lot|Field) (.+)$/.exec(name)
+  return match
+    ? translate(match[1] === "Lot" ? "Lot {id}" : "Field {id}", undefined, {
+        id: match[2],
+      })
+    : name
+}
 
 export function formatWhole(value: number): string {
-  return WHOLE_NUMBER.format(value)
+  return new Intl.NumberFormat(numberLocale(), {
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 export function formatUsdPerHa(value: number): string {
-  return `${value < 0 ? "-" : ""}${WHOLE_NUMBER.format(Math.abs(value))} USD/ha`
+  return `${value < 0 ? "-" : ""}${formatWhole(Math.abs(value))} USD/ha`
 }
 
 export function formatMm(value: number): string {
-  return `${WHOLE_NUMBER.format(value)} mm`
+  return `${formatWhole(value)} mm`
 }
 
 /** Root-zone soil wetness is a 0 to 1 index, not a percentage. */
 export function formatWetness(value: number): string {
-  return value.toFixed(2)
+  return formatDecimal(value, 2)
 }
 
 /** Share of past campaigns that were drier, as the sentence a reader needs. */
 export function formatWetterThan(percentile: number): string {
-  if (percentile >= 1) return "Wetter than every past campaign"
-  if (percentile <= 0) return "Drier than every past campaign"
-  return `Wetter than ${Math.round(percentile * 100)}% of past campaigns`
+  if (percentile >= 1) return translate("Wetter than every past campaign")
+  if (percentile <= 0) return translate("Drier than every past campaign")
+  return translate("Wetter than {percent}% of past campaigns", undefined, {
+    percent: Math.round(percentile * 100),
+  })
 }
 
 export function formatShare(fraction: number): string {
@@ -85,7 +107,7 @@ export function formatShare(fraction: number): string {
 }
 
 export function pluralize(count: number, singular: string): string {
-  return `${count} ${count === 1 ? singular : `${singular}s`}`
+  return `${formatWhole(count)} ${translate(count === 1 ? singular : `${singular}s`)}`
 }
 
 /** "2022/23" from the year its campaign starts. */
@@ -93,16 +115,14 @@ export function campaignName(startYear: number): string {
   return `${startYear}/${String((startYear + 1) % 100).padStart(2, "0")}`
 }
 
-const LONG_DATE = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-})
-
 /** "31 August 2026" from an ISO date; any other text is shown as it came. */
 export function formatDate(value: string): string {
   return /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? LONG_DATE.format(new Date(`${value}T00:00:00Z`))
+    ? new Intl.DateTimeFormat(getLocale() === "es" ? "es-AR" : "en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(`${value}T00:00:00Z`))
     : value
 }

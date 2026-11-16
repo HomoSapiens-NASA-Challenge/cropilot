@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useI18n } from "@/lib/i18n"
 
 export type NavUserProps = {
   user: { name: string; email: string; image?: string | null }
@@ -58,6 +59,8 @@ function UserIdentity({ user }: Pick<NavUserProps, "user">) {
 }
 
 export function NavUser({ user, onSignOut }: NavUserProps) {
+  const { t } = useI18n("app")
+
   const { isMobile } = useSidebar()
 
   return (
@@ -89,7 +92,7 @@ export function NavUser({ user, onSignOut }: NavUserProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onSignOut}>
               <LogOut />
-              Sign out
+              {t("Sign out")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

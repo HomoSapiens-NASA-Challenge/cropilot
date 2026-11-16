@@ -1,5 +1,6 @@
 import { cn } from "cn"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { useI18n } from "@/lib/i18n"
 
 export type SegmentedOption<T extends string> = {
   value: T
@@ -21,9 +22,10 @@ export function SegmentedControl<T extends string>({
   onChange: (value: T) => void
   className?: string
 }) {
+  const { t } = useI18n()
   return (
     <ToggleGroup
-      aria-label={label}
+      aria-label={t(label)}
       variant="outline"
       size="sm"
       spacing={0}
@@ -41,7 +43,7 @@ export function SegmentedControl<T extends string>({
           disabled={option.disabled}
           className="aria-pressed:bg-primary/10 aria-pressed:text-primary data-pressed:bg-primary/10 data-pressed:text-primary"
         >
-          {option.label}
+          {t(option.label)}
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

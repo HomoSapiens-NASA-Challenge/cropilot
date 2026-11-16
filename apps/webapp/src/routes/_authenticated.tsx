@@ -1,5 +1,6 @@
 import { getWorkspaceOptions, listRegionsOptions } from "@cropilot/api"
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { LanguageSelector } from "@/components/language-selector"
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -47,6 +48,9 @@ function AuthenticatedLayout() {
               className="mr-2 data-vertical:h-4 data-vertical:self-center"
             />
             <AppBreadcrumb />
+            <div className="ml-auto">
+              <LanguageSelector />
+            </div>
           </header>
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-6 md:p-10">
             <Outlet />

@@ -17,6 +17,7 @@ import { ResultsView } from "@/features/planner/results-view"
 import { SetupBar } from "@/features/planner/setup-bar"
 import { TrainingConsole } from "@/features/planner/training-console"
 import { usePlannerRun } from "@/features/planner/use-planner-run"
+import { useI18n } from "@/lib/i18n"
 
 const DEFAULT_HORIZON_CAMPAIGNS = 3
 
@@ -31,6 +32,8 @@ export function PlannerScreen({
   region: Region
   setup: RotationPlanSetup
 }) {
+  const { t } = useI18n("app")
+
   const [situation, setSituation] = useState<Situation>(() =>
     defaultSituation(setup)
   )
@@ -64,7 +67,7 @@ export function PlannerScreen({
   const runAgain = (
     <Button variant="outline" onClick={() => run(weights, horizon)}>
       <RotateCcw aria-hidden data-icon="inline-start" />
-      Run again
+      {t("Run again")}
     </Button>
   )
 
@@ -130,17 +133,18 @@ export function PlannerScreen({
           )}
           {planner.isGone && (
             <Notice action={runAgain}>
-              This run is gone (the server restarted). Run again.
+              {t("This run is gone (the server restarted). Run again.")}
             </Notice>
           )}
           {current?.status === "failed" && (
             <Notice action={runAgain}>
-              The run failed: {current.error ?? "no error was reported"}
+              {t("The run failed: ")}
+              {t(current.error ?? "no error was reported")}
             </Notice>
           )}
           {current?.status === "cancelled" && (
             <Notice action={runAgain}>
-              This run was replaced by a newer one before it finished.
+              {t("This run was replaced by a newer one before it finished.")}
             </Notice>
           )}
         </div>

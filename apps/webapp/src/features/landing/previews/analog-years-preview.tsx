@@ -4,6 +4,7 @@ import {
   PlaceholderLine,
   PreviewWindow,
 } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 // Positions are decorative: they do not stand for real campaigns.
 const CAMPAIGN_TICK_COUNT = 44
@@ -15,31 +16,34 @@ const CAMPAIGN_TICKS = Array.from(
 const MATCHED_ROWS = ["first", "second", "third"] as const
 
 export function AnalogYearsPreview({ className }: { className?: string }) {
+  const { t } = useI18n("landing")
   return (
-    <PreviewWindow title="Years like this" className={className}>
+    <PreviewWindow title={t("Years like this")} className={className}>
       <div className="flex flex-col gap-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex items-center gap-3 rounded-lg border bg-background/70 p-3">
             <Waves className="size-4 shrink-0 text-primary" />
             <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <span className="text-xs font-medium">El Niño phase</span>
+              <span className="text-xs font-medium">{t("El Niño phase")}</span>
               <PlaceholderLine className="w-2/3" />
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-lg border bg-background/70 p-3">
             <Droplets className="size-4 shrink-0 text-primary" />
             <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <span className="text-xs font-medium">Soil water at start</span>
+              <span className="text-xs font-medium">
+                {t("Soil water at start")}
+              </span>
               <PlaceholderLine className="w-1/2" />
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Past campaigns</span>
+            <span>{t("Past campaigns")}</span>
             <span className="flex items-center gap-1.5">
               <span aria-hidden className="size-1.5 rounded-full bg-primary" />
-              Started like this one
+              {t("Started like this one")}
             </span>
           </div>
           <div aria-hidden className="flex h-10 items-end gap-0.75">

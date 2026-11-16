@@ -7,6 +7,7 @@
     "build": "tsc -b && vite build && pnpm build:mcp",
     "build:mcp": "vite build --config vite.mcp.config.ts",
     "lint": "node scripts/check-design-rules.mjs",
+    "test": "node scripts/check-translations.mjs",
     "typecheck": "tsc -b"
   },
   "dependencies": {

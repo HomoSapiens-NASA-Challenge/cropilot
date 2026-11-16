@@ -17,18 +17,21 @@ import {
   totalWeight,
   weightShares,
 } from "@/features/planner/planner-outcomes"
+import { useI18n } from "@/lib/i18n"
 
 const SLIDER_STEP = 0.05
 
 /** Five thin bars, one per outcome, as long as that outcome's share of the weights. */
 function ShareBars({ weights }: { weights: PriorityWeights }) {
+  const { t } = useI18n("app")
+
   const shares = weightShares(weights)
   return (
     <ul aria-hidden className="flex flex-col gap-1.5">
       {OUTCOMES.map((outcome) => (
         <li key={outcome.id} className="flex items-center gap-2 text-xs">
           <span className="w-28 shrink-0 truncate text-muted-foreground">
-            {outcome.shortLabel}
+            {t(outcome.shortLabel)}
           </span>
           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
             <span
@@ -53,6 +56,8 @@ export function WizardPrioritiesStep({
   weights: PriorityWeights
   onWeightsChange: (weights: PriorityWeights) => void
 }) {
+  const { t } = useI18n("app")
+
   const total = totalWeight(weights)
   const hasPriority = total > 0
   const activePreset = presetOf(weights)
@@ -61,7 +66,7 @@ export function WizardPrioritiesStep({
   return (
     <div className="flex flex-col gap-6">
       <fieldset className="flex flex-col gap-3">
-        <legend className="sr-only">Priority presets</legend>
+        <legend className="sr-only">{t("Priority presets")}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           {PRESETS.map((preset) => {
             const isActive = activePreset === preset.id
@@ -88,10 +93,10 @@ export function WizardPrioritiesStep({
                       isActive && "text-primary"
                     )}
                   >
-                    {preset.label}
+                    {t(preset.label)}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {preset.description}
+                    {t(preset.description)}
                   </span>
                 </span>
                 <ShareBars weights={preset.weights} />
@@ -104,8 +109,10 @@ export function WizardPrioritiesStep({
       <Collapsible className="flex flex-col gap-4 rounded-xl border p-4">
         <CollapsibleTrigger className="group/trigger flex w-full items-center justify-between gap-3 rounded-lg text-left text-sm font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
           <span className="flex items-center gap-2">
-            Fine-tune
-            {activePreset === null && <Badge variant="outline">Custom</Badge>}
+            {t("Fine-tune")}
+            {activePreset === null && (
+              <Badge variant="outline">{t("Custom")}</Badge>
+            )}
           </span>
           <ChevronDown
             aria-hidden
@@ -121,9 +128,9 @@ export function WizardPrioritiesStep({
                     htmlFor={`weight-${outcome.id}`}
                     className="flex flex-wrap items-center gap-x-1.5"
                   >
-                    {outcome.label}
+                    {t(outcome.label)}
                     <span className="font-normal text-muted-foreground">
-                      ({outcome.unit})
+                      ({t(outcome.unit)})
                     </span>
                   </Label>
                   <span className="text-sm tabular-nums text-muted-foreground">
@@ -132,7 +139,9 @@ export function WizardPrioritiesStep({
                 </div>
                 <Slider
                   id={`weight-${outcome.id}`}
-                  aria-label={`${outcome.label} priority`}
+                  aria-label={t("{value1} priority", {
+                    value1: t(outcome.label),
+                  })}
                   min={0}
                   max={1}
                   step={SLIDER_STEP}
@@ -145,20 +154,23 @@ export function WizardPrioritiesStep({
                     })
                   }
                 />
-                <p className="text-xs text-muted-foreground">{outcome.hint}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t(outcome.hint)}
+                </p>
               </div>
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            Shares are relative: only the proportions between the sliders
-            matter.
+            {t(
+              "Shares are relative: only the proportions between the sliders matter."
+            )}
           </p>
         </CollapsibleContent>
       </Collapsible>
 
       {!hasPriority && (
         <p role="status" className="text-sm text-muted-foreground">
-          Give at least one outcome some weight to continue.
+          {t("Give at least one outcome some weight to continue.")}
         </p>
       )}
     </div>

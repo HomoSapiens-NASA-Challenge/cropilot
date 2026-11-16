@@ -1,4 +1,6 @@
-"use client"
+import { useI18n } from "@/lib/i18n"
+
+;("use client")
 
 import type * as MapLibreGL from "maplibre-gl"
 import type { MarkerOptions, PopupOptions } from "maplibre-gl"
@@ -468,6 +470,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     <MapContext.Provider value={contextValue}>
       <div
         ref={containerRef}
+        // MapLibre handles wheel zoom; Lenis must not also scroll the page.
+        data-lenis-prevent-wheel={props.scrollZoom !== false ? "" : undefined}
         className={cn("relative h-full w-full", className)}
       >
         {(!isLoaded || loading) && <DefaultLoader />}
@@ -675,11 +679,12 @@ function DefaultMarkerIcon() {
 }
 
 function PopupCloseButton({ onClick }: { onClick: () => void }) {
+  const { t } = useI18n()
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Close popup"
+      aria-label={t("Close popup")}
       className="focus-visible:ring-ring hover:bg-muted text-foreground absolute top-1 right-1 z-10 inline-flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
     >
       <X className="size-3.5" />
@@ -905,10 +910,11 @@ function ControlButton({
   children: React.ReactNode
   disabled?: boolean
 }) {
+  const { t } = useI18n()
   return (
     <button
       onClick={onClick}
-      aria-label={label}
+      aria-label={t(label)}
       type="button"
       className={cn(
         "flex size-8 items-center justify-center transition-colors",
@@ -987,6 +993,7 @@ function MapControls({
 
   return (
     <div
+      data-slot="map-controls"
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],

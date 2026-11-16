@@ -18,6 +18,7 @@ import {
 import type { Action } from "@/features/planner/planner-types"
 import { ResultSection } from "@/features/planner/result-section"
 import { CROPS } from "@/lib/data-colors"
+import { translate, useI18n } from "@/lib/i18n"
 
 const TOOLTIP_WIDTH_PX = 224
 const ROW_LABEL_WIDTH_PX = 64
@@ -30,26 +31,29 @@ function cellKey(cell: DecisionCell): string {
 }
 
 function CellTooltip({ cell }: { cell: DecisionCell }) {
+  const { t } = useI18n("app")
+
   return (
     <div className="flex flex-col gap-1.5 text-xs">
       <span className="text-sm font-medium">
-        {ENSO_LABEL[cell.enso]}, soil water on June 1{" "}
-        {formatShare(cell.water_fraction)}
+        {t(ENSO_LABEL[cell.enso])}
+        {t(", soil water on June 1")} {formatShare(cell.water_fraction)}
       </span>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
-        <dt className="text-muted-foreground">Exact optimum</dt>
-        <dd className="text-right">{ACTION_LABEL[cell.optimal_action]}</dd>
-        <dt className="text-muted-foreground">Learning agent</dt>
-        <dd className="text-right">{ACTION_LABEL[cell.agent_action]}</dd>
+        <dt className="text-muted-foreground">{t("Exact optimum")}</dt>
+        <dd className="text-right">{t(ACTION_LABEL[cell.optimal_action])}</dd>
+        <dt className="text-muted-foreground">{t("Learning agent")}</dt>
+        <dd className="text-right">{t(ACTION_LABEL[cell.agent_action])}</dd>
       </dl>
       <p className="text-muted-foreground">
         {cell.agrees
-          ? "The agent agrees with the optimum here."
-          : "The agent disagrees with the optimum here."}
+          ? t("The agent agrees with the optimum here.")
+          : t("The agent disagrees with the optimum here.")}
       </p>
       <p className="border-t pt-1.5 text-muted-foreground">
-        {cell.training_campaigns} training campaigns in this El Niño phase.{" "}
-        Click to read the plan for this state.
+        {cell.training_campaigns}{" "}
+        {t(" training campaigns in this El Niño phase.")}{" "}
+        {t("Click to read the plan for this state.")}
       </p>
     </div>
   )
@@ -72,6 +76,8 @@ function DecisionGrid({
   isSelected: (cell: DecisionCell) => boolean
   onSelect: (cell: DecisionCell) => void
 }) {
+  const { t } = useI18n("app")
+
   const [active, setActive] = useState<ActiveCell | null>(null)
 
   const waterLevels = [
@@ -107,8 +113,8 @@ function DecisionGrid({
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h3 className="text-sm font-medium">{title}</h3>
-        <p className="text-xs text-muted-foreground">{lead}</p>
+        <h3 className="text-sm font-medium">{t(title)}</h3>
+        <p className="text-xs text-muted-foreground">{t(lead)}</p>
       </div>
       <div ref={containerRef} className="relative">
         <div
@@ -120,7 +126,7 @@ function DecisionGrid({
           {ENSO_ORDER.map((enso) => (
             <div key={enso} className="contents">
               <span className="flex items-center text-xs text-muted-foreground">
-                {ENSO_LABEL[enso]}
+                {t(ENSO_LABEL[enso])}
               </span>
               {waterLevels.map((water) => {
                 const cell = byKey.get(`${enso}-${water}`)
@@ -130,7 +136,15 @@ function DecisionGrid({
                   <button
                     key={water}
                     type="button"
-                    aria-label={`${ENSO_LABEL[enso]}, soil water ${formatShare(water)}: optimum ${ACTION_LABEL[cell.optimal_action]}, agent ${ACTION_LABEL[cell.agent_action]}`}
+                    aria-label={t(
+                      "{value1}, soil water {value2}: optimum {value3}, agent {value4}",
+                      {
+                        value1: t(ENSO_LABEL[enso]),
+                        value2: formatShare(water),
+                        value3: t(ACTION_LABEL[cell.optimal_action]),
+                        value4: t(ACTION_LABEL[cell.agent_action]),
+                      }
+                    )}
                     aria-pressed={isSelected(cell)}
                     className={cn(
                       "flex h-10 items-center justify-center rounded-sm text-[10px] font-medium text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
@@ -155,7 +169,8 @@ function DecisionGrid({
         >
           <span>{formatShare(waterLevels[0] ?? 0)}</span>
           <span>
-            Soil water on June 1, % of {Math.round(soilCapacityMm)} mm
+            {t("Soil water on June 1, % of ")}
+            {Math.round(soilCapacityMm)} {t(" mm")}
           </span>
           <span>{formatShare(waterLevels.at(-1) ?? 1)}</span>
         </div>
@@ -184,12 +199,17 @@ function juneTakeaway(cells: ReadonlyArray<DecisionCell>): string {
   }
   const parts = ACTION_ORDER.filter((action) => counts.has(action))
     .sort((a, b) => (counts.get(b) ?? 0) - (counts.get(a) ?? 0))
-    .map(
-      (action) =>
-        `${ACTION_LABEL[action].toLowerCase()} in ${counts.get(action)}`
+    .map((action) =>
+      translate("{value1} in {value2}", {
+        value1: translate(ACTION_LABEL[action]).toLowerCase(),
+        value2: counts.get(action) ?? 0,
+      })
     )
   const differing = cells.filter((cell) => !cell.agrees).length
-  return `In June the exact optimum chooses ${parts.join(", ")} of the ${cells.length} states. The learning agent chooses differently in ${differing}.`
+  return translate(
+    "In June the exact optimum chooses {value1} of the {value2} states. The learning agent chooses differently in {value3}.",
+    { value1: parts.join(", "), value2: cells.length, value3: differing }
+  )
 }
 
 /**
@@ -206,6 +226,8 @@ export function DecisionMap({
   situation: Situation
   onSituationChange: (situation: Situation) => void
 }) {
+  const { t } = useI18n("app")
+
   const juneCells = result.decisions.filter((cell) => cell.decision === "june")
   const augustCells = result.decisions.filter(
     (cell) => cell.decision === "august"
@@ -224,15 +246,17 @@ export function DecisionMap({
 
   return (
     <ResultSection
-      title="Decision map"
-      lead="What the exact optimum plants in the first campaign, state by state. Hover a cell for the agent's choice and the training campaigns behind it; click one to read the plan for that state."
+      title={t("Decision map")}
+      lead={t(
+        "What the exact optimum plants in the first campaign, state by state. Hover a cell for the agent's choice and the training campaigns behind it; click one to read the plan for that state."
+      )}
       sources={sourcesById(result.sources, ["nasa-power", "noaa-oni"])}
     >
       <p className="text-sm">{juneTakeaway(juneCells)}</p>
 
       <DecisionGrid
-        title="June: winter crop"
-        lead="Before the winter season, by soil water and El Niño phase."
+        title={t("June: winter crop")}
+        lead={t("Before the winter season, by soil water and El Niño phase.")}
         cells={juneCells}
         soilCapacityMm={result.soil_capacity_mm}
         isSelected={(cell) =>
@@ -251,8 +275,12 @@ export function DecisionMap({
         {winters.map((winter) => (
           <DecisionGrid
             key={winter}
-            title={`August after ${ACTION_LABEL[winter].toLowerCase()}: summer crop`}
-            lead="Before the summer season, given that winter choice. The August choice does not see August soil water."
+            title={t("August after {value1}: summer crop", {
+              value1: t(ACTION_LABEL[winter]).toLowerCase(),
+            })}
+            lead={t(
+              "Before the summer season, given that winter choice. The August choice does not see August soil water."
+            )}
             cells={augustCells.filter((cell) => cell.winter === winter)}
             soilCapacityMm={result.soil_capacity_mm}
             isSelected={(cell) =>
@@ -279,23 +307,23 @@ export function DecisionMap({
               className="size-3 rounded-sm"
               style={{ backgroundColor: CROPS[crop].color }}
             />
-            {CROPS[crop].label}
+            {t(CROPS[crop].label)}
           </li>
         ))}
-        <li>S1 first-crop soybean, S2 second-crop soybean</li>
+        <li>{t("S1 first-crop soybean, S2 second-crop soybean")}</li>
         <li className="flex items-center gap-1.5">
           <span
             aria-hidden
             className="size-3 rounded-sm ring-2 ring-inset ring-primary"
           />
-          The agent chose a different action than the optimum
+          {t("The agent chose a different action than the optimum")}
         </li>
         <li className="flex items-center gap-1.5">
           <span
             aria-hidden
             className="size-3 rounded-sm outline-2 outline-offset-2 outline-foreground"
           />
-          Your situation
+          {t("Your situation")}
         </li>
       </ul>
     </ResultSection>

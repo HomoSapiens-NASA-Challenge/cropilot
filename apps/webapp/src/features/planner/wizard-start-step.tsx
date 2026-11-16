@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { ItineraryChip } from "@/features/planner/itinerary-chip"
+import { plannerText } from "@/features/planner/planner-copy"
 import {
   describeEnsoReading,
   ENSO_LABEL,
@@ -24,6 +25,7 @@ import {
   waterLevelOfFraction,
 } from "@/features/planner/planner-situation"
 import type { EnsoPhase } from "@/features/planner/planner-types"
+import { useI18n } from "@/lib/i18n"
 
 type AugustChoice = EnsoPhase | "unknown"
 
@@ -50,6 +52,8 @@ function SoilWaterControl({
   situation: Situation
   onChange: (situation: Situation) => void
 }) {
+  const { t } = useI18n("app")
+
   const levels = setup.water_levels
   const level = waterLevelOfFraction(situation.waterFraction, levels)
   const defaultFraction = defaultSituation(setup).waterFraction
@@ -60,19 +64,20 @@ function SoilWaterControl({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <Label htmlFor="start-soil-water">Soil water on June 1</Label>
+        <Label htmlFor="start-soil-water">{t("Soil water on June 1")}</Label>
         <span className="text-sm tabular-nums">
           <span className="text-2xl font-light tracking-tight">
             {formatShare(situation.waterFraction)}
           </span>{" "}
           <span className="text-muted-foreground">
-            of capacity, {millimetres(situation.waterFraction)} mm
+            {t("of capacity, ")}
+            {millimetres(situation.waterFraction)} {t(" mm")}
           </span>
         </span>
       </div>
       <Slider
         id="start-soil-water"
-        aria-label="Soil water on June 1"
+        aria-label={t("Soil water on June 1")}
         min={0}
         max={levels - 1}
         step={1}
@@ -87,13 +92,27 @@ function SoilWaterControl({
       />
       <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
         <span>0%</span>
-        <span>100% = {formatWhole(setup.soil_capacity_mm)} mm</span>
+        <span>
+          100% = {formatWhole(setup.soil_capacity_mm)} {t(" mm")}
+        </span>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
         <Caption>
           {isDefault
-            ? `The simulator's own assumption: ${formatShare(defaultFraction)} (${millimetres(defaultFraction)} mm) at the start of every campaign. It is not the NASA POWER wetness index.`
-            : `Your choice. The simulator assumes ${formatShare(defaultFraction)} (${millimetres(defaultFraction)} mm). Neither is the NASA POWER wetness index.`}
+            ? t(
+                "The simulator's own assumption: {value1} ({value2} mm) at the start of every campaign. It is not the NASA POWER wetness index.",
+                {
+                  value1: formatShare(defaultFraction),
+                  value2: millimetres(defaultFraction),
+                }
+              )
+            : t(
+                "Your choice. The simulator assumes {value1} ({value2} mm). Neither is the NASA POWER wetness index.",
+                {
+                  value1: formatShare(defaultFraction),
+                  value2: millimetres(defaultFraction),
+                }
+              )}
         </Caption>
         {!isDefault && (
           <Button
@@ -105,7 +124,7 @@ function SoilWaterControl({
             }
           >
             <RotateCcw aria-hidden data-icon="inline-start" />
-            Use the assumption
+            {t("Use the assumption")}
           </Button>
         )}
       </div>
@@ -125,6 +144,8 @@ export function WizardStartStep({
   situation: Situation
   onSituationChange: (situation: Situation) => void
 }) {
+  const { t } = useI18n("app")
+
   const soilSource = sourcesById(setup.sources, ["soilgrids"])[0]
 
   return (
@@ -138,9 +159,11 @@ export function WizardStartStep({
           />
 
           <div className="flex flex-col gap-3">
-            <span className="text-sm font-medium">El Niño phase on June 1</span>
+            <span className="text-sm font-medium">
+              {t("El Niño phase on June 1")}
+            </span>
             <SegmentedControl
-              label="El Niño phase on June 1"
+              label={t("El Niño phase on June 1")}
               value={situation.ensoJune}
               options={JUNE_OPTIONS}
               onChange={(ensoJune) =>
@@ -150,16 +173,18 @@ export function WizardStartStep({
             <Caption>
               {setup.latest_enso_june
                 ? describeEnsoReading(setup.latest_enso_june)
-                : "No NOAA reading is installed for the latest campaign: Neutral is a placeholder, change it if you know better."}
+                : t(
+                    "No NOAA reading is installed for the latest campaign: Neutral is a placeholder, change it if you know better."
+                  )}
             </Caption>
           </div>
 
           <div className="flex flex-col gap-3">
             <span className="text-sm font-medium">
-              El Niño phase at the end of August
+              {t("El Niño phase at the end of August")}
             </span>
             <SegmentedControl<AugustChoice>
-              label="El Niño phase at the end of August"
+              label={t("El Niño phase at the end of August")}
               value={situation.ensoAugust ?? "unknown"}
               options={AUGUST_OPTIONS}
               onChange={(choice) =>
@@ -172,13 +197,17 @@ export function WizardStartStep({
             <Caption>
               {setup.latest_enso_august
                 ? describeEnsoReading(setup.latest_enso_august)
-                : "NOAA has not published the Jul-Sep reading for the latest campaign."}
+                : t(
+                    "NOAA has not published the Jul-Sep reading for the latest campaign."
+                  )}
             </Caption>
           </div>
         </div>
 
         <aside
-          aria-label={`${region.name} as the simulator sees it`}
+          aria-label={t("{value1} as the simulator sees it", {
+            value1: region.name,
+          })}
           className="flex flex-col gap-5 rounded-xl border p-4"
         >
           <div className="flex flex-col gap-1">
@@ -189,20 +218,21 @@ export function WizardStartStep({
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-muted-foreground">
-              Soil water capacity
+              {t("Soil water capacity")}
             </span>
             <span className="text-3xl font-light tracking-tight tabular-nums">
-              {formatWhole(setup.soil_capacity_mm)} mm
+              {formatWhole(setup.soil_capacity_mm)} {t(" mm")}
             </span>
             {soilSource && (
               <span className="text-xs text-muted-foreground">
-                {soilSource.dataset}. {soilSource.location}.
+                {plannerText(soilSource.dataset)}.{" "}
+                {plannerText(soilSource.location)}.
               </span>
             )}
           </div>
           <div className="flex flex-col gap-2">
             <h4 className="text-xs text-muted-foreground">
-              Crop sequences the simulator can play here
+              {t("Crop sequences the simulator can play here")}
             </h4>
             <ul className="flex flex-col gap-1.5">
               {setup.itineraries.map((itinerary) => (
@@ -219,13 +249,15 @@ export function WizardStartStep({
           {setup.unavailable_strategies.length > 0 && (
             <div className="flex flex-col gap-2">
               <h4 className="text-xs text-muted-foreground">
-                Not simulated here
+                {t("Not simulated here")}
               </h4>
               <ul className="flex flex-col gap-1.5 text-xs text-muted-foreground">
                 {setup.unavailable_strategies.map((strategy) => (
                   <li key={strategy.strategy_id}>
-                    <span className="text-foreground">{strategy.label}</span>:{" "}
-                    {strategy.reason}
+                    <span className="text-foreground">
+                      {plannerText(strategy.label)}
+                    </span>
+                    : {plannerText(strategy.reason)}
                   </li>
                 ))}
               </ul>
@@ -233,7 +265,7 @@ export function WizardStartStep({
           )}
           {region.known_limit && (
             <p className="border-t pt-3 text-xs text-muted-foreground">
-              {region.known_limit}
+              {t(region.known_limit)}
             </p>
           )}
         </aside>
@@ -242,8 +274,9 @@ export function WizardStartStep({
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
         <span>
-          These choices do not re-run anything. The plan covers every starting
-          state; they only pick the one you read it for.
+          {t(
+            "These choices do not re-run anything. The plan covers every starting state; they only pick the one you read it for."
+          )}
         </span>
       </p>
     </div>

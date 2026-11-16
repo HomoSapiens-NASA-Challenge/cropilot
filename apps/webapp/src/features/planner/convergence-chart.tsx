@@ -10,6 +10,7 @@ import {
   formatWhole,
 } from "@/features/planner/planner-format"
 import { useElementWidth } from "@/hooks/use-element-width"
+import { useI18n } from "@/lib/i18n"
 
 const MARGIN = { top: 12, right: 28, bottom: 44, left: 52 } as const
 const SCORE_HEIGHT_PX = 190
@@ -53,6 +54,8 @@ export function ConvergenceChart({
   episodesPerAgent: number
   agentSeeds: number
 }) {
+  const { t } = useI18n("app")
+
   const [containerRef, measuredWidth] = useElementWidth<HTMLDivElement>()
   const width = Math.max(measuredWidth, MIN_WIDTH_PX)
   const innerWidth = width - MARGIN.left - MARGIN.right
@@ -85,8 +88,10 @@ export function ConvergenceChart({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
-        {agentSeeds} agents, each from its own random seed. Agent 1,
-        highlighted, is the one reported below.
+        {agentSeeds}{" "}
+        {t(
+          " agents, each from its own random seed. Agent 1, highlighted, is the one reported below."
+        )}
       </p>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
@@ -100,7 +105,7 @@ export function ConvergenceChart({
               strokeWidth={2}
             />
           </svg>
-          Agent 1 score
+          {t("Agent 1 score")}
           {latest && (
             <span className="tabular-nums text-foreground">
               {formatScore(latest.agent_score)}
@@ -118,7 +123,7 @@ export function ConvergenceChart({
               strokeWidth={1}
             />
           </svg>
-          Other agents
+          {t("Other agents")}
         </span>
         {optimalScore !== null && (
           <span className="flex items-center gap-1.5">
@@ -133,7 +138,7 @@ export function ConvergenceChart({
                 strokeDasharray="4 3"
               />
             </svg>
-            Exact optimum
+            {t("Exact optimum")}
             <span className="tabular-nums text-foreground">
               {formatScore(optimalScore)}
             </span>
@@ -141,16 +146,18 @@ export function ConvergenceChart({
         )}
         {latest && (
           <span>
-            Agent 1 agrees with the optimum in{" "}
+            {t("Agent 1 agrees with the optimum in")}{" "}
             <span className="tabular-nums text-foreground">
               {formatShare(latest.agreement_share)}
             </span>{" "}
-            of states
+            {t("of states")}
             {lines.length > 1 && (
               <>
-                ; across {lines.length} agents,{" "}
+                {t("; across ")}
+                {lines.length} {t(" agents,")}{" "}
                 <span className="tabular-nums text-foreground">
-                  {formatShare(minAgreement)} to {formatShare(maxAgreement)}
+                  {formatShare(minAgreement)} {t(" to ")}
+                  {formatShare(maxAgreement)}
                 </span>
               </>
             )}
@@ -162,8 +169,11 @@ export function ConvergenceChart({
         <svg width={width} height={height} className="block max-w-full">
           <title>
             {latest
-              ? `Score and agreement with the exact optimum of ${agentSeeds} agents over ${formatWhole(xMax)} training episodes each`
-              : "Training has not reported a checkpoint yet"}
+              ? t(
+                  "Score and agreement with the exact optimum of {value1} agents over {value2} training episodes each",
+                  { value1: agentSeeds, value2: formatWhole(xMax) }
+                )
+              : t("Training has not reported a checkpoint yet")}
           </title>
 
           {scores.length > 0 &&
@@ -213,7 +223,7 @@ export function ConvergenceChart({
             className="fill-muted-foreground"
             fontSize={LABEL_FONT_PX}
           >
-            Share of states with the optimal action
+            {t("Share of states with the optimal action")}
           </text>
 
           {xTicks.map((value) => (
@@ -243,7 +253,7 @@ export function ConvergenceChart({
             className="fill-foreground"
             fontSize={LABEL_FONT_PX}
           >
-            Training episodes per agent
+            {t("Training episodes per agent")}
           </text>
 
           {optimalScore !== null && (
@@ -329,7 +339,7 @@ export function ConvergenceChart({
               className="fill-muted-foreground"
               fontSize={LABEL_FONT_PX + 1}
             >
-              Waiting for the first training checkpoint
+              {t("Waiting for the first training checkpoint")}
             </text>
           )}
         </svg>

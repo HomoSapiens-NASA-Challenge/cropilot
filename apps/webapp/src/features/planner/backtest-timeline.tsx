@@ -11,6 +11,7 @@ import {
   paddedDomain,
 } from "@/features/planner/chart-scale"
 import { ItineraryChip } from "@/features/planner/itinerary-chip"
+import { plannerText } from "@/features/planner/planner-copy"
 import {
   campaignName,
   campaignShortName,
@@ -23,6 +24,7 @@ import {
 import type { EnsoPhase } from "@/features/planner/planner-types"
 import { ResultSection } from "@/features/planner/result-section"
 import { useElementWidth } from "@/hooks/use-element-width"
+import { translate, useI18n } from "@/lib/i18n"
 
 const LABEL_COLUMN = "13rem"
 const CAMPAIGN_COLUMN_MIN = "2.75rem"
@@ -108,7 +110,10 @@ function optimumTakeaway(rows: ReadonlyArray<Row>): string | null {
       (other) => (other.campaigns[index]?.score ?? -Infinity) <= campaign.score
     )
   ).length
-  return `The exact optimum scored at least as high as every other policy shown in ${best} of the ${optimal.campaigns.length} campaigns.`
+  return translate(
+    "The exact optimum scored at least as high as every other policy shown in {value1} of the {value2} campaigns.",
+    { value1: best, value2: optimal.campaigns.length }
+  )
 }
 
 /** The end of the cumulative lines: who finished highest, next to the optimum. */
@@ -125,9 +130,20 @@ function cumulativeTakeaway(rows: ReadonlyArray<Row>): string | null {
   if (!optimal || !leader) return null
   const optimalTotal = formatScore(optimal.cumulative.at(-1) ?? 0)
   if (leader.policy.policy_id === optimal.policy.policy_id) {
-    return `After ${optimal.campaigns.length} held-out campaigns the exact optimum has the highest cumulative score: ${optimalTotal}.`
+    return translate(
+      "After {value1} held-out campaigns the exact optimum has the highest cumulative score: {value2}.",
+      { value1: optimal.campaigns.length, value2: optimalTotal }
+    )
   }
-  return `After ${optimal.campaigns.length} held-out campaigns ${leader.policy.label} has the highest cumulative score (${formatScore(leader.cumulative.at(-1) ?? 0)}); the exact optimum has ${optimalTotal}.`
+  return translate(
+    "After {value1} held-out campaigns {value2} has the highest cumulative score ({value3}); the exact optimum has {value4}.",
+    {
+      value1: optimal.campaigns.length,
+      value2: plannerText(leader.policy.label),
+      value3: formatScore(leader.cumulative.at(-1) ?? 0),
+      value4: optimalTotal,
+    }
+  )
 }
 
 function CumulativeChart({
@@ -137,6 +153,8 @@ function CumulativeChart({
   rows: ReadonlyArray<Row>
   highlighted: string | null
 }) {
+  const { t } = useI18n("app")
+
   const [containerRef, measuredWidth] = useElementWidth<HTMLDivElement>()
   const width = Math.max(measuredWidth, MIN_CHART_WIDTH_PX)
   const innerWidth = width - CHART_MARGIN.left - CHART_MARGIN.right
@@ -171,7 +189,7 @@ function CumulativeChart({
     <div ref={containerRef} className="w-full">
       <svg width={width} height={CHART_HEIGHT_PX} className="block max-w-full">
         <title>
-          Cumulative score of each policy over the held-out campaigns
+          {t("Cumulative score of each policy over the held-out campaigns")}
         </title>
         {niceTicks(yMin, yMax, 4).map((value) => (
           <g key={value}>
@@ -234,9 +252,9 @@ function CumulativeChart({
         {labels.map(({ row, y }) => {
           const isHighlighted = row.policy.policy_id === highlighted
           const text =
-            row.policy.label.length > END_LABEL_MAX_CHARS
-              ? `${row.policy.label.slice(0, END_LABEL_MAX_CHARS - 1)}…`
-              : row.policy.label
+            plannerText(row.policy.label).length > END_LABEL_MAX_CHARS
+              ? `${plannerText(row.policy.label).slice(0, END_LABEL_MAX_CHARS - 1)}…`
+              : plannerText(row.policy.label)
           return (
             <text
               key={row.policy.policy_id}
@@ -263,6 +281,8 @@ function CumulativeChart({
  * highlights that policy here and in the cumulative chart below.
  */
 export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
+  const { t } = useI18n("app")
+
   const [highlighted, setHighlighted] = useState<string | null>(null)
   const rows = timelinePolicies(result).map(toRow)
   const reference = rows[0]?.campaigns ?? []
@@ -283,11 +303,14 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
   return (
     <>
       <ResultSection
-        title="Backtest on held-out campaigns"
+        title={t("Backtest on held-out campaigns")}
         lead={
           first !== undefined && last !== undefined
-            ? `Campaigns ${campaignName(first)} to ${campaignName(last)} were never used to fit or to choose a policy. Bars are each campaign's score, unitless and higher is better.`
-            : "Campaigns that were never used to fit or to choose a policy."
+            ? t(
+                "Campaigns {value1} to {value2} were never used to fit or to choose a policy. Bars are each campaign's score, unitless and higher is better.",
+                { value1: campaignName(first), value2: campaignName(last) }
+              )
+            : t("Campaigns that were never used to fit or to choose a policy.")
         }
         sources={sourcesById(result.sources, [
           "nasa-power",
@@ -306,7 +329,9 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
               className="grid items-center gap-1"
               style={{ gridTemplateColumns: columns }}
             >
-              <span className="text-xs text-muted-foreground">Campaign</span>
+              <span className="text-xs text-muted-foreground">
+                {t("Campaign")}
+              </span>
               {reference.map((campaign) => (
                 <span
                   key={campaign.campaign_start_year}
@@ -321,12 +346,15 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
               style={{ gridTemplateColumns: columns }}
             >
               <span className="text-xs text-muted-foreground">
-                El Niño phase, June
+                {t("El Niño phase, June")}
               </span>
               {reference.map((campaign) => (
                 <span
                   key={campaign.campaign_start_year}
-                  title={`${ENSO_LABEL[campaign.enso_june]} in June, ${ENSO_LABEL[campaign.enso_august]} in August`}
+                  title={t("{value1} in June, {value2} in August", {
+                    value1: t(ENSO_LABEL[campaign.enso_june]),
+                    value2: t(ENSO_LABEL[campaign.enso_august]),
+                  })}
                   className={cn(
                     "rounded-sm py-0.5 text-center text-[10px] font-medium",
                     ENSO_TONE[campaign.enso_june]
@@ -356,24 +384,28 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
                 >
                   <span className="flex min-w-0 flex-col gap-0.5 pl-2">
                     <span
-                      title={row.policy.label}
+                      title={plannerText(row.policy.label)}
                       className={cn(
                         "line-clamp-2 text-sm font-medium",
                         isHighlighted && "text-primary"
                       )}
                     >
-                      {row.policy.label}
+                      {plannerText(row.policy.label)}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {row.policy.is_current
-                        ? "Current"
-                        : POLICY_KIND_LABEL[row.policy.kind]}
+                        ? t("Current")
+                        : t(POLICY_KIND_LABEL[row.policy.kind])}
                     </span>
                   </span>
                   {row.campaigns.map((campaign) => (
                     <span
                       key={campaign.campaign_start_year}
-                      title={`${campaignName(campaign.campaign_start_year)}: ${itineraryLabel(campaign.itinerary)}. Score ${formatScore(campaign.score)}`}
+                      title={t("{value1}: {value2}. Score {value3}", {
+                        value1: campaignName(campaign.campaign_start_year),
+                        value2: itineraryLabel(campaign.itinerary),
+                        value3: formatScore(campaign.score),
+                      })}
                       className="flex flex-col gap-1"
                     >
                       <ItineraryChip itinerary={campaign.itinerary} />
@@ -413,15 +445,17 @@ export function BacktestTimeline({ result }: { result: RotationPlanResult }) {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Each campaign shows two blocks: the winter crop above, the summer crop
-          below. Hover or focus a row to highlight that policy here and in the
-          cumulative chart.
+          {t(
+            "Each campaign shows two blocks: the winter crop above, the summer crop below. Hover or focus a row to highlight that policy here and in the cumulative chart."
+          )}
         </p>
       </ResultSection>
 
       <ResultSection
-        title="Cumulative score over the held-out campaigns"
-        lead="The running total of each policy's campaign scores, in score units."
+        title={t("Cumulative score over the held-out campaigns")}
+        lead={t(
+          "The running total of each policy's campaign scores, in score units."
+        )}
         sources={sourcesById(result.sources, ["nasa-power", "magyp", "prices"])}
       >
         {chartSummary && <p className="text-sm">{chartSummary}</p>}

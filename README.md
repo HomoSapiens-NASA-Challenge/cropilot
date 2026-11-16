@@ -4,6 +4,9 @@ Decision support for agronomists: compare crop rotation strategies using NASA Ea
 
 Cropilot supports the agronomist's judgment. It never replaces it.
 
+The web starts in English. Choose **EN / ES** in the header for Spanish; your explicit
+choice persists while navigating and on the next visit. See [web languages](docs/languages.md).
+
 ## Run it
 
 Requires Node 24, pnpm, uv and Docker.

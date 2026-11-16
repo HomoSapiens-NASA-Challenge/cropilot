@@ -24,8 +24,54 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { translate, useI18n } from "@/lib/i18n"
 
 type Turn = { id: string; question: string; response: AssistantResponse }
+
+/** Interface metadata comes from the API; generated answers and user messages keep their language. */
+function evidenceText(text: string): string {
+  const field = /^Satellite evidence · field (.+)$/.exec(text)
+  if (field?.[1])
+    return translate("Satellite evidence · field {field}", { field: field[1] })
+  const run = /^Cropilot rotation planner · run (.+)$/.exec(text)
+  if (run?.[1])
+    return translate("Cropilot rotation planner · run {run}", { run: run[1] })
+  const years = /^Held-out campaign start years: (.+)$/.exec(text)
+  if (years?.[1])
+    return translate("Held-out campaign start years: {years}", {
+      years: years[1],
+    })
+  const scenario =
+    /^Scenario: (.+) m; initial reserve (.+)%; summer shift (.+) days\. Excess is not a flood probability\. (.*)$/.exec(
+      text
+    )
+  if (
+    scenario?.[1] &&
+    scenario[2] &&
+    scenario[3] &&
+    scenario[4] !== undefined
+  ) {
+    return translate(
+      "Scenario: {depth} m; initial reserve {reserve}%; summer shift {shift} days. Excess is not a flood probability. {note}",
+      {
+        depth: scenario[1],
+        reserve: scenario[2],
+        shift: scenario[3],
+        note: translate(scenario[4]),
+      }
+    )
+  }
+  const bootstrap =
+    /^Unitless score for this run's weights\. Intervals compare the optimum with each baseline, not RL with greedy\. Bad-year margin is not food CVaR\. Bootstrap method: (.+)$/.exec(
+      text
+    )
+  if (bootstrap?.[1])
+    return translate(
+      "Unitless score for this run's weights. Intervals compare the optimum with each baseline, not RL with greedy. Bad-year margin is not food CVaR. Bootstrap method: {method}",
+      { method: bootstrap[1] }
+    )
+  return translate(text)
+}
 
 function errorMessage(error: unknown): string {
   if (
@@ -40,14 +86,16 @@ function errorMessage(error: unknown): string {
 }
 
 function EvidenceTable({ card }: { card: EvidenceCard }) {
+  const { t } = useI18n("app")
+
   return (
     <details className="rounded-lg border">
       <summary className="cursor-pointer px-3 py-2 font-medium">
-        {card.title}
+        {evidenceText(card.title)}
       </summary>
       <div className="space-y-3 border-t p-3">
         <p className="text-xs text-muted-foreground">
-          {card.provenance} · {card.scale} · Published evidence
+          {t(card.provenance)} · {t(card.scale)} {t(" · Published evidence")}
         </p>
         <div className="max-h-64 overflow-auto">
           <table className="w-full text-left text-xs tabular-nums">
@@ -55,7 +103,7 @@ function EvidenceTable({ card }: { card: EvidenceCard }) {
               <tr>
                 {card.columns.map((column) => (
                   <th key={column} className="px-2 py-2 font-medium">
-                    {column}
+                    {t(column)}
                   </th>
                 ))}
               </tr>
@@ -66,12 +114,12 @@ function EvidenceTable({ card }: { card: EvidenceCard }) {
                   {row.map((value, column) => (
                     <td key={card.columns[column]} className="px-2 py-2">
                       {value === null
-                        ? "Missing"
+                        ? t("Missing")
                         : typeof value === "number"
                           ? value.toLocaleString("en", {
                               maximumFractionDigits: 3,
                             })
-                          : value}
+                          : t(value)}
                     </td>
                   ))}
                 </tr>
@@ -80,7 +128,7 @@ function EvidenceTable({ card }: { card: EvidenceCard }) {
           </table>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {card.note}
+          {evidenceText(card.note)}
         </p>
       </div>
     </details>
@@ -94,40 +142,45 @@ function Answer({
   response: AssistantResponse
   onQuestion: (question: string) => void
 }) {
+  const { t } = useI18n("app")
+
   return (
     <div className="space-y-4">
       {response.speech && (
         <div className="space-y-2 rounded-lg border p-3">
           <p className="text-xs font-medium">
-            AI-generated voice · spoken excerpt
+            {t("AI-generated voice · spoken excerpt")}
           </p>
           <audio
             controls
             className="w-full"
-            aria-label="Spoken answer"
+            aria-label={t("Spoken answer")}
             src={`data:${response.speech.mime_type};base64,${response.speech.audio_base64}`}
           >
             <track
               kind="captions"
-              label="Spoken transcript"
+              label={t("Spoken transcript")}
               srcLang="und"
               default
               src={`data:text/vtt;charset=utf-8,${encodeURIComponent(`WEBVTT\n\n00:00:00.000 --> 00:01:30.000\n${response.speech.text}`)}`}
             />
           </audio>
           <details className="text-xs text-muted-foreground">
-            <summary className="cursor-pointer">Spoken transcript</summary>
+            <summary className="cursor-pointer">
+              {t("Spoken transcript")}
+            </summary>
             <p className="mt-2 leading-relaxed">{response.speech.text}</p>
           </details>
           <p className="text-xs text-muted-foreground">
-            Press Play to listen, pause or replay. The complete answer and
-            sources are below.
+            {t(
+              "Press Play to listen, pause or replay. The complete answer and sources are below."
+            )}
           </p>
         </div>
       )}
       {response.speech_error && (
         <p role="status" className="text-xs text-muted-foreground">
-          {response.speech_error}
+          {t(response.speech_error)}
         </p>
       )}
       {response.claims.map((claim) => (
@@ -150,17 +203,18 @@ function Answer({
       {response.limitations.length > 0 && (
         <div className="space-y-2 border-l-2 border-primary pl-3 text-xs leading-relaxed text-muted-foreground">
           <p className="font-medium text-foreground">
-            What this does not establish
+            {t("What this does not establish")}
           </p>
           {response.limitations.map((limit) => (
-            <p key={limit}>{limit}</p>
+            <p key={limit}>{t(limit)}</p>
           ))}
         </div>
       )}
       <details className="text-xs">
         <summary className="cursor-pointer font-medium">
           <BookOpen className="mr-1 inline size-3" aria-hidden />
-          Sources and context ({response.sources.length})
+          {t("Sources and context (")}
+          {response.sources.length})
         </summary>
         <div className="mt-3 space-y-3 text-muted-foreground">
           {response.sources.map((source) => (
@@ -172,24 +226,36 @@ function Answer({
                   rel="noreferrer"
                   className="text-primary underline underline-offset-2"
                 >
-                  {source.dataset}
+                  {evidenceText(source.dataset)}
                 </a>
               ) : (
-                <p className="text-foreground">{source.dataset}</p>
+                <p className="text-foreground">
+                  {evidenceText(source.dataset)}
+                </p>
               )}
               <p>
-                {source.provider} · {source.period} · {source.location}
+                {t(source.provider)} · {evidenceText(source.period)} ·{" "}
+                {t(source.location)}
               </p>
               <p>
-                {source.nature} · {source.id}
+                {t(source.nature)} · {source.id}
               </p>
             </div>
           ))}
           <p>
-            Case snapshot: {response.generated_utc}. Model: {response.model}.
-            Tools: {response.tools_used.join(", ") || "Case metadata"}.
+            {t("Case snapshot: ")}
+            {response.generated_utc}
+            {t(". Model: ")}
+            {response.model}
+            {t(". Tools: ")}
+            {response.tools_used.join(", ") || t("Case metadata")}.
           </p>
-          {response.run_id && <p>Planner run: {response.run_id}</p>}
+          {response.run_id && (
+            <p>
+              {t("Planner run: ")}
+              {response.run_id}
+            </p>
+          )}
         </div>
       </details>
       <div className="flex flex-wrap gap-2">
@@ -199,9 +265,9 @@ function Answer({
             variant="outline"
             size="sm"
             className="h-auto whitespace-normal text-left"
-            onClick={() => onQuestion(question)}
+            onClick={() => onQuestion(t(question))}
           >
-            {question}
+            {t(question)}
           </Button>
         ))}
       </div>
@@ -219,6 +285,8 @@ export function AssistantPanel({
   zoneName: string
   runId?: string
 }) {
+  const { t } = useI18n("app")
+
   const [turns, setTurns] = useState<Turn[]>([])
   const [question, setQuestion] = useState("")
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
@@ -284,34 +352,37 @@ export function AssistantPanel({
     <Sheet>
       <SheetTrigger render={<Button variant="outline" />}>
         <MessageCircle aria-hidden data-icon="inline-start" />
-        Ask Cropilot
+        {t("Ask Cropilot")}
       </SheetTrigger>
       <SheetContent className="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
         <SheetHeader className="border-b pr-12">
-          <SheetTitle>Explore the evidence</SheetTitle>
+          <SheetTitle>{t("Explore the evidence")}</SheetTitle>
           <SheetDescription>
-            {zoneName} · {runId ? "Selected planner run" : "Published case"}
+            {zoneName} ·{" "}
+            {runId ? t("Selected planner run") : t("Published case")}
           </SheetDescription>
           <p className="mt-2 text-xs text-muted-foreground">
-            AI explanations of scenarios, with sources. Supports your agronomic
-            judgment.
+            {t(
+              "AI explanations of scenarios, with sources. Supports your agronomic judgment."
+            )}
           </p>
         </SheetHeader>
         <div
           className="min-h-0 flex-1 overflow-y-auto p-4"
           role="log"
-          aria-label="Conversation"
+          aria-label={t("Conversation")}
           aria-busy={pending}
         >
           {turns.length === 0 && !pending && (
             <div className="space-y-5 py-5">
               <MessageCircle className="size-7 text-primary" aria-hidden />
               <p className="text-xl font-light tracking-tight">
-                What would you like to understand?
+                {t("What would you like to understand?")}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Compare alternatives, inspect their sources, or ask what is
-                still missing. You can write in English or Spanish.
+                {t(
+                  "Compare alternatives, inspect their sources, or ask what is still missing. You can write in English or Spanish."
+                )}
               </p>
               <div className="flex flex-col items-start gap-2">
                 {suggestions.map((text) => (
@@ -319,9 +390,9 @@ export function AssistantPanel({
                     key={text}
                     variant="outline"
                     className="h-auto whitespace-normal text-left"
-                    onClick={() => setQuestion(text)}
+                    onClick={() => setQuestion(t(text))}
                   >
-                    {text}
+                    {t(text)}
                   </Button>
                 ))}
               </div>
@@ -353,7 +424,7 @@ export function AssistantPanel({
                   role="status"
                 >
                   <LoaderCircle className="size-4 animate-spin" aria-hidden />
-                  Reading the evidence and preparing your answer…
+                  {t("Reading the evidence and preparing your answer…")}
                 </p>
               </div>
             )}
@@ -368,7 +439,7 @@ export function AssistantPanel({
         >
           {error && (
             <p role="alert" className="text-sm text-destructive">
-              {errorMessage(error)}
+              {t(errorMessage(error))}
             </p>
           )}
           <AssistantVoiceInput
@@ -387,10 +458,10 @@ export function AssistantPanel({
               disabled={pending || voiceBusy}
               onChange={(event) => setSpeak(event.target.checked)}
             />
-            Spoken reply (AI-generated)
+            {t("Spoken reply (AI-generated)")}
           </label>
           <label htmlFor={`assistant-question-${zoneId}`} className="sr-only">
-            Your question
+            {t("Your question")}
           </label>
           <textarea
             id={`assistant-question-${zoneId}`}
@@ -399,7 +470,7 @@ export function AssistantPanel({
             maxLength={2000}
             disabled={pending || voiceBusy}
             rows={3}
-            placeholder="Ask about this case…"
+            placeholder={t("Ask about this case…")}
             className="w-full resize-none rounded-lg border bg-background p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
           <div className="flex items-center justify-between gap-2">
@@ -416,14 +487,14 @@ export function AssistantPanel({
               }}
             >
               <RotateCcw aria-hidden data-icon="inline-start" />
-              New conversation
+              {t("New conversation")}
             </Button>
             <Button
               type="submit"
               disabled={pending || voiceBusy || !question.trim()}
             >
               <ArrowUp aria-hidden data-icon="inline-start" />
-              Send
+              {t("Send")}
             </Button>
           </div>
         </form>
