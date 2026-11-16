@@ -1404,4 +1404,111 @@ export const esLanding: Record<string, string> = {
   "Oceanic Niño Index": "Índice Oceánico de El Niño",
   "NOAA Climate Prediction Center": "Centro de Predicción Climática de la NOAA",
   Compare: "Comparar",
+  "Source categories": "Categorías de fuentes",
+  "Period used": "Período utilizado",
+  "Coverage in Cropilot": "Cobertura en Cropilot",
+  "Recorded terms": "Condiciones registradas",
+  "Not stated in the project register":
+    "No indicadas en el registro del proyecto",
+  "Open original source: {name}": "Abrir fuente original: {name}",
+  "Original source": "Fuente original",
+  "Browse sources": "Explorar las fuentes",
+  "Periods and coverage describe the inputs used by Cropilot, not the full archive of each provider. Each case keeps the source attached to its figures. Terms are transcribed from the project register; a missing entry does not imply permission to reuse data.":
+    "Los períodos y la cobertura corresponden a los datos usados por Cropilot, no al archivo completo de cada proveedor. Cada caso conserva la fuente junto a sus cifras. Las condiciones se transcriben del registro del proyecto; la ausencia de una licencia no implica permiso para reutilizar los datos.",
+  "Sources and licenses": "Fuentes y licencias",
+  "The data behind the product, with original links and recorded terms.":
+    "Los datos detrás del producto, con enlaces originales y condiciones registradas.",
+  "The evidence behind Cropilot.": "La evidencia detrás de Cropilot.",
+  "Explore the main sources behind the weather, crops, soil and economic scenarios. See what each one contributes, then follow the original source. The complete research and attribution register is linked below.":
+    "Explorá las principales fuentes de clima, cultivos, suelo y escenarios económicos. Mirá qué aporta cada una y consultá la fuente original. Más abajo está el registro completo de investigación y atribuciones.",
+  "Climate and water": "Clima y agua",
+  "The starting conditions used to compare past campaigns.":
+    "Las condiciones iniciales con las que se comparan las campañas pasadas.",
+  "Daily weather and modeled root-zone soil wetness. These are regional grid values, not measurements taken in a field.":
+    "Clima diario y humedad modelada en la zona de raíces. Son valores de una grilla regional, no mediciones tomadas en un lote.",
+  "1981–2026 in the case inputs; the simulator uses 1984–2025 weather.":
+    "1981–2026 en los datos de los casos; el simulador usa clima de 1984–2025.",
+  "Reference points in the ten departments; a regional weather cell around each point.":
+    "Puntos de referencia en los diez departamentos; una celda climática regional alrededor de cada punto.",
+  "Open NASA data": "Datos abiertos de la NASA",
+  "Three-month El Niño / La Niña index used to group historical campaigns. The downloaded file contains revised values.":
+    "Índice trimestral de El Niño / La Niña usado para agrupar campañas históricas. El archivo descargado contiene valores revisados.",
+  "Three-month seasons, 1950–2026.": "Trimestres, 1950–2026.",
+  "Niño 3.4 region of the Pacific; one index shared by the cases.":
+    "Región Niño 3.4 del Pacífico; un mismo índice para todos los casos.",
+  "Public NOAA data": "Datos públicos de la NOAA",
+  "Crops, fields and soil": "Cultivos, lotes y suelo",
+  "Satellite imagery, mapped crops and modeled soil properties, with their different spatial limits.":
+    "Imágenes satelitales, mapas de cultivos y propiedades modeladas del suelo, cada uno con sus límites espaciales.",
+  "Satellite surface reflectance and NDVI feed the crop classifier and vegetation curves.":
+    "La reflectancia superficial y el NDVI satelital alimentan el clasificador de cultivos y las curvas de vegetación.",
+  "Monthly samples, June 2020–November 2026.":
+    "Muestras mensuales, junio de 2020–noviembre de 2026.",
+  "Two 20 × 20 km research zones: Pergamino and Paraná.":
+    "Dos zonas de investigación de 20 × 20 km: Pergamino y Paraná.",
+  "National Map of Crops": "Mapa Nacional de Cultivos",
+  "Mapped crop classes provide the historical crop sequence and the comparison labels for the classifier. They are not field-verified planting records.":
+    "Las clases de cultivo del mapa aportan la secuencia histórica y las etiquetas de comparación del clasificador. No son registros de siembra verificados en el lote.",
+  "Campaigns 2018/19–2024/25; the crop-map product uses 2020/21–2024/25.":
+    "Campañas 2018/19–2024/25; el mapa de cultivos del producto usa 2020/21–2024/25.",
+  "Read within the Pergamino and Paraná research zones.":
+    "Consultado dentro de las zonas de investigación de Pergamino y Paraná.",
+  "Estimated field outlines group satellite pixels into footprints. The boundaries have not been surveyed or validated locally.":
+    "Los contornos estimados de lotes agrupan los píxeles satelitales. Sus límites no se relevaron ni validaron localmente.",
+  "2025 boundaries, global map alpha.":
+    "Límites de 2025, versión alfa del mapa global.",
+  "Argentine field outlines used in the research zones.":
+    "Contornos de lotes argentinos usados en las zonas de investigación.",
+  "Modeled water retention by depth supplies soil water capacity. It does not replace a soil sample from the field.":
+    "La retención de agua modelada por profundidad aporta la capacidad hídrica del suelo. No reemplaza una muestra tomada en el lote.",
+  "Reference points used by the case and rotation simulator.":
+    "Puntos de referencia usados por el caso y el simulador de rotaciones.",
+  "Production and economic context": "Producción y contexto económico",
+  "Department-level yields and explicit price scenarios; margins remain estimates.":
+    "Rindes departamentales y escenarios de precios explícitos; los márgenes siguen siendo estimaciones.",
+  "Agricultural estimates": "Estimaciones agrícolas",
+  "Reported planted and harvested area, production and yields support historical comparisons. Department averages are not field yields.":
+    "Las superficies sembradas y cosechadas, la producción y los rindes informados sostienen las comparaciones históricas. Los promedios departamentales no son rindes del lote.",
+  "Campaigns 1969/70–2024/25 in the March 2026 file.":
+    "Campañas 1969/70–2024/25 en el archivo de marzo de 2026.",
+  "The department associated with each case.":
+    "El departamento asociado a cada caso.",
+  "Regional gross-margin reports": "Informes regionales de margen bruto",
+  "Regional reports supply the cost structure and margin formula. The department-to-region assignment is the team's.":
+    "Los informes regionales aportan la estructura de costos y la fórmula del margen. La asignación de cada departamento a una región es del equipo.",
+  "May 2020–September 2026 reports; September 2026 cost structure.":
+    "Informes de mayo de 2020–septiembre de 2026; estructura de costos de septiembre de 2026.",
+  "The MAGyP region assigned to each case.":
+    "La región de MAGyP asignada a cada caso.",
+  "Futures settlements": "Precios de ajuste de futuros",
+  "Historical soybean, maize and wheat settlements support the case margin scenarios. Cropilot publishes derived margins, not raw prices.":
+    "Los ajustes históricos de soja, maíz y trigo sostienen los escenarios de margen de los casos. Cropilot publica márgenes derivados, no los precios originales.",
+  "1994–13 November 2026.": "1994–13 de noviembre de 2026.",
+  "Rosario; Buenos Aires for part of the early history.":
+    "Rosario; Buenos Aires para parte de la historia inicial.",
+  "Reference only; raw prices are not redistributed.":
+    "Solo como referencia; no se redistribuyen los precios originales.",
+  "Commodity Price Data · Pink Sheet":
+    "Precios de materias primas · Pink Sheet",
+  "International commodity prices define the rotation simulator's price scenario. They are not a local farm-gate quote or a forecast.":
+    "Los precios internacionales de materias primas definen el escenario de precios del simulador de rotaciones. No son una cotización local al productor ni un pronóstico.",
+  "November 2026 price scenario.": "Escenario de precios de noviembre de 2026.",
+  "International reference prices used by the planner.":
+    "Precios internacionales de referencia usados por el planificador.",
+  "Data is only part of the evidence.":
+    "Los datos son solo una parte de la evidencia.",
+  "The simulator also cites FAO crop-water methods, INTA sowing dates and published rotation studies. The references attached to each strategy explain which assumptions it uses.":
+    "El simulador también cita métodos de agua y cultivos de la FAO, fechas de siembra del INTA y estudios publicados sobre rotaciones. Las referencias de cada estrategia explican qué supuestos usa.",
+  "Team models and scenarios": "Modelos y escenarios del equipo",
+  "Water balances, crop classifications, analog-year comparisons and RL policies are team outputs built from these inputs. They are labeled as models or scenarios, not new observations.":
+    "Los balances de agua, las clasificaciones de cultivos, las comparaciones con años análogos y las políticas de RL son resultados del equipo construidos con estos datos. Se identifican como modelos o escenarios, no como observaciones nuevas.",
+  "Complete project register": "Registro completo del proyecto",
+  "Datasets, libraries, models, versions and AI attribution, including research inputs beyond this overview.":
+    "Conjuntos de datos, bibliotecas, modelos, versiones y atribución de IA, incluidos los insumos de investigación que no aparecen en este resumen.",
+  "FAO crop-water methods": "Métodos de agua y cultivos de la FAO",
+  "The original FAO-56 reference used by the water-balance model.":
+    "La referencia original FAO-56 que usa el modelo de balance de agua.",
+  "What the assistant and the team's models do, and what their outputs cannot establish.":
+    "Qué hacen el asistente y los modelos del equipo, y qué no permiten afirmar sus resultados.",
+  "A3 Mercados · formerly MATba-ROFEX": "A3 Mercados · antes MATba-ROFEX",
 }

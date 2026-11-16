@@ -11,6 +11,7 @@ import type {
   SitePage,
   SitePageContent,
 } from "@/features/landing/site-content"
+import { SourceDirectory } from "@/features/landing/source-directory"
 import { StrandsArt } from "@/features/landing/strands-art"
 import { useI18n } from "@/lib/i18n"
 
@@ -45,24 +46,31 @@ function PageContent({ content }: { content: SitePageContent }) {
           </div>
         </Band>
       )}
-      <Band frameClassName="border-t">
-        <ul className="grid md:grid-cols-3 md:divide-x">
-          {content.highlights.map((highlight) => (
-            <li
-              key={highlight.title}
-              className="flex flex-col gap-3 px-4 py-10 sm:px-6 lg:py-14"
-            >
-              <span className="flex size-10 items-center justify-center rounded-lg border bg-background text-primary">
-                <highlight.icon className="size-5" />
-              </span>
-              <h2 className="mt-2 text-lg font-medium">{t(highlight.title)}</h2>
-              <p className="leading-relaxed text-muted-foreground">
-                {t(highlight.description)}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </Band>
+      {content.sourceGroups && (
+        <SourceDirectory groups={content.sourceGroups} />
+      )}
+      {content.highlights.length > 0 && (
+        <Band frameClassName="border-t">
+          <ul className="grid md:grid-cols-3 md:divide-x">
+            {content.highlights.map((highlight) => (
+              <li
+                key={highlight.title}
+                className="flex flex-col gap-3 px-4 py-10 sm:px-6 lg:py-14"
+              >
+                <span className="flex size-10 items-center justify-center rounded-lg border bg-background text-primary">
+                  <highlight.icon className="size-5" />
+                </span>
+                <h2 className="mt-2 text-lg font-medium">
+                  {t(highlight.title)}
+                </h2>
+                <p className="leading-relaxed text-muted-foreground">
+                  {t(highlight.description)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Band>
+      )}
       <Band frameClassName="border-t">
         <div className="grid gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-24 lg:py-24">
           <h2 className="text-3xl/9 font-light tracking-tight">
@@ -205,10 +213,20 @@ export function SitePageView({
               {t(page.content.lead)}
             </p>
           </div>
-          <AppEntryLink
-            isSignedIn={isSignedIn}
-            signedOutLabel={t("Get started")}
-          />
+          {page.content.sourceGroups ? (
+            <a
+              href="#source-directory"
+              className="inline-flex items-center gap-1 rounded-lg text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              {t("Browse sources")}
+              <ChevronRight className="size-4" aria-hidden />
+            </a>
+          ) : (
+            <AppEntryLink
+              isSignedIn={isSignedIn}
+              signedOutLabel={t("Get started")}
+            />
+          )}
         </div>
       </Band>
       <PageContent content={page.content} />

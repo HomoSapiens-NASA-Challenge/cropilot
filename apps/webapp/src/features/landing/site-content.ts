@@ -12,7 +12,6 @@ import {
   FileText,
   Flag,
   FlaskConical,
-  Globe,
   Grid2x2,
   Handshake,
   Info,
@@ -67,6 +66,22 @@ export type SitePageContent = {
     title: string
     rows: ReadonlyArray<{ title: string; description: string }>
   }
+  /** Editorial directory of the main product inputs; the full register is linked separately. */
+  sourceGroups?: ReadonlyArray<{
+    id: string
+    title: string
+    description: string
+    icon: LucideIcon
+    sources: ReadonlyArray<{
+      name: string
+      provider: string
+      description: string
+      period: string
+      coverage: string
+      terms: string | null
+      href: string
+    }>
+  }>
   /** Where the indicators of this page come from: dataset, period and location. */
   sources?: ReadonlyArray<{
     dataset: string
@@ -1572,64 +1587,194 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           },
           {
             pageSlug: "all-sources",
-            title: "All sources and licenses",
-            summary: "Every dataset Cropilot reads, with its license.",
+            title: "Sources and licenses",
+            summary:
+              "The data behind the product, with original links and recorded terms.",
             content: {
-              headline: "Every dataset Cropilot reads.",
-              lead: "NASA data sits at the centre of the reasoning, next to Argentine and open sources. Each one is listed with its period and place, and with its license where the team's register states one.",
-              screenshot: "method-sources",
-              highlights: [
+              headline: "The evidence behind Cropilot.",
+              lead: "Explore the main sources behind the weather, crops, soil and economic scenarios. See what each one contributes, then follow the original source. The complete research and attribution register is linked below.",
+              highlights: [],
+              sourceGroups: [
                 {
-                  icon: Satellite,
-                  title: "NASA data",
+                  id: "climate",
+                  title: "Climate and water",
                   description:
-                    "NASA POWER for daily weather and root-zone soil wetness, and NASA HLS imagery for crops and NDVI.",
+                    "The starting conditions used to compare past campaigns.",
+                  icon: CloudRain,
+                  sources: [
+                    {
+                      name: "NASA POWER",
+                      provider: "NASA Langley Research Center",
+                      description:
+                        "Daily weather and modeled root-zone soil wetness. These are regional grid values, not measurements taken in a field.",
+                      period:
+                        "1981–2026 in the case inputs; the simulator uses 1984–2025 weather.",
+                      coverage:
+                        "Reference points in the ten departments; a regional weather cell around each point.",
+                      terms: "Open NASA data",
+                      href: "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
+                    },
+                    {
+                      name: "NOAA Oceanic Niño Index",
+                      provider: "NOAA Climate Prediction Center",
+                      description:
+                        "Three-month El Niño / La Niña index used to group historical campaigns. The downloaded file contains revised values.",
+                      period: "Three-month seasons, 1950–2026.",
+                      coverage:
+                        "Niño 3.4 region of the Pacific; one index shared by the cases.",
+                      terms: "Public NOAA data",
+                      href: "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
+                    },
+                  ],
                 },
                 {
-                  icon: Database,
-                  title: "Argentine data",
+                  id: "land",
+                  title: "Crops, fields and soil",
                   description:
-                    "The INTA National Map of Crops and the MAGyP estimates are both CC BY 4.0. MAGyP margin reports and A3 futures prices feed the margins.",
+                    "Satellite imagery, mapped crops and modeled soil properties, with their different spatial limits.",
+                  icon: Layers,
+                  sources: [
+                    {
+                      name: "NASA HLS",
+                      provider: "NASA · Harmonized Landsat Sentinel-2",
+                      description:
+                        "Satellite surface reflectance and NDVI feed the crop classifier and vegetation curves.",
+                      period: "Monthly samples, June 2020–November 2026.",
+                      coverage:
+                        "Two 20 × 20 km research zones: Pergamino and Paraná.",
+                      terms: "Open NASA data",
+                      href: "https://www.earthdata.nasa.gov/data/projects/hls",
+                    },
+                    {
+                      name: "National Map of Crops",
+                      provider: "INTA",
+                      description:
+                        "Mapped crop classes provide the historical crop sequence and the comparison labels for the classifier. They are not field-verified planting records.",
+                      period:
+                        "Campaigns 2018/19–2024/25; the crop-map product uses 2020/21–2024/25.",
+                      coverage:
+                        "Read within the Pergamino and Paraná research zones.",
+                      terms: "CC BY 4.0",
+                      href: "https://doi.org/10.5281/zenodo.17652712",
+                    },
+                    {
+                      name: "Fields of The World",
+                      provider: "FTW · Source Cooperative",
+                      description:
+                        "Estimated field outlines group satellite pixels into footprints. The boundaries have not been surveyed or validated locally.",
+                      period: "2025 boundaries, global map alpha.",
+                      coverage:
+                        "Argentine field outlines used in the research zones.",
+                      terms: "CC BY 4.0",
+                      href: "https://source.coop/ftw/global-data",
+                    },
+                    {
+                      name: "SoilGrids",
+                      provider: "ISRIC – World Soil Information",
+                      description:
+                        "Modeled water retention by depth supplies soil water capacity. It does not replace a soil sample from the field.",
+                      period: "Static soil profile",
+                      coverage:
+                        "Reference points used by the case and rotation simulator.",
+                      terms: "CC BY 4.0",
+                      href: "https://docs.isric.org/globaldata/soilgrids/SoilGrids_faqs_01.html",
+                    },
+                  ],
                 },
                 {
-                  icon: Globe,
-                  title: "Open global data",
+                  id: "production",
+                  title: "Production and economic context",
                   description:
-                    "NOAA ONI, ISRIC SoilGrids 2.0 (CC BY 4.0) and Fields of The World outlines (CC BY 4.0).",
+                    "Department-level yields and explicit price scenarios; margins remain estimates.",
+                  icon: Sprout,
+                  sources: [
+                    {
+                      name: "Agricultural estimates",
+                      provider: "MAGyP · Argentina",
+                      description:
+                        "Reported planted and harvested area, production and yields support historical comparisons. Department averages are not field yields.",
+                      period:
+                        "Campaigns 1969/70–2024/25 in the March 2026 file.",
+                      coverage: "The department associated with each case.",
+                      terms: "CC BY 4.0",
+                      href: "https://datos.magyp.gob.ar/dataset/estimaciones-agricolas",
+                    },
+                    {
+                      name: "Regional gross-margin reports",
+                      provider: "MAGyP · Dirección de Análisis Económico",
+                      description:
+                        "Regional reports supply the cost structure and margin formula. The department-to-region assignment is the team's.",
+                      period:
+                        "May 2020–September 2026 reports; September 2026 cost structure.",
+                      coverage: "The MAGyP region assigned to each case.",
+                      terms: null,
+                      href: "https://www.magyp.gob.ar/sitio/areas/analisis_economico/margenes/",
+                    },
+                    {
+                      name: "Futures settlements",
+                      provider: "A3 Mercados · formerly MATba-ROFEX",
+                      description:
+                        "Historical soybean, maize and wheat settlements support the case margin scenarios. Cropilot publishes derived margins, not raw prices.",
+                      period: "1994–13 November 2026.",
+                      coverage:
+                        "Rosario; Buenos Aires for part of the early history.",
+                      terms:
+                        "Reference only; raw prices are not redistributed.",
+                      href: "https://cem.matbarofex.com.ar/",
+                    },
+                    {
+                      name: "Commodity Price Data · Pink Sheet",
+                      provider: "World Bank",
+                      description:
+                        "International commodity prices define the rotation simulator's price scenario. They are not a local farm-gate quote or a forecast.",
+                      period: "November 2026 price scenario.",
+                      coverage:
+                        "International reference prices used by the planner.",
+                      terms: "CC BY 4.0",
+                      href: "https://www.worldbank.org/en/research/commodity-markets",
+                    },
+                  ],
                 },
               ],
               details: {
-                title: "Also in the register",
+                title: "Data is only part of the evidence.",
                 rows: [
-                  {
-                    title: "Prices",
-                    description:
-                      "A3 settlements and MATba workbooks are cited and not redistributed: the app carries only derived margins. The planner uses the World Bank Pink Sheet.",
-                  },
                   {
                     title: "Agronomic references",
                     description:
-                      "FAO-56 crop and evapotranspiration methods, INTA sowing dates and the published sources cited by each strategy.",
+                      "The simulator also cites FAO crop-water methods, INTA sowing dates and published rotation studies. The references attached to each strategy explain which assumptions it uses.",
+                  },
+                  {
+                    title: "Team models and scenarios",
+                    description:
+                      "Water balances, crop classifications, analog-year comparisons and RL policies are team outputs built from these inputs. They are labeled as models or scenarios, not new observations.",
                   },
                   {
                     title: "AI models at runtime",
                     description:
                       "The assistant uses OpenAI models to explain evidence. They supply no data. See the Use of AI page.",
                   },
-                  {
-                    title: "The full list",
-                    description:
-                      "The team's register, submission.md in the hub repository, lists every dataset, library and AI tool with versions.",
-                  },
                 ],
               },
-              sources: [
-                NASA_POWER_SOURCE,
-                NASA_HLS_SOURCE,
-                NOAA_ONI_SOURCE,
-                INTA_CROP_MAP_SOURCE,
-                MAGYP_SOURCE,
-                SOILGRIDS_SOURCE,
+              links: [
+                {
+                  label: "Complete project register",
+                  description:
+                    "Datasets, libraries, models, versions and AI attribution, including research inputs beyond this overview.",
+                  href: "https://github.com/HomoSapiens-NASA-Challenge/hub/blob/main/submission.md",
+                },
+                {
+                  label: "FAO crop-water methods",
+                  description:
+                    "The original FAO-56 reference used by the water-balance model.",
+                  href: "https://www.fao.org/4/x0490e/x0490e00.htm",
+                },
+                {
+                  label: "Use of AI",
+                  description:
+                    "What the assistant and the team's models do, and what their outputs cannot establish.",
+                  href: "/resources/use-of-ai",
+                },
               ],
             },
           },
