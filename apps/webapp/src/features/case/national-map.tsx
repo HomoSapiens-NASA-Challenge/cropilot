@@ -12,6 +12,7 @@ import {
 import { placeZoneLabels } from "@/features/case/zone-label-layout"
 import { accentScale } from "@/lib/data-colors"
 import { pointsBounds } from "@/lib/geo"
+import { useI18n } from "@/lib/i18n"
 
 const MAP_PADDING_PX = 56
 const MAX_ZOOM = 6
@@ -206,6 +207,8 @@ export function NationalMap({
   selectedZoneId?: string
   className?: string
 }) {
+  const { locale } = useI18n()
+
   return (
     <div
       className={cn(
@@ -213,8 +216,15 @@ export function NationalMap({
         className
       )}
     >
-      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it. */}
-      <BaseMap theme="light" center={[-62, -33]} zoom={4} cooperativeGestures>
+      {/* Cooperative gestures: the page scrolls over the map; Ctrl/⌘ + scroll or two fingers zoom it.
+          MapLibre writes that hint once, so a language change recreates the map. */}
+      <BaseMap
+        key={locale}
+        theme="light"
+        center={[-62, -33]}
+        zoom={4}
+        cooperativeGestures
+      >
         <ZoneMarkers zones={zones} selectedZoneId={selectedZoneId} />
         <FitZones zones={zones} />
         <MapControls position="bottom-right" showZoom />

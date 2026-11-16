@@ -12,6 +12,10 @@ export const esCommon: Record<string, string> = {
   "Find my location": "Buscar mi ubicación",
   "Toggle fullscreen": "Activar o salir de pantalla completa",
   "Reset bearing to north": "Orientar hacia el norte",
+  "Use Ctrl + scroll to zoom the map":
+    "Usá Ctrl + scroll para hacer zoom en el mapa",
+  "Use ⌘ + scroll to zoom the map": "Usá ⌘ + scroll para hacer zoom en el mapa",
+  "Use two fingers to move the map": "Usá dos dedos para mover el mapa",
   Regions: "Regiones",
   "Reference case": "Caso de referencia",
   "Known limit": "Limitación conocida",
