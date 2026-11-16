@@ -45,7 +45,9 @@ three exchanges are sent for follow-ups. **New conversation** clears the local t
 - `apps/mobile/src/features/case/assistant`: the Expo app's **Ask Cropilot** screen
   (`/case/[zoneId]/ask`, reached from Home and the case screen). Same public request,
   history and evidence tables as the web panel; no planner chat, since the app cannot run
-  the planner.
+  the planner. Voice uses `expo-audio` (m4a/AAC sent as `audio/mp4`, webm on Expo Web)
+  and plays spoken replies from a cache file deleted with the conversation. Native
+  microphone and speaker have not been tested on a device.
 - Evidence selectors come from the shared MCP module, retaining PR #12's server,
   `/api/mcp` mount, card and mobile work. The team merged #12 and #11 while this increment
   was in progress; voice now builds on updated main.
