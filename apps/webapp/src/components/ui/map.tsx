@@ -470,6 +470,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     <MapContext.Provider value={contextValue}>
       <div
         ref={containerRef}
+        // MapLibre handles wheel zoom; Lenis must not also scroll the page.
+        data-lenis-prevent-wheel={props.scrollZoom !== false ? "" : undefined}
         className={cn("relative h-full w-full", className)}
       >
         {(!isLoaded || loading) && <DefaultLoader />}
@@ -991,6 +993,7 @@ function MapControls({
 
   return (
     <div
+      data-slot="map-controls"
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],
