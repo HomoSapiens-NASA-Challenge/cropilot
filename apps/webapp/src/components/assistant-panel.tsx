@@ -350,9 +350,14 @@ export function AssistantPanel({
 
   return (
     <Sheet>
-      <SheetTrigger render={<Button variant="outline" />}>
-        <MessageCircle aria-hidden data-icon="inline-start" />
-        {t("Ask Cropilot")}
+      {/* Floating bubble, always in view: an icon on phones, icon and label from `sm`. */}
+      <SheetTrigger
+        render={
+          <Button className="fixed right-4 bottom-4 z-40 size-14 rounded-full shadow-lg sm:right-6 sm:bottom-6 sm:size-auto sm:h-12 sm:gap-2 sm:px-5 sm:text-base" />
+        }
+      >
+        <MessageCircle aria-hidden className="size-6 sm:size-5" />
+        <span className="sr-only sm:not-sr-only">{t("Ask Cropilot")}</span>
       </SheetTrigger>
       <SheetContent className="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
         <SheetHeader className="border-b pr-12">

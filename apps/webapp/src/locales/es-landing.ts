@@ -1214,39 +1214,6 @@ export const esLanding: Record<string, string> = {
   "Yes, a companion app reads the same public case. The assistant and voice are web only.":
     "Sí, una app complementaria permite consultar el mismo caso público. El asistente y la voz solo están disponibles en la web.",
   Project: "Proyecto",
-  "About the team": "Sobre el equipo",
-  "Who builds Cropilot.": "Quiénes desarrollan Cropilot.",
-  "The people behind Cropilot.": "Las personas detrás de Cropilot.",
-  "Cropilot is built by a team for the NASA Space Apps Challenge 2026. These are the research areas each person leads in the team's working agreement.":
-    "Cropilot es desarrollado por un equipo para el NASA Space Apps Challenge 2026. Estas son las áreas de investigación que lidera cada persona según el acuerdo de trabajo del equipo.",
-  "Core models": "Modelos centrales",
-  "Soil and climate: Joaquín Szterensus. Market: Tomás Benavidez. Water: Bruno De Cruz.":
-    "Suelo y clima: Joaquín Szterensus. Mercado: Tomás Benavidez. Agua: Bruno De Cruz.",
-  "Strategies and imagery": "Estrategias e imágenes",
-  "Reinforcement learning for rotation strategies: Martín Bianchi. Computer vision: Joaquín León.":
-    "Aprendizaje por refuerzo para estrategias de rotación: Martín Bianchi. Visión por computadora: Joaquín León.",
-  "Narrative and case": "Narrativa y caso",
-  "Joaquín Cadeiras leads the narrative and the case.":
-    "Joaquín Cadeiras lidera la narrativa y el caso.",
-  "Who leads what": "Quién lidera cada área",
-  "Joaquín Szterensus": "Joaquín Szterensus",
-  "Core ML, soil and climate: the search for similar years, climate risk, soil parameters and carbon.":
-    "Núcleo de aprendizaje automático, suelo y clima: la búsqueda de años similares, el riesgo climático, los parámetros del suelo y el carbono.",
-  "Tomás Benavidez": "Tomás Benavidez",
-  "Core ML, market: profit and market indicators.":
-    "Núcleo de aprendizaje automático, mercado: ganancia e indicadores de mercado.",
-  "Bruno De Cruz": "Bruno De Cruz",
-  "Core ML, water: the water balance by rotation.":
-    "Núcleo de aprendizaje automático, agua: el balance hídrico por rotación.",
-  "Martín Bianchi": "Martín Bianchi",
-  "Core, reinforcement learning: building and ranking rotation strategies.":
-    "Núcleo, aprendizaje por refuerzo: creación y clasificación de estrategias de rotación.",
-  "Joaquín León": "Joaquín León",
-  "Core, computer vision: maps and segmentation.":
-    "Núcleo, visión por computadora: mapas y segmentación.",
-  "Joaquín Cadeiras": "Joaquín Cadeiras",
-  "Presentation: narrative and case, the part the jury sees.":
-    "Presentación: narrativa y caso, la parte que ve el jurado.",
   "NASA Space Apps Challenge 2026": "NASA Space Apps Challenge 2026",
   "Cropilot answers the challenge Field Shift: Adapting Farms with NASA Data.":
     "Cropilot responde al desafío Field Shift: Adapting Farms with NASA Data.",

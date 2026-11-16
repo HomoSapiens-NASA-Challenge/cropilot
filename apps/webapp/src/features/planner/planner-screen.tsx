@@ -1,7 +1,6 @@
 import type { PriorityWeights, Region, RotationPlanSetup } from "@cropilot/api"
 import { RotateCcw } from "lucide-react"
 import { useState } from "react"
-import { AssistantPanel } from "@/components/assistant-panel"
 import { Button } from "@/components/ui/button"
 import { Notice } from "@/features/planner/planner-notice"
 import {
@@ -17,6 +16,7 @@ import { ResultsView } from "@/features/planner/results-view"
 import { SetupBar } from "@/features/planner/setup-bar"
 import { TrainingConsole } from "@/features/planner/training-console"
 import { usePlannerRun } from "@/features/planner/use-planner-run"
+import { useAssistantRun } from "@/features/shell/app-assistant"
 import { useI18n } from "@/lib/i18n"
 
 const DEFAULT_HORIZON_CAMPAIGNS = 3
@@ -64,6 +64,8 @@ export function PlannerScreen({
     : previousRun?.result
       ? { run: previousRun, result: previousRun.result, isDimmed: true }
       : null
+  // The app's assistant bubble explains the run on screen.
+  useAssistantRun(shown?.run.run_id)
   const runAgain = (
     <Button variant="outline" onClick={() => run(weights, horizon)}>
       <RotateCcw aria-hidden data-icon="inline-start" />
@@ -73,16 +75,6 @@ export function PlannerScreen({
 
   return (
     <div className="flex flex-col gap-10">
-      {shown && (
-        <div className="flex justify-end">
-          <AssistantPanel
-            key={`${region.id}-${shown.run.run_id}`}
-            zoneId={region.id}
-            zoneName={region.name}
-            runId={shown.run.run_id}
-          />
-        </div>
-      )}
       {hasStarted && !isEditing ? (
         <SetupBar
           region={region}

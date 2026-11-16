@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { requireSession, signOut } from "@/features/auth/session"
+import { AppAssistant } from "@/features/shell/app-assistant"
 import { AppBreadcrumb } from "@/features/shell/app-breadcrumb"
 import { AppSidebar } from "@/features/shell/app-sidebar"
 
@@ -53,7 +54,9 @@ function AuthenticatedLayout() {
             </div>
           </header>
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-6 md:p-10">
-            <Outlet />
+            <AppAssistant region={region}>
+              <Outlet />
+            </AppAssistant>
           </div>
         </SidebarInset>
       </SidebarProvider>
