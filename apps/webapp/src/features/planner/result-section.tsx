@@ -17,10 +17,6 @@ function sourceLine(source: PlannerSource): string {
   return `${plannerText(source.dataset)}. ${plannerText(source.period)}. ${plannerText(source.location)}.`
 }
 
-/**
- * The one card of the planner results: a title, a one-line lead, an optional aside at the
- * top right, the content, and an optional footer naming the data behind it.
- */
 export function ResultSection({
   title,
   lead,

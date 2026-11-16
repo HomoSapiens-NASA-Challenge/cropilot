@@ -1,9 +1,8 @@
 from app.modules.regions.schemas import Region
 
-# The reference points of the rotation simulator (simulator/configs/fields.csv): one rural
-# SoilGrids pixel per department, picked by hand by the team. They anchor the NASA POWER
-# cell and the MAGyP department yields of each region; they are not surveyed fields.
-# Known limits come from the simulator's checks against MAGyP yields (simulator/AGENTS.md).
+# One rural SoilGrids pixel per department. They anchor the NASA POWER cell and the MAGyP
+# department yields of each region; they are not surveyed fields. `known_limit` records where
+# the simulated results diverge from MAGyP yields.
 
 _NORTH_MAIZE_LIMIT = (
     "Simulated maize does not follow MAGyP department yields here (2013/14 onward). "

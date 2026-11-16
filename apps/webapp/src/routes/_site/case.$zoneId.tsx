@@ -29,13 +29,11 @@ function CaseRoute() {
   }
   return (
     <>
-      <div className="fixed right-4 bottom-4 z-40 rounded-lg bg-background shadow-lg">
-        <AssistantPanel
-          key={zoneId}
-          zoneId={zoneId}
-          zoneName={bundle.zone_name}
-        />
-      </div>
+      <AssistantPanel
+        key={zoneId}
+        zoneId={zoneId}
+        zoneName={bundle.zone_name}
+      />
       <CasePage index={index} bundle={bundle} />
     </>
   )

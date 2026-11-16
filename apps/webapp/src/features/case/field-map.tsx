@@ -68,11 +68,7 @@ function CameraController({ bounds }: { bounds: [LngLat, LngLat] }) {
   return null
 }
 
-/**
- * The lots of the zone on the map: fill is the latest crop, outline is the status of the
- * lot. The reference footprint is outlined in the accent and named. The dashed rectangle
- * is the NASA POWER cell, which is the scale of the climate data.
- */
+/** The dashed rectangle is the NASA POWER cell, the scale of the climate data. */
 export function FieldMap({
   field,
   selectedLotId,

@@ -8,7 +8,7 @@ import {
   type OnboardingStepId,
 } from "@/features/onboarding/steps"
 
-/** First stop after signing up: a short tour that ends by scoping the workspace to a region. */
+/** A short tour that ends by scoping the workspace to a region. */
 export const Route = createFileRoute("/onboarding")({
   validateSearch: (
     search: Record<string, unknown>

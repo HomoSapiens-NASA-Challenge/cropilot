@@ -6,9 +6,9 @@
 from app.modules.cases.schemas import SourceRef
 
 HUB = "https://github.com/HomoSapiens-NASA-Challenge/hub"
-# Base commit of the hub branch `toto` that holds the market model, the RL results and the research
-# notes. The two additions of this case (rotation maize/soybean/soybean and the `campaigns` export)
-# are commit 6823a1f on `feat/market-demo-export`, until Tomas merges them.
+# Pinned commits of the repository holding the market model, the RL results and the research
+# notes: the base commit, and commit 6823a1f with the maize/soybean/soybean rotation and the
+# `campaigns` export that the market runs used here need.
 HUB_TOTO_COMMIT = "ca784c5"
 MARKET_MODEL_URL = f"{HUB}/tree/6823a1f/research/ml-market-model"
 

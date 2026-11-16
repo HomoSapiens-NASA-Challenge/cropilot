@@ -64,7 +64,6 @@ function percentile(fraction: number): string {
   return `${Number((fraction * 100).toFixed(1))}th`
 }
 
-/** What the planner does in plain words, how comparisons are judged, what it assumes, and its sources. */
 export function MethodBlock({ result }: { result: RotationPlanResult }) {
   const { t } = useI18n("app")
 

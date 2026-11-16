@@ -4,7 +4,7 @@ For every field of two 20 × 20 km demonstration zones, **Pergamino** (Buenos Ai
 
 ## Install and read
 
-From the repository root, with authenticated GitHub CLI access to the private team repositories:
+From the repository root, with the GitHub CLI authenticated with read access to this repository:
 
 ```sh
 gh release download crop-map-v1 --repo HomoSapiens-NASA-Challenge/cropilot --pattern 'lots_*_en.geojson' --dir apps/backend/data/crops
@@ -56,7 +56,7 @@ Agreement with INTA, leave-one-campaign-out, every labeled pixel of the 20 × 20
 
 ## Reproduce
 
-The pipeline (HLS download, training, evaluation, per-field summaries) lives in the team hub, `research/crop-map/`, with pinned requirements and tests.
+The pipeline (HLS download, training, evaluation, per-field summaries) lives in the team's research repository, with pinned requirements and tests. This repository only serves its output.
 
 ## Sources
 

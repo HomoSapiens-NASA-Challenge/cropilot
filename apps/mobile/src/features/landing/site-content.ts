@@ -761,11 +761,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
         heading: "Project",
         pages: [
           {
-            pageSlug: "team",
-            title: "About the team",
-            summary: "Who builds Cropilot.",
-          },
-          {
             pageSlug: "space-apps",
             title: "NASA Space Apps Challenge 2026",
             summary:

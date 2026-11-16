@@ -1,6 +1,6 @@
 """Names shared by the builder modules: zones, strategies, ENSO phases and campaign labels."""
 
-# Market pipeline zone key (hub `market.config.ZONES`) -> region slug of the Cropilot catalog.
+# Market pipeline zone key (`market.config.ZONES`) -> region slug of the Cropilot catalog.
 ZONE_IDS = {
     "Pergamino": "pergamino",
     "MarcosJuarez": "marcos-juarez",

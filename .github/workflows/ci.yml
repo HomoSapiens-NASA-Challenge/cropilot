@@ -38,9 +38,6 @@ jobs:
         env:
           DOMAIN: cropilot.example.invalid
           ACME_EMAIL: demo@example.invalid
-          BETTER_AUTH_SECRET: ci-validation-only-not-a-production-secret
-          GOOGLE_CLIENT_ID: demo-disabled
-          GOOGLE_CLIENT_SECRET: demo-disabled
 
   pr-title:
     if: github.event_name == 'pull_request'

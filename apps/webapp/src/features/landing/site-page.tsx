@@ -168,7 +168,6 @@ function PageContent({ content }: { content: SitePageContent }) {
   )
 }
 
-/** A page of the public site catalog. */
 export function SitePageView({
   menu,
   column,

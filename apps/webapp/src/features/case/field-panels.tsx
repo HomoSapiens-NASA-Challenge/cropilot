@@ -62,7 +62,6 @@ export function hasLotData(lot: Lot): boolean {
   return lot.latest_crop !== null || lot.status !== null
 }
 
-/** Legend of the map: the crops that are on it and what each outline means. */
 export function FieldLegend({ lots }: { lots: ReadonlyArray<Lot> }) {
   const { t } = useI18n("case")
 
@@ -125,7 +124,6 @@ function missingOr<T>(value: T | null, format: (value: T) => string): string {
   return value === null ? translate("Missing") : format(value)
 }
 
-/** One lot: crop per campaign, NDVI against the zone, vigor, purity and the reason of its status. */
 export function LotPanel({
   lot,
   field,
@@ -293,10 +291,7 @@ const LIST_ORDER: ReadonlyArray<NonNullable<Lot["status"]>> = [
   "ok",
 ]
 
-/**
- * The farm's lots that carry data as a list, worst status first. When the zone has no
- * farm lots, every lot with data is listed instead.
- */
+/** The farm's lots, worst status first; every lot with data when the zone has no farm lots. */
 export function LotList({
   lots,
   farmName,
@@ -390,7 +385,6 @@ const SEASON_LABEL = {
   summer: "Summer",
 } as const
 
-/** The footprint the water runs were made for: its crop history, its NDVI and its soil. */
 export function ReferencePanel({
   reference,
   meta,

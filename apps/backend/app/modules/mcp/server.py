@@ -56,7 +56,7 @@ def transport_security(public_origin: str) -> TransportSecuritySettings:
         or origin.query
         or origin.fragment
     ):
-        raise ValueError("BETTER_AUTH_URL must be an HTTP(S) public origin for MCP")
+        raise ValueError("PUBLIC_URL must be an HTTP(S) public origin for MCP")
     allowed_hosts = [origin.netloc]
     allowed_origins = [f"{origin.scheme}://{origin.netloc}", *CLIENT_ORIGINS]
     if origin.hostname in {"localhost", "127.0.0.1", "::1"}:

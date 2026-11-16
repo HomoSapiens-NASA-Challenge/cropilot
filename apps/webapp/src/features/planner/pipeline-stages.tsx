@@ -129,11 +129,7 @@ function StageBar({ fraction }: { fraction: number }) {
   )
 }
 
-/**
- * The six stages of a run as a pipeline. Every figure comes from the run snapshot: counters
- * are real work units, elapsed times are measured on the server. `compact` keeps only the
- * nodes and titles, for a run that happens behind results already on screen.
- */
+/** Every figure comes from the run snapshot. `compact` keeps only the nodes and titles. */
 export function PipelineStages({
   stages,
   compact = false,

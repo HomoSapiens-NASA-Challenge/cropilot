@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { GoogleSignInButton } from "@/features/auth/google-sign-in-button"
+import { NameSignInForm } from "@/features/auth/name-sign-in-form"
 import { sessionOptions } from "@/features/auth/session"
 import { StrandsArt } from "@/features/landing/strands-art"
 import { useI18n } from "@/lib/i18n"
@@ -53,20 +53,20 @@ function LoginPage() {
         <Card className="w-full max-w-md gap-6 border border-background/80 bg-background/75 py-10 shadow-2xl ring-0 backdrop-blur-lg [--card-spacing:--spacing(10)]">
           <CardHeader className="gap-2">
             <CardTitle className="text-3xl font-light tracking-tight">
-              {t("Sign in to Cropilot")}
+              <h1>{t("What should we call you?")}</h1>
             </CardTitle>
             <CardDescription className="text-base">
               {t(
-                "Compare crop rotations with the past campaigns that started like this one."
+                "Type your name or a handle to save your region, farms and planner runs. No account, no password."
               )}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <GoogleSignInButton />
+            <NameSignInForm />
           </CardContent>
           <CardFooter className="border-t bg-transparent pt-6 text-xs text-muted-foreground">
             {t(
-              "New here? Signing in with Google creates your account. Cropilot supports the agronomist's judgment and never replaces it."
+              "Anyone who types the same name opens the same workspace, so pick one that is yours. Cropilot supports the agronomist's judgment and never replaces it."
             )}
           </CardFooter>
         </Card>

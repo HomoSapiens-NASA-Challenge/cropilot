@@ -1,5 +1,5 @@
 import { ChevronsUpDown, LogOut } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import {
 import { useI18n } from "@/lib/i18n"
 
 export type NavUserProps = {
-  user: { name: string; email: string; image?: string | null }
+  user: { id: string; name: string }
   onSignOut: () => void
 }
 
@@ -35,13 +35,6 @@ function UserIdentity({ user }: Pick<NavUserProps, "user">) {
   return (
     <>
       <Avatar className="rounded-lg after:rounded-lg">
-        {user.image && (
-          <AvatarImage
-            src={user.image}
-            alt={user.name}
-            className="rounded-lg"
-          />
-        )}
         <AvatarFallback className="rounded-lg bg-sidebar-accent text-primary">
           {initialsOf(user.name)}
         </AvatarFallback>
@@ -51,7 +44,7 @@ function UserIdentity({ user }: Pick<NavUserProps, "user">) {
           {user.name}
         </span>
         <span className="truncate text-xs text-muted-foreground">
-          {user.email}
+          @{user.id}
         </span>
       </div>
     </>

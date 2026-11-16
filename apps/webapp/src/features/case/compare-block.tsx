@@ -115,10 +115,7 @@ function AnswerList({ strategy }: { strategy: Strategy }) {
   )
 }
 
-/**
- * B3. The strategies side by side, the current one included. Each row says what it
- * measures and at what scale and horizon. Cropilot picks no winner.
- */
+/** Cropilot picks no winner: each row says what it measures and at what scale and horizon. */
 export function CompareBlock({
   bundle,
   id,

@@ -48,7 +48,6 @@ function ShareBars({ weights }: { weights: PriorityWeights }) {
   )
 }
 
-/** Step 2: what matters on this farm. Four presets, and five sliders for those who want more. */
 export function WizardPrioritiesStep({
   weights,
   onWeightsChange,

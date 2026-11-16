@@ -177,11 +177,7 @@ function CampaignTooltip({
   )
 }
 
-/**
- * One dot per past campaign: ONI July to September across, soil wetness at the end of
- * August up. The analogs carry their rank and name, and 2026/27 is drawn even when it
- * falls outside the cloud.
- */
+/** ONI July to September across, soil wetness at the end of August up; 2026/27 is drawn even outside the cloud. */
 export function YearsScatter({
   campaigns,
   current,

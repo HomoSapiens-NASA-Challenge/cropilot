@@ -2,7 +2,7 @@
 #   scripts/deploy/deploy.sh
 # See docs/deployment.md for host setup, frozen assets and rollback.
 # Traefik terminates TLS and routes by path, so everything is served from https://${DOMAIN}:
-#   /api/auth/*  -> auth      /api/*  -> backend      everything else -> webapp
+#   /api/*  -> backend      everything else -> webapp
 name: cropilot
 
 x-database-url: &database-url postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:?Set POSTGRES_DB}
@@ -60,38 +60,6 @@ services:
       - traefik.http.routers.webapp.rule=Host(`${DOMAIN:?Set DOMAIN}`)
       - traefik.http.services.webapp.loadbalancer.server.port=80
 
-  auth:
-    build:
-      context: .
-      dockerfile: apps/auth/Dockerfile
-    restart: unless-stopped
-    logging: *logging
-    environment:
-      DATABASE_URL: *database-url
-      BETTER_AUTH_URL: https://${DOMAIN}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Set GOOGLE_CLIENT_ID; see docs/deployment.md}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Set GOOGLE_CLIENT_SECRET; see docs/deployment.md}
-    healthcheck:
-      test:
-        [
-          CMD,
-          node,
-          -e,
-          "fetch('http://127.0.0.1:3000/api/auth/ok').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      db:
-        condition: service_healthy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.auth.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/auth`)
-      - traefik.http.services.auth.loadbalancer.server.port=3000
-
   backend:
     build:
       context: .
@@ -100,8 +68,7 @@ services:
     logging: *logging
     environment:
       DATABASE_URL: *database-url
-      BETTER_AUTH_URL: https://${DOMAIN}
-      AUTH_JWKS_URL: http://auth:3000/api/auth/jwks
+      PUBLIC_URL: https://${DOMAIN}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6.1-sol}
       OPENAI_TRANSCRIPTION_MODEL: ${OPENAI_TRANSCRIPTION_MODEL:-gpt-transcribe}

@@ -15,7 +15,6 @@ import { AppEntryLink } from "@/features/landing/cta-link"
 import { SITE_MENUS } from "@/features/landing/site-content"
 import { useI18n } from "@/lib/i18n"
 
-/** The same menus as the desktop navigation, stacked in a side sheet. */
 export function SiteMobileNav({
   isSignedIn,
   className,

@@ -173,14 +173,8 @@ const ACCENT_ROW_PATHS = ACCENT_LOT.rows.map(segmentPath)
 const ACCENT_SHIFT = `${((-100 * ACCENT_LOT.center.x) / VIEW_WIDTH).toFixed(2)}% 0`
 
 /**
- * Decorative farmland of the landing hero; the other surfaces keep the strands
- * of `StrandsArt`. It is a drawing, not a map: the lots carry no data. One lot
- * carries the accent, and its rows are sown in on mount.
- *
- * The box is as tall as the parent, keeps the drawing's aspect ratio and is
- * placed so the accent lot falls at `accentX` of the parent's width. The
- * fields fade out to the left of the accent lot, where the parent's text goes,
- * and toward the far edge at the top.
+ * Decorative: the lots carry no data. The box is as tall as the parent and placed so the
+ * accent lot falls at `accentX` of the parent's width; the fields fade out left of it.
  */
 export function FieldsArt({
   accentX,

@@ -232,10 +232,6 @@ function EvidenceDetails({
   )
 }
 
-/**
- * The line that goes with a number: how it was obtained (provenance), what it describes
- * (scale) and where it comes from. The popover lists dataset, period, location and link.
- */
 export function EvidenceChip({
   meta,
   sourceIds,

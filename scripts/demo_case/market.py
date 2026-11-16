@@ -1,4 +1,4 @@
-"""Maps one market run (`dashboard-draft-1` JSON of the hub model) onto the `case-v1` blocks."""
+"""Maps one market run (`dashboard-draft-1` JSON of the market model) onto the `case-v1` blocks."""
 
 from typing import Any
 

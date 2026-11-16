@@ -49,18 +49,15 @@ team in time. The demo therefore uses sources that can be read without that logi
 | OPERA DSWx                                    | 30 m surface water: flooded fields and waterlogged lows         | Not used                                                  |
 | AppEEARS subsets                              | Point and area extracts of NASA products without bulk downloads | Not used                                                  |
 
-The team's research notes record these access requirements and the anonymous routes that
-were tested.
-
 ## The sowing window: a first, brief version
 
-Compare also shows a **sowing window** for maize: which summer sowing date held up best in
-the campaigns that started like this one. The scope is deliberately narrow. It reuses the
-water scenarios already in the case: one Pergamino reference footprint (268949), 1 m of soil
-starting half full, NASA POWER weather, and summer sowing moved up to 14 days earlier or
-later. It counts the days of water stress at the crop's critical stage in the five analog
-campaigns that have runs. That is the data that was ready in the challenge window, not the
-intended scope.
+Compare (and the water screen of the app) also shows a **sowing window** for maize: which
+summer sowing date held up best in the campaigns that started like this one. The scope is
+deliberately narrow. It reuses the water scenarios already in the case: one Pergamino
+reference footprint (268949), 1 m of soil starting half full, NASA POWER weather, and summer
+sowing moved up to 14 days earlier or later. It counts the days of water stress at the crop's
+critical stage in the five analog campaigns that have runs. That is the data that was ready
+in the challenge window, not the intended scope.
 
 The full version would weigh every condition that decides a sowing date, with NASA data at
 its core:
@@ -95,5 +92,9 @@ it is shown as more than a historical comparison.
    waterlogging.
 6. **The farmer's own data.** A farm currently stores a name. Connect its geometry, soil,
    water table, management and the rotation it actually runs.
-
-The water-model roadmap is in [`model-candidates.md`](model-candidates.md).
+7. **More water indicators.** The longest dry spell and the largest five-day rainfall inside
+   the critical window, from the NASA POWER daily series already installed. Keep a predictive
+   version only if it beats the regional baseline.
+8. **River nitrate.** Test whether antecedent NASA weather improves estimates of measured
+   nitrate at Argentine monitoring stations (UNEP GEMS/Water), as a separate water-quality
+   study. River-station nitrate cannot be attributed to one field's rotation.

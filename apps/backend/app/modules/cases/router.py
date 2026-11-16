@@ -1,4 +1,4 @@
-"""Public, read-only demonstration cases. No sign-in: judges and visitors open them directly."""
+"""Public, read-only demonstration cases. They need no user handle."""
 
 from fastapi import APIRouter, HTTPException
 

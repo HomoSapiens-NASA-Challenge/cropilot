@@ -1,15 +1,11 @@
 import { getCase, getCaseIndexOptions } from "@cropilot/api"
 import { queryOptions } from "@tanstack/react-query"
 
-/** The national view of the 2026/27 campaign. */
 export const caseIndexOptions = getCaseIndexOptions()
 
 const NO_CASE_STATUS = 404
 
-/**
- * The bundle of one zone, or `null` when the zone has no case yet (a 404 from the API).
- * Any other failure is an error: a missing case is an expected state, a broken one is not.
- */
+/** `null` when the zone has no case yet (a 404): an expected state. Any other failure is an error. */
 export function zoneCaseOptions(zoneId: string) {
   return queryOptions({
     queryKey: ["case", zoneId],

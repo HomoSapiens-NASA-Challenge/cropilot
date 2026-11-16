@@ -3,7 +3,7 @@ import { client } from "./generated/client.gen"
 type ApiConfig = {
   /** Origin that serves `/api`. Empty string for same-origin requests. */
   baseUrl: string
-  /** Returns the access token of the signed-in user, if any. */
+  /** Returns the reader's handle, if any. It is sent as the bearer credential. */
   getToken: () => Promise<string | undefined>
 }
 

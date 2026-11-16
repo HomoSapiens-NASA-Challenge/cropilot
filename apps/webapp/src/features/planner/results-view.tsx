@@ -79,10 +79,7 @@ function LearningTab({
   )
 }
 
-/**
- * A finished run: the verdict above four tabs. The tab lives here, outside the element keyed
- * by the run, so a new run replays the entrance without sending the reader back to Plan.
- */
+/** The tab lives outside the element keyed by the run, so a new run replays the entrance without sending the reader back to Plan. */
 export function ResultsView({
   run,
   result,

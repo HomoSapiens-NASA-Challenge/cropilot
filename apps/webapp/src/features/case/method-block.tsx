@@ -6,7 +6,6 @@ import { EvidenceChip, SourceEntry } from "@/features/case/evidence-chip"
 import { isCalculationReference } from "@/features/case/source-lineage"
 import { useI18n } from "@/lib/i18n"
 
-/** B5. What the case cannot say, where every number comes from and what the words mean. */
 export function MethodBlock({
   bundle,
   id,

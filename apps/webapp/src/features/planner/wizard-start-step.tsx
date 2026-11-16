@@ -132,7 +132,6 @@ function SoilWaterControl({
   )
 }
 
-/** Step 1: the region as the simulator sees it, and where the reader says the campaign starts. */
 export function WizardStartStep({
   region,
   setup,

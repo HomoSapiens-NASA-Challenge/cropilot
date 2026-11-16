@@ -11,9 +11,8 @@ class Workspace(Base):
 
     __tablename__ = "workspaces"
 
-    # User id issued by the auth service. No foreign key: the auth schema is not ours.
+    # The handle the reader typed (see core/auth.py); no users table, so no foreign key.
     owner_id: Mapped[str] = mapped_column(primary_key=True)
-    # Id from the region catalog, which lives in code (app/modules/regions/catalog.py).
     region_id: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

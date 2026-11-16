@@ -197,7 +197,6 @@ function ZoneMarkers({
   ))
 }
 
-/** The zones with a case on a map of Argentina. A click opens that zone's case. */
 export function NationalMap({
   zones,
   selectedZoneId,

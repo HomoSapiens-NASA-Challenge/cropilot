@@ -18,10 +18,6 @@ import { ringCenter } from "@/lib/geo"
 import { useI18n } from "@/lib/i18n"
 import { powerDailySeriesUrl } from "@/lib/nasa-power-grid"
 
-/**
- * B4. The field: satellite-estimated lots on a map, one lot at a time in a panel,
- * and the reference footprint the water runs were made for.
- */
 export function FieldMapBlock({
   bundle,
   id,

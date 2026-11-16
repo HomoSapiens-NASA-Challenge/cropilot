@@ -1,51 +1,33 @@
+import re
 from typing import Annotated
 
-import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
-from app.core.config import get_settings
-
 _bearer = HTTPBearer(auto_error=False)
-# Fetches and caches the public keys published by the auth service.
-_jwks = jwt.PyJWKClient(get_settings().auth_jwks_url)
+# Same rule as `handleFromName` in packages/api: 2 to 40 lowercase letters, digits and
+# inner hyphens.
+_HANDLE = re.compile(r"[a-z0-9][a-z0-9-]{0,38}[a-z0-9]")
 
 
 class User(BaseModel):
     id: str
-    email: str
-    name: str
 
 
 def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> User:
-    """Authenticate the request from the access token issued by the auth service.
+    """The reader's handle, sent as the bearer credential.
 
-    Declared sync on purpose: FastAPI runs it in a thread, so a JWKS refresh never
-    blocks the event loop.
+    Cropilot has no accounts: the handle the reader typed is the user id, so anyone who
+    types the same name opens the same workspace. It identifies, it does not authenticate.
     """
     if credentials is None:
-        raise _unauthorized("Missing access token")
-    settings = get_settings()
-    try:
-        key = _jwks.get_signing_key_from_jwt(credentials.credentials)
-        claims = jwt.decode(
-            credentials.credentials,
-            key,
-            algorithms=["EdDSA"],
-            issuer=settings.better_auth_url,
-            audience=settings.better_auth_url,
-            options={"require": ["exp", "sub", "email", "name"]},
-        )
-    except jwt.PyJWKClientConnectionError as error:
-        raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE, "Auth service unreachable"
-        ) from error
-    except jwt.PyJWTError as error:
-        raise _unauthorized("Invalid access token") from error
-    return User(id=claims["sub"], email=claims["email"], name=claims["name"])
+        raise _unauthorized("Missing user handle")
+    if not _HANDLE.fullmatch(credentials.credentials):
+        raise _unauthorized("Invalid user handle")
+    return User(id=credentials.credentials)
 
 
 def _unauthorized(detail: str) -> HTTPException:

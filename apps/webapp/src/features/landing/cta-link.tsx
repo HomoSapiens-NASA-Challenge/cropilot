@@ -57,7 +57,6 @@ function CtaAnchor({
   )
 }
 
-/** Square-cornered call to action of the public site. */
 export const CtaLink = createLink(CtaAnchor)
 
 function ArrowAnchor({ className, children, ...props }: ComponentProps<"a">) {
@@ -75,7 +74,6 @@ function ArrowAnchor({ className, children, ...props }: ComponentProps<"a">) {
   )
 }
 
-/** Inline accent link with a chevron, for "read more" actions. */
 export const ArrowLink = createLink(ArrowAnchor)
 
 /** Opens the app, or the sign-in page when signed out. */

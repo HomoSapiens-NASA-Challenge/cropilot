@@ -2,7 +2,6 @@ import { TriangleAlert } from "lucide-react"
 import type { ReactNode } from "react"
 import { useI18n } from "@/lib/i18n"
 
-/** A problem the reader can act on: what went wrong, and the action that retries. */
 export function Notice({
   children,
   action,

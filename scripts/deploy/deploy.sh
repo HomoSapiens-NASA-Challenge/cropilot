@@ -27,6 +27,6 @@ scripts/deploy/prepare-strategies.sh "$@"
 "${compose[@]}" up -d --wait --wait-timeout 180
 
 public_origin=$("${compose[@]}" exec -T backend python -c \
-  'from app.core.config import get_settings; print(get_settings().better_auth_url)')
+  'from app.core.config import get_settings; print(get_settings().public_url)')
 python3 scripts/deploy/smoke.py --base-url "$public_origin"
 "${compose[@]}" ps

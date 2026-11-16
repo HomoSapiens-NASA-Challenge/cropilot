@@ -42,7 +42,7 @@ export function ClosingSection({ isSignedIn }: { isSignedIn: boolean }) {
           </h2>
           <p className="max-w-md text-xl font-light text-muted-foreground">
             {t(
-              "Open the public case with no sign-in, or sign in with Google to add your farm and run the rotation planner."
+              "Open the public case right away, or type your name to add your farm and run the rotation planner."
             )}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">

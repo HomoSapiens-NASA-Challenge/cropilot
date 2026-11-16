@@ -1,7 +1,7 @@
 import { PreviewWindow } from "@/features/landing/previews/preview-window"
 import { useI18n } from "@/lib/i18n"
 
-// Real results of the team's own backtests, copied as measured. The preview says so in its badge.
+// Results of the project's own backtests, copied as measured. The preview says so in its badge.
 const MEASURED_ROWS = [
   { label: "Beat random sets of 7 years", value: "p = 0.007" },
   { label: "Where the signal shows", value: "Marcos Juárez, Río Cuarto" },

@@ -8,7 +8,6 @@ export type SegmentedOption<T extends string> = {
   disabled?: boolean
 }
 
-/** One choice out of a few, always one selected. */
 export function SegmentedControl<T extends string>({
   label,
   value,

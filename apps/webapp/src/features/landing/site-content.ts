@@ -444,7 +444,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
           {
             pageSlug: "farms",
             title: "Farms",
-            summary: "The farms you advise, saved to your account",
+            summary: "The farms you advise, saved under your name",
             content: {
               headline: "Keep the farms you advise in one place.",
               lead: "Signed in, you list the farms you advise by name. Today a farm is a saved name: the evidence in Cropilot describes the region and the demo field, not yet each farm you add.",
@@ -452,9 +452,9 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
               highlights: [
                 {
                   icon: Tractor,
-                  title: "Your farms, your account",
+                  title: "Your farms, under your name",
                   description:
-                    "Add a farm by name and it is saved to your account. Each signed-in user sees their own list.",
+                    "Add a farm by name and it is saved under your handle. Each handle sees its own list.",
                 },
                 {
                   icon: MapPinned,
@@ -2036,7 +2036,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
             summary: "From signing in to the first comparison.",
             content: {
               headline: "From the public case to your first planner run.",
-              lead: "You can read a full case with no account. Sign in with Google to pick your region, run the rotation planner and ask Cropilot about a result.",
+              lead: "You can read a full case with no account. Type your name to pick your region, run the rotation planner and ask Cropilot about a result.",
               screenshot: "case-hero",
               highlights: [
                 {
@@ -2047,9 +2047,9 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
                 },
                 {
                   icon: MapPinned,
-                  title: "2 · Sign in, pick a region",
+                  title: "2 · Type your name, pick a region",
                   description:
-                    "Sign in with Google, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.",
+                    "Type your name, then choose one of the ten reference departments. Pergamino comes preselected, and you can change it later.",
                 },
                 {
                   icon: SlidersHorizontal,
@@ -2225,7 +2225,7 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
                   {
                     title: "Do I need an account?",
                     description:
-                      "Not to read the public cases. The planner and the assistant on a planner run need a Google sign-in.",
+                      "No. The public cases open directly, and the planner and its assistant only ask for a name or handle, with no password.",
                   },
                   {
                     title: "Is La Celina a real farm?",
@@ -2261,70 +2261,6 @@ export const SITE_MENUS: ReadonlyArray<SiteMenu> = [
       {
         heading: "Project",
         pages: [
-          {
-            pageSlug: "team",
-            title: "About the team",
-            summary: "Who builds Cropilot.",
-            content: {
-              headline: "The people behind Cropilot.",
-              lead: "Cropilot is built by a team for the NASA Space Apps Challenge 2026. These are the research areas each person leads in the team's working agreement.",
-              highlights: [
-                {
-                  icon: Layers,
-                  title: "Core models",
-                  description:
-                    "Soil and climate: Joaquín Szterensus. Market: Tomás Benavidez. Water: Bruno De Cruz.",
-                },
-                {
-                  icon: Scale,
-                  title: "Strategies and imagery",
-                  description:
-                    "Reinforcement learning for rotation strategies: Martín Bianchi. Computer vision: Joaquín León.",
-                },
-                {
-                  icon: BookOpen,
-                  title: "Narrative and case",
-                  description:
-                    "Joaquín Cadeiras leads the narrative and the case.",
-                },
-              ],
-              details: {
-                title: "Who leads what",
-                rows: [
-                  {
-                    title: "Joaquín Szterensus",
-                    description:
-                      "Core ML, soil and climate: the search for similar years, climate risk, soil parameters and carbon.",
-                  },
-                  {
-                    title: "Tomás Benavidez",
-                    description:
-                      "Core ML, market: profit and market indicators.",
-                  },
-                  {
-                    title: "Bruno De Cruz",
-                    description:
-                      "Core ML, water: the water balance by rotation.",
-                  },
-                  {
-                    title: "Martín Bianchi",
-                    description:
-                      "Core, reinforcement learning: building and ranking rotation strategies.",
-                  },
-                  {
-                    title: "Joaquín León",
-                    description:
-                      "Core, computer vision: maps and segmentation.",
-                  },
-                  {
-                    title: "Joaquín Cadeiras",
-                    description:
-                      "Presentation: narrative and case, the part the jury sees.",
-                  },
-                ],
-              },
-            },
-          },
           {
             pageSlug: "space-apps",
             title: "NASA Space Apps Challenge 2026",

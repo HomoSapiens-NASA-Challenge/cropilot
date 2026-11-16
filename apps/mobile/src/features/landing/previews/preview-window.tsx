@@ -4,9 +4,6 @@ import { Badge } from "@/components/ui/badge"
 import { Text } from "@/components/ui/text"
 import { cn } from "@/lib/utils"
 
-/**
- * Window that frames an illustrative preview or a labelled measured result.
- */
 export function PreviewWindow({
   title,
   badge = "Illustrative",

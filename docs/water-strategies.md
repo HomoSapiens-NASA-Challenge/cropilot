@@ -4,7 +4,7 @@ Four backend capabilities are available for demonstration footprint **268949**: 
 
 ## Install and read
 
-From `apps/backend`, with uv and authenticated GitHub CLI access to the private team repositories:
+From `apps/backend`, with uv and the GitHub CLI authenticated with read access to this repository:
 
 ```sh
 uv sync --frozen
@@ -60,9 +60,9 @@ All summer crops shift by −14, −7, 0, +7 or +14 days; winter wheat stays fix
 
 Calendar effects use **only 1 m depth and 50% initial water**. The four additional offsets add 468 runs; their zero-shift references are already in the sensitivity set. `versus_unshifted_calendar` compares each shifted run with the same strategy and initial conditions. `calendar_effects` contains 12 strategy/shift distributions. No crop is shortened or removed to fit a date; overlapping or out-of-campaign schedules are rejected as a complete paired case. This release has zero rejected cases. No date is optimized or automatically recommended.
 
-## API and dashboard handoff
+## API
 
-Both endpoints require the existing authenticated session/JWT:
+Both endpoints require a user handle (`Authorization: Bearer <handle>`):
 
 | Endpoint                                  | Response                                                                                                | Generated TanStack Query helper                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
@@ -71,11 +71,11 @@ Both endpoints require the existing authenticated session/JWT:
 
 Use the generated client in `@cropilot/api`; do not redeclare response types. Filter the bundle by `strategy_id`, `start_year`, `depth_m`, `initial_water_fraction` and `summer_shift_days`, then fetch one selected run. `daily_path` is an archive-relative provenance path, not a browser URL. The detail endpoint accepts only registered opaque run IDs, checks the requested file hash, and never accepts server paths. Unknown IDs return 404; missing or altered assets return 503 without exposing filesystem paths.
 
-The dataset is shared demonstration material derived from public sources, not private user farm records. Authentication does not make these scenarios specific to the signed-in user's farms. A future farm-specific endpoint must enforce ownership separately. HTTP handlers only read precomputed results and do not launch simulations.
+The scenarios are shared demonstration material derived from public sources, not tied to the reader's farms. Handlers only read precomputed results; they never launch simulations.
 
-Suggested display: three rotation cards for the same episode and assumptions, a daily reserve chart, four stage summaries per crop, then soil/water and calendar comparisons. Always retain `research_only`, source links, period, location, assumption labels and the field-validation status. Show crop demand and individual crop results alongside totals: a rotation with more crops may have more total unmet ET simply because it has more crop demand.
+Show crop demand and per-crop results next to totals: a rotation with more crops can have more total unmet ET simply because it has more crop demand. Keep `research_only`, sources, period, location and assumptions visible.
 
-This delivery provides data, API and generated client. Production operators provision the release on the host with `scripts/deploy/prepare-strategies.sh`; `compose.prod.yml` mounts its data and model directories read-only and refuses missing mount sources. The [deployment runbook](deployment.md) includes verification, smoke checks and rollback. GitHub credentials stay on the host. A backend run without the provisioned data returns 503 from these endpoints; the public `case-v1` demo remains independent of this installation.
+In production, `scripts/deploy/prepare-strategies.sh` provisions the release and `compose.prod.yml` mounts it read-only (see [deployment](deployment.md)). Without it these endpoints return 503; the public case does not depend on them.
 
 ## Reproduce and verify
 
@@ -107,16 +107,14 @@ uv run ty check experiments --python .venv-models --python-version 3.12 --error-
 .venv-models/bin/python -m pytest experiments -q
 ```
 
-Scientific tests use explicitly synthetic fixtures to check units, invalid inputs, leap days, calendar boundaries, overlap, stage partitioning and paired joins. API tests check authentication, hash enforcement and path handling. The real-release integration test runs after `strategies-setup`, otherwise it is skipped.
+Scientific tests use explicitly synthetic fixtures to check units, invalid inputs, leap days, calendar boundaries, overlap, stage partitioning and paired joins. API tests check the handle requirement, hash enforcement and path handling. The real-release integration test runs after `strategies-setup`, otherwise it is skipped.
 
 ## Sources and limits
 
 - [Pergamino diagnostic snapshot](https://github.com/HomoSapiens-NASA-Challenge/hub/releases/tag/pergamino-diagnostics-2026-11-14), `pergamino-tables-and-field.zip`, SHA-256 `c9cb64544951469e3e765e3107a0d0f43dcee63bd5c22d27828c931cd27d0c2b`: four pinned JSON inputs, each with an individual hash in the result bundle.
 - NASA POWER daily weather for 1984–2025, UTC, from that snapshot; reference ET is calculated by the unchanged engine's FAO-56 implementation. The incomplete 2026 weather record is not used.
-- SoilGrids modeled retention and FTW modeled footprint, with attribution and license records in the [shared source register](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/main/submission.md).
-- INTA national crop maps for the reference sequence; map classes do not establish farm management. [Crop-source guide](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/84f5744/data/pergamino/docs/crops.md).
-- [Frozen simulator commit 36ca379](https://github.com/HomoSapiens-NASA-Challenge/simulator/tree/36ca379879f292fef773ce2e7f7d38688f11a548), including its [FAO/INTA parameter references](https://github.com/HomoSapiens-NASA-Challenge/simulator/blob/36ca379/docs/water-spec.md). This work does not modify that engine or the team's RL environment.
+- SoilGrids modeled retention and the FTW modeled footprint, with attribution and licenses in the team's source register.
+- INTA national crop maps for the reference sequence; map classes do not establish farm management.
+- The rotation simulator at commit `36ca379879f292fef773ce2e7f7d38688f11a548`, with its FAO and INTA parameter references.
 
 All historical episodes are replayed; there is no ENSO analog selection or future-weather optimization. Unpartitioned excess above capacity is not flooding, waterlogging or nitrate loss. Deficit is unmet crop ET, not a prescription for irrigation. The calculations do not estimate yield, profit, carbon, pests or rotation-induced changes in infiltration. The regional wetness ML experiments remain a separate research product and are not used to initialize these runs.
-
-Codex (OpenAI) assisted with the calculations, source/unit checks, code, tests and documentation. No observations were synthesized to fill missing data.

@@ -12,9 +12,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file="../../.env", extra="ignore")
 
     database_url: str
-    # Public origin of the auth service: the issuer and audience of every access token.
-    better_auth_url: str
-    auth_jwks_url: str
+    # Public origin of the app, e.g. https://cropilot.app: the MCP server's allowed host.
+    public_url: str
 
     @property
     def sqlalchemy_url(self) -> str:
@@ -27,8 +26,8 @@ def get_settings() -> Settings:
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-# `.parent` instead of `parents[4]`: in the container the backend is `/app` and has no
-# grandparent, so `parents[4]` raised at import. There the path is `/.env`, which never exists.
+# In the container the backend lives at /app, which has no grandparent: the root `.env` is
+# looked up at `/.env` and simply does not exist there.
 ROOT_ENV_FILE = BACKEND_DIR.parent.parent / ".env"
 
 

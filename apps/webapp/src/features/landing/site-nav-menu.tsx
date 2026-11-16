@@ -166,10 +166,7 @@ function CompactPanel({ menu }: { menu: SiteMenu }) {
   )
 }
 
-/**
- * Desktop navigation. Every menu opens one shared panel as wide as the header
- * frame, so the open header and the panel read as a single sheet.
- */
+/** Every menu opens one shared panel as wide as the header frame. */
 export function SiteNavMenu({
   frameRef,
   onOpenChange,

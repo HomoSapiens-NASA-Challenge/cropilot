@@ -131,9 +131,7 @@ def test_planner_chat_requires_login() -> None:
 
 def test_planner_uses_server_owner_before_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="alice", name="Alice", email="a@test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="alice")
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-not-a-real-key")
     calls = []
 
@@ -155,8 +153,8 @@ def test_planner_uses_server_owner_before_provider(monkeypatch: pytest.MonkeyPat
     reason="Simulator inputs are not installed (scripts/rotation_sim/install.sh)",
 )
 def test_a_real_planner_run_fits_the_evidence_cap() -> None:
-    # Every policy's per-campaign replays pushed a finished run past the tool cap, so each
-    # planner question failed with "Evidence is too large".
+    # The per-campaign replays of every policy alone exceed the tool's evidence cap, so the
+    # tool must leave them out of a finished run.
     owner = f"owner-{uuid4().hex}"
     request = RotationPlanRequest(
         weights=PriorityWeights(

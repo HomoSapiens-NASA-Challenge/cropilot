@@ -26,10 +26,7 @@ export function stripDomain(
   return [min - padding, max + padding]
 }
 
-/**
- * One dot per campaign on a shared axis. The dots are buttons, so the value is also
- * reachable by keyboard and by touch. A thin line marks zero when the axis crosses it.
- */
+/** The dots are buttons, so every value is reachable by keyboard and touch. */
 export function DotStrip({
   dots,
   domain,

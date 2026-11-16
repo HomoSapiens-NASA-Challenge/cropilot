@@ -35,7 +35,6 @@ function FitRegions({ regions }: { regions: ReadonlyArray<Region> }) {
   return null
 }
 
-/** The region catalog as a list and a map; picking either one selects the region. */
 export function RegionPicker({
   regions,
   selectedRegionId,

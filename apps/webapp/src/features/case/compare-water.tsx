@@ -292,11 +292,7 @@ function WaterCell({
   )
 }
 
-/**
- * Water for the field footprint: unmet crop water in the analog episodes and how each
- * strategy compares over all episodes. The starting point and the sowing date are
- * controls that change which released runs are shown. Nothing is recomputed here.
- */
+/** The controls only change which released runs are shown; nothing is recomputed here. */
 export function WaterRow({
   compare,
   water,

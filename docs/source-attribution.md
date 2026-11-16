@@ -1,38 +1,17 @@
-# Atribución de datos y cálculos
+# Data and calculation provenance
 
-La interfaz distingue los datos y referencias originales de los cálculos, evaluaciones
-y notas del equipo. El objetivo es poder rastrear un resultado hasta sus insumos sin
-presentarlo como una observación publicada por NASA, INTA o MAGyP. Se revisaron las siete
-entradas `team_*` del generador de casos y sus documentos originales. La separación es
-de presentación: conserva los identificadores, autores, enlaces y valores del contrato.
+The interface separates original data and references from the team's own calculations, so a result can be traced to its inputs without presenting it as an observation published by NASA, INTA or MAGyP. In every case view the external sources come first and the calculations sit in a collapsible section. Evidence popovers show the external inputs and keep the citation of the exact calculation behind the result. The links between the two live in `apps/webapp/src/features/case/source-lineage.ts`; contract identifiers, authors, links and values are unchanged.
 
-| Referencia             | Principales insumos externos                                                       | Resultado o documento del equipo                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `team_market_model`    | NASA POWER, NOAA ONI, rindes/costos MAGyP, futuros A3 y referencias agronómicas    | Análogos, anomalías de rinde, modelos para faltantes y escenarios de margen                               |
-| `team_market_backtest` | Los insumos del modelo de mercado                                                  | Evaluación contra climatología y campañas al azar; no es un dataset observado externo                     |
-| `team_water_scenarios` | NASA POWER, SoilGrids, contorno FTW, secuencia INTA, métodos y parámetros FAO/INTA | Simulaciones de balance de agua, estrés y sensibilidad                                                    |
-| `team_crop_map`        | NASA HLS, mapas INTA, contornos FTW y contexto NOAA                                | Clasificación 2025/26 e indicadores derivados; el historial 2020/21–2024/25 conserva la atribución a INTA |
-| `team_rl_mdp`          | Insumos del modelo de mercado: NASA POWER, NOAA, MAGyP y A3                        | Entorno tabular y evaluación de DP, Q-learning y rotaciones fijas                                         |
-| `team_rl_lab`          | NASA POWER, MAGyP, FAO-56/33, calendarios INTA y precios World Bank                | Balance hídrico y evaluación de políticas; incluye supuestos explícitos de suelo y costos                 |
-| `team_analog_approach` | NASA POWER, NOAA y MAGyP                                                           | Nota metodológica y análisis descriptivo, incluido el contraejemplo 2017/18                               |
+| Reference              | Main external inputs                                                                          | Team result                                                                                              |
+| ---------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `team_market_model`    | NASA POWER, NOAA ONI, MAGyP yields and costs, A3 futures and agronomic references             | Analog campaigns, yield anomalies, gap-filling models and margin scenarios                               |
+| `team_market_backtest` | The market model's inputs                                                                     | Evaluation against climatology and random campaigns; not an external observed dataset                    |
+| `team_water_scenarios` | NASA POWER, SoilGrids, FTW footprint, INTA crop sequence, FAO and INTA methods and parameters | Water-balance, stress and sensitivity simulations                                                        |
+| `team_crop_map`        | NASA HLS, INTA crop maps, FTW boundaries and NOAA context                                     | 2025/26 classification and derived indicators; the 2020/21-2024/25 history keeps its attribution to INTA |
+| `team_rl_mdp`          | The market model's inputs: NASA POWER, NOAA, MAGyP and A3                                     | Tabular environment and evaluation of dynamic programming, Q-learning and fixed rotations                |
+| `team_rl_lab`          | NASA POWER, MAGyP, FAO-56 and FAO-33, INTA calendars and World Bank prices                    | Water balance and policy evaluation, with explicit soil and cost assumptions                             |
+| `team_analog_approach` | NASA POWER, NOAA and MAGyP                                                                    | Method note and descriptive analysis, including the 2017/18 counterexample                               |
 
-Evidencia consultada:
+The definitions and links of every reference are in [`scripts/demo_case/sources.py`](../scripts/demo_case/sources.py); the water-balance references are in [`scripts/demo_case/build.py`](../scripts/demo_case/build.py), [water-strategies.md](water-strategies.md) and [crop-map.md](crop-map.md).
 
-- [Definiciones y enlaces de los casos](../scripts/demo_case/sources.py).
-- [Construcción del caso y referencias del balance de agua](../scripts/demo_case/build.py).
-- [Pipeline de mercado y evaluación](https://github.com/HomoSapiens-NASA-Challenge/hub/tree/6823a1f/research/ml-market-model).
-- [Balance de agua](water-strategies.md) y [mapa de cultivos](crop-map.md).
-- [Protocolo del MDP](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/6823a1f/research/rl/rotation-mdp/PROTOCOL.md).
-- [Primera pasada del laboratorio](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/main/research/rl.md).
-- [Nota de años análogos](https://github.com/HomoSapiens-NASA-Challenge/hub/blob/main/research/enfoque-anios-como-este.md).
-
-`source-lineage.ts` enlaza los principales insumos que ya existen en `SourceRef`.
-No pretende reemplazar la lista completa de parámetros o referencias de cada método.
-Los calendarios INTA, FAO-33, precios World Bank y supuestos del laboratorio se señalan
-en el texto y permanecen documentados en el método enlazado. No se agrega una licencia
-cuando el registro no la declara. No se cambian los JSON generados ni las respuestas API.
-
-En cada caso, las fuentes externas aparecen primero. Los cálculos quedan en un apartado
-desplegable. Los popovers de evidencia muestran los insumos externos además de conservar
-la cita del cálculo exacto que respalda el resultado. El contador indica referencias,
-incluidos los insumos enlazados, sin duplicados.
+`source-lineage.ts` links the main inputs that already exist as a `SourceRef`. It does not replace the full parameter or reference list of each method: INTA calendars, FAO-33, World Bank prices and the lab's assumptions are named in the text and documented in the linked method. No license is shown where the source record does not declare one. The reference counter includes linked inputs, without duplicates.

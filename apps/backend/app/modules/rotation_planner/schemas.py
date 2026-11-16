@@ -1,6 +1,6 @@
 """The rotation-planner contract: a live run of the simulator, the exact optimum and an RL agent.
 
-A run simulates the caller's region with the team's rotation simulator, builds a tabular decision
+A run simulates the caller's region with the rotation simulator, builds a tabular decision
 process from the training campaigns (1984/85-2012/13), solves it exactly, trains a Q-learning
 agent on it and replays every policy through the simulator on training and held-out campaigns
 (2013/14-2024/25). Every output is a simulated scenario, not an agronomic recommendation.
