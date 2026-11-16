@@ -1,17 +1,9 @@
 import type { CaseBundle } from "@cropilot/api"
-import { ExternalLink } from "lucide-react"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { BlockSection, Panel } from "@/features/case/block-frame"
 import { CaseReferencesProvider } from "@/features/case/case-context"
 import { formatDate } from "@/features/case/case-format"
-import { EvidenceChip } from "@/features/case/evidence-chip"
+import { EvidenceChip, SourceEntry } from "@/features/case/evidence-chip"
+import { isCalculationReference } from "@/features/case/source-lineage"
 import { useI18n } from "@/lib/i18n"
 
 /** B5. What the case cannot say, where every number comes from and what the words mean. */
@@ -23,6 +15,12 @@ export function MethodBlock({
   id?: string
 }) {
   const { t } = useI18n("case")
+  const originalSources = bundle.sources.filter(
+    (source) => !isCalculationReference(source.id)
+  )
+  const calculations = bundle.sources.filter((source) =>
+    isCalculationReference(source.id)
+  )
 
   return (
     <CaseReferencesProvider sources={bundle.sources} glossary={bundle.glossary}>
@@ -54,62 +52,35 @@ export function MethodBlock({
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="font-medium">{t("Sources")}</h3>
-          <div className="rounded-xl border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("Dataset")}</TableHead>
-                  <TableHead>{t("Provider")}</TableHead>
-                  <TableHead>{t("Period")}</TableHead>
-                  <TableHead>{t("Location")}</TableHead>
-                  <TableHead>{t("License")}</TableHead>
-                  <TableHead className="w-12">{t("Link")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bundle.sources.map((source) => (
-                  <TableRow key={source.id}>
-                    <TableCell className="min-w-48 font-medium whitespace-normal">
-                      {source.dataset}
-                    </TableCell>
-                    <TableCell className="min-w-32 whitespace-normal">
-                      {source.provider}
-                    </TableCell>
-                    <TableCell className="min-w-32 whitespace-normal">
-                      {t(source.period)}
-                    </TableCell>
-                    <TableCell className="min-w-40 whitespace-normal">
-                      {t(source.location)}
-                    </TableCell>
-                    <TableCell className="min-w-24 whitespace-normal">
-                      {t(source.license ?? "Not stated")}
-                    </TableCell>
-                    <TableCell>
-                      {source.url ? (
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={t("Open {value1}", {
-                            value1: source.dataset,
-                          })}
-                          className="inline-flex size-7 items-center justify-center rounded-lg text-primary outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
-                        >
-                          <ExternalLink className="size-4" />
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">
-                          {t("None")}
-                        </span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <h3 className="font-medium">{t("Original data and references")}</h3>
+          <ul className="grid gap-3 md:grid-cols-2">
+            {originalSources.map((source) => (
+              <SourceEntry
+                key={source.id}
+                source={source}
+                className="rounded-xl border bg-card p-4 sm:p-5"
+              />
+            ))}
+          </ul>
         </div>
+
+        {calculations.length > 0 && (
+          <details className="rounded-xl border bg-card p-4 sm:p-5">
+            <summary className="cursor-pointer rounded-lg font-medium focus-visible:outline-2 focus-visible:outline-ring">
+              {t("Calculations and method notes")}
+            </summary>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {t(
+                "Results computed from external inputs. The linked method explains how they were produced; they are not observations published by the data providers."
+              )}
+            </p>
+            <ul className="mt-5 flex flex-col gap-5">
+              {calculations.map((source) => (
+                <SourceEntry key={source.id} source={source} />
+              ))}
+            </ul>
+          </details>
+        )}
 
         <div className="flex flex-col gap-3">
           <h3 className="font-medium">{t("Glossary")}</h3>
