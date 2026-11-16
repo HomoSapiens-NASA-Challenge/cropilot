@@ -2259,4 +2259,36 @@ export const esCase: Record<string, string> = {
     "El rinde de soja después de cultivos de cobertura no difirió del control",
   "Crop evapotranspiration: guidelines for computing crop water requirements (Paper 56)":
     "Evapotranspiración de los cultivos: guías para calcular los requerimientos de agua (Documento 56)",
+  "Sowing window": "Ventana de siembra",
+  "Which summer sowing date held up best in the campaigns that started like this one, by days of water stress at the crop's critical stage.":
+    "Qué fecha de siembra de verano anduvo mejor en las campañas que arrancaron como esta, según los días de estrés hídrico en la etapa crítica del cultivo.",
+  "First summer crop of each analog campaign":
+    "Primer cultivo de verano de cada campaña análoga",
+  "on the default date": "en la fecha predeterminada",
+  "{value1} days earlier": "{value1} días antes",
+  "{value1} days later": "{value1} días después",
+  "{value1} to {value2} days earlier": "entre {value1} y {value2} días antes",
+  "Sowing {crop} {when} had the fewest median stress days at the critical stage: {value1}.":
+    "Sembrar {crop} {when} dio la menor mediana de días de estrés en la etapa crítica: {value1}.",
+  "Sowing {crop} {when} had the fewest median stress days at the critical stage: {value1}, against {value2} on the default date.":
+    "Sembrar {crop} {when} dio la menor mediana de días de estrés en la etapa crítica: {value1}, contra {value2} en la fecha predeterminada.",
+  "The best date was the same in every campaign: {dates}.":
+    "La mejor fecha fue la misma en todas las campañas: {dates}.",
+  "No date held up best every year: {dates} each did in {value1} of {value2} campaigns.":
+    "Ninguna fecha anduvo mejor todos los años: {dates} lo hicieron en {value1} de {value2} campañas cada una.",
+  "No date held up best every year: {dates} did in {value1} of {value2} campaigns.":
+    "Ninguna fecha anduvo mejor todos los años: {dates} lo hizo en {value1} de {value2} campañas.",
+  "In a season like this, {strategies} all start with {crop}, so they share this window.":
+    "En una campaña como esta, {strategies} arrancan con {crop}, así que comparten esta ventana.",
+  "In a season like this, {strategies} starts with {crop}.":
+    "En una campaña como esta, {strategies} arranca con {crop}.",
+  "Stress days: days of water stress in the crop's mid-season (critical) stage. Shaded cells have the fewest stress days; ties are included. Dates use the median day of the year.":
+    "Días de estrés: días de estrés hídrico en la etapa de mitad de ciclo (crítica) del cultivo. Las celdas sombreadas tienen la menor cantidad de días de estrés, empates incluidos. Las fechas usan el día del año mediano.",
+  "{crop} sowing window: stress days by analog campaign":
+    "Ventana de siembra de {crop}: días de estrés por campaña análoga",
+  "Median deficit {value1}": "Déficit mediano {value1}",
+  "Fewest stress days": "Menos días de estrés",
+  "{value1} of {value2}": "{value1} de {value2}",
+  "One reference footprint ({value1}) of {value2}, {value3} m of soil starting at {value4} of available water, NASA POWER weather. Not a sowing recommendation: check soil temperature, waterlogging and the cultivar on the lot.":
+    "Un contorno de referencia ({value1}) de {value2}, {value3} m de suelo con {value4} del agua útil al inicio y clima de NASA POWER. No es una recomendación de siembra: revisá la temperatura del suelo, el anegamiento y el cultivar en el lote.",
 }

@@ -1,4 +1,8 @@
-import type { CaseBundle, WaterBlock } from "@cropilot/api"
+import {
+  type CaseBundle,
+  type SowingWindow,
+  sowingWindows,
+} from "@cropilot/api"
 import { cn } from "cn"
 import { CropSwatch } from "@/components/crop-swatch"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,288 +14,241 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { formatShare } from "@/features/case/case-format"
+import { formatMm, formatShare } from "@/features/case/case-format"
 import { ComparisonRow, strategyLabel } from "@/features/case/compare-layout"
 import { EvidenceChip } from "@/features/case/evidence-chip"
+import { type Locale, translate, useI18n } from "@/lib/i18n"
 
-const LIST = new Intl.ListFormat("en", { style: "long", type: "conjunction" })
-const SHORT_DATE = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  timeZone: "UTC",
-})
-
-function median(values: number[]): number {
-  const sorted = [...values].sort((a, b) => a - b)
-  const middle = Math.floor(sorted.length / 2)
-  const upper = sorted[middle]
-  const lower = sorted[Math.ceil(sorted.length / 2) - 1]
-  if (upper === undefined || lower === undefined) {
-    throw new Error("Sowing window needs at least one analog campaign")
-  }
-  return (lower + upper) / 2
+function shiftLabel(locale: Locale, days: number): string {
+  if (days === 0) return translate("on the default date", locale)
+  return days < 0
+    ? translate("{value1} days earlier", locale, { value1: Math.abs(days) })
+    : translate("{value1} days later", locale, { value1: days })
 }
 
-function shiftLabel(days: number): string {
-  return days === 0
-    ? "on the default date"
-    : `${Math.abs(days)} days ${days < 0 ? "earlier" : "later"}`
-}
-
-function bestShiftLabel(shifts: number[]): string {
-  if (shifts.length > 1 && shifts.every((shift) => shift < 0)) {
-    const days = shifts.map(Math.abs)
-    return `${Math.min(...days)} to ${Math.max(...days)} days earlier`
-  }
-  return LIST.format(shifts.map(shiftLabel))
-}
-
-/** First summer crop only, at the released default soil starting point. */
-export function computeSowingWindows(water: WaterBlock) {
-  const shifts = [...water.summer_shift_days].sort((a, b) => a - b)
-  const episodes = water.episodes.filter(
-    (episode) =>
-      episode.scenario_id?.startsWith("analog:") &&
-      episode.depth_m === water.default_depth_m &&
-      episode.initial_water_fraction === water.default_initial_water_fraction
-  )
-  const windows = [
-    ...new Set(episodes.map((episode) => episode.strategy_id)),
-  ].map((strategyId) => {
-    const runs = episodes.filter(
-      (episode) => episode.strategy_id === strategyId
-    )
-    const campaigns = [...new Set(runs.map((episode) => episode.scenario_id))]
-      .filter((scenarioId) => scenarioId !== null)
-      .sort()
-    const rows = campaigns.map((scenarioId) => {
-      const cells = shifts.map((shift) => {
-        const matches = runs.filter(
-          (episode) =>
-            episode.scenario_id === scenarioId &&
-            episode.summer_shift_days === shift
-        )
-        const summer = matches[0]?.crops.find((crop) => crop.crop !== "Wheat")
-        if (matches.length !== 1 || !summer) {
-          throw new Error(
-            `Missing or duplicate summer run: ${strategyId}, ${scenarioId}, ${shift}`
-          )
-        }
-        return {
-          crop: summer.crop,
-          stressDays: summer.mid_season_stress_days,
-          deficitMm: summer.crop_et_deficit_mm,
-          sowingDate: summer.sowing_date,
-        }
-      })
-      return {
-        campaign: scenarioId.slice("analog:".length),
-        cells,
-        minimum: Math.min(...cells.map((cell) => cell.stressDays)),
-      }
-    })
-    const crop = rows[0]?.cells[0]?.crop
-    if (
-      !crop ||
-      rows.some((row) => row.cells.some((cell) => cell.crop !== crop))
-    ) {
-      throw new Error(
-        `Inconsistent summer crop for sowing window: ${strategyId}`
-      )
-    }
-    const columns = shifts.map((shift, index) => {
-      const cells = rows.map((row) => {
-        const cell = row.cells[index]
-        if (!cell) throw new Error(`Missing sowing shift: ${shift}`)
-        return cell
-      })
-      const dayOfYear = median(
-        cells.map((cell) => {
-          const date = new Date(`${cell.sowingDate}T00:00:00Z`)
-          return (
-            (date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 86400000
-          )
-        })
-      )
-      return {
-        shift,
-        typicalDate: SHORT_DATE.format(new Date(Date.UTC(2001, 0, dayOfYear))),
-        medianStressDays: median(cells.map((cell) => cell.stressDays)),
-        medianDeficitMm: median(cells.map((cell) => cell.deficitMm)),
-        fewestCount: cells.filter(
-          (cell, rowIndex) => cell.stressDays === rows[rowIndex]?.minimum
-        ).length,
-      }
-    })
-    const minimumMedian = Math.min(
-      ...columns.map((column) => column.medianStressDays)
-    )
-    const best = columns.filter(
-      (column) => column.medianStressDays === minimumMedian
-    )
-    const defaultColumn = columns.find((column) => column.shift === 0)
-    if (!defaultColumn) throw new Error("Sowing window needs the default date")
-    const topCount = Math.max(...columns.map((column) => column.fewestCount))
-    const mostOften = columns.filter(
-      (column) => column.fewestCount === topCount
-    )
-    const headline = `Sowing ${crop.toLowerCase()} ${bestShiftLabel(best.map((column) => column.shift))} had the fewest median stress days at the critical stage: ${minimumMedian}${best.some((column) => column.shift === 0) ? "." : `, against ${defaultColumn.medianStressDays} on the default date.`} ${topCount < rows.length ? "No date held up best every year: " : ""}${LIST.format(mostOften.map((column) => shiftLabel(column.shift)))} ${mostOften.length > 1 ? "each did" : "did"} in ${topCount} of ${rows.length} campaigns.`
-    return {
-      crop,
-      strategyIds: [strategyId],
-      rows,
-      columns,
-      minimumMedian,
-      topCount,
-      headline,
-    }
+function headline(locale: Locale, window: SowingWindow): string {
+  const list = new Intl.ListFormat(locale, {
+    style: "long",
+    type: "conjunction",
   })
-  // Later seasons can differ while the entire first-season window is shared.
-  const grouped = new Map<string, (typeof windows)[number]>()
-  for (const window of windows) {
-    const key = JSON.stringify({ crop: window.crop, rows: window.rows })
-    const existing = grouped.get(key)
-    if (existing) existing.strategyIds.push(...window.strategyIds)
-    else grouped.set(key, window)
+  const best = window.lowestMedianShifts
+  const when =
+    best.length > 1 && best.every((shift) => shift < 0)
+      ? translate("{value1} to {value2} days earlier", locale, {
+          value1: Math.min(...best.map(Math.abs)),
+          value2: Math.max(...best.map(Math.abs)),
+        })
+      : list.format(best.map((shift) => shiftLabel(locale, shift)))
+  const crop = translate(window.crop, locale).toLowerCase()
+  const lowest = best.includes(0)
+    ? translate(
+        "Sowing {crop} {when} had the fewest median stress days at the critical stage: {value1}.",
+        locale,
+        { crop, when, value1: window.lowestMedianStressDays }
+      )
+    : translate(
+        "Sowing {crop} {when} had the fewest median stress days at the critical stage: {value1}, against {value2} on the default date.",
+        locale,
+        {
+          crop,
+          when,
+          value1: window.lowestMedianStressDays,
+          value2: window.defaultMedianStressDays,
+        }
+      )
+  const counts = {
+    dates: list.format(
+      window.topFewestShifts.map((shift) => shiftLabel(locale, shift))
+    ),
+    value1: window.topFewestCount,
+    value2: window.campaigns.length,
   }
-  return [...grouped.values()]
+  const mostOften =
+    window.topFewestCount === window.campaigns.length
+      ? translate(
+          "The best date was the same in every campaign: {dates}.",
+          locale,
+          counts
+        )
+      : window.topFewestShifts.length > 1
+        ? translate(
+            "No date held up best every year: {dates} each did in {value1} of {value2} campaigns.",
+            locale,
+            counts
+          )
+        : translate(
+            "No date held up best every year: {dates} did in {value1} of {value2} campaigns.",
+            locale,
+            counts
+          )
+  return `${lowest} ${mostOften}`
 }
 
-export function SowingWindow({ bundle }: { bundle: CaseBundle }) {
+export function SowingWindowRow({ bundle }: { bundle: CaseBundle }) {
+  const { t, locale } = useI18n("case")
   const water = bundle.compare.water
-  if (!water) return null
-  const windows = computeSowingWindows(water)
-  if (windows.length === 0) return null
+  const windows = sowingWindows(bundle)
+  if (!water || windows.length === 0) return null
+  const list = new Intl.ListFormat(locale, {
+    style: "long",
+    type: "conjunction",
+  })
+  const shortDate = new Intl.DateTimeFormat(
+    locale === "es" ? "es-AR" : "en-GB",
+    { day: "numeric", month: "short", timeZone: "UTC" }
+  )
 
   return (
     <div className="min-w-0 max-w-full overflow-hidden">
       <ComparisonRow
-        title="Sowing window"
-        description="Which summer sowing date held up best in the campaigns that started like this one, by days of water stress at the crop's critical stage."
+        title={t("Sowing window")}
+        description={t(
+          "Which summer sowing date held up best in the campaigns that started like this one, by days of water stress at the crop's critical stage."
+        )}
         evidence={
           <EvidenceChip
             meta={water.meta}
-            scaleLabel={`Footprint ${water.field_id}`}
+            scaleLabel={t("Footprint {value1}", { value1: water.field_id })}
             horizon="First summer crop of each analog campaign"
           />
         }
       >
-        {windows.map((window) => (
-          <Card
-            key={window.strategyIds.join(",")}
-            className="min-w-0 max-w-full"
-            size="sm"
-          >
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CropSwatch crop={window.crop} />
-                {window.crop}
-              </CardTitle>
-              <p className="text-muted-foreground">
-                In a season like this,{" "}
-                {LIST.format(
-                  window.strategyIds.map((id) =>
-                    strategyLabel(bundle.compare.strategies, id)
-                  )
-                )}{" "}
-                {window.strategyIds.length > 1 ? "all start" : "starts"} with{" "}
-                {window.crop.toLowerCase()}, so{" "}
-                {window.strategyIds.length > 1 ? "they share" : "it has"} this
-                window.
-              </p>
-              <p>{window.headline}</p>
-              <p className="text-xs text-muted-foreground">
-                Stress days: days of water stress in the crop’s mid-season
-                (critical) stage. Shaded cells have the fewest stress days; ties
-                are included. Dates use the median day-of-year.
-              </p>
-            </CardHeader>
-            <Table
-              aria-label={`${window.crop} sowing window: stress days by analog campaign`}
-              className="min-w-[720px] tabular-nums"
+        {windows.map((window) => {
+          const crop = t(window.crop)
+          const strategies = list.format(
+            window.strategyIds.map((id) =>
+              strategyLabel(bundle.compare.strategies, id)
+            )
+          )
+          return (
+            <Card
+              key={window.strategyIds.join(",")}
+              className="min-w-0 max-w-full"
+              size="sm"
             >
-              <TableHeader>
-                <TableRow>
-                  <TableHead scope="col">Campaign</TableHead>
-                  {window.columns.map((column) => (
-                    <TableHead
-                      key={column.shift}
-                      scope="col"
-                      className="text-right"
-                    >
-                      <span className="block first-letter:uppercase">
-                        {shiftLabel(column.shift)}
-                      </span>
-                      <span className="font-normal text-muted-foreground">
-                        {column.typicalDate}
-                      </span>
-                    </TableHead>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CropSwatch crop={window.crop} />
+                  {crop}
+                </CardTitle>
+                <p className="text-muted-foreground">
+                  {window.strategyIds.length > 1
+                    ? t(
+                        "In a season like this, {strategies} all start with {crop}, so they share this window.",
+                        { strategies, crop: crop.toLowerCase() }
+                      )
+                    : t(
+                        "In a season like this, {strategies} starts with {crop}.",
+                        { strategies, crop: crop.toLowerCase() }
+                      )}
+                </p>
+                <p>{headline(locale, window)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "Stress days: days of water stress in the crop's mid-season (critical) stage. Shaded cells have the fewest stress days; ties are included. Dates use the median day of the year."
+                  )}
+                </p>
+              </CardHeader>
+              <Table
+                aria-label={t(
+                  "{crop} sowing window: stress days by analog campaign",
+                  { crop }
+                )}
+                className="min-w-[720px] tabular-nums"
+              >
+                <TableHeader>
+                  <TableRow>
+                    <TableHead scope="col">{t("Campaign")}</TableHead>
+                    {window.shifts.map((shift) => (
+                      <TableHead
+                        key={shift.shiftDays}
+                        scope="col"
+                        className="text-right"
+                      >
+                        <span className="block first-letter:uppercase">
+                          {shiftLabel(locale, shift.shiftDays)}
+                        </span>
+                        <span className="font-normal text-muted-foreground">
+                          {shortDate.format(
+                            new Date(`${shift.typicalSowingDate}T00:00:00Z`)
+                          )}
+                        </span>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {window.campaigns.map((campaign) => (
+                    <TableRow key={campaign.campaign}>
+                      <TableHead scope="row">{campaign.campaign}</TableHead>
+                      {campaign.cells.map((cell, index) => (
+                        <TableCell
+                          key={window.shifts[index]?.shiftDays}
+                          className={cn(
+                            "text-right",
+                            cell.stressDays === campaign.fewestStressDays &&
+                              "bg-muted font-medium"
+                          )}
+                        >
+                          {cell.stressDays}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {window.rows.map((row) => (
-                  <TableRow key={row.campaign}>
-                    <TableHead scope="row">{row.campaign}</TableHead>
-                    {row.cells.map((cell, index) => (
+                  <TableRow>
+                    <TableHead scope="row">{t("Median")}</TableHead>
+                    {window.shifts.map((shift) => (
                       <TableCell
-                        key={window.columns[index]?.shift}
+                        key={shift.shiftDays}
                         className={cn(
                           "text-right",
-                          cell.stressDays === row.minimum &&
+                          shift.medianStressDays ===
+                            window.lowestMedianStressDays &&
                             "bg-muted font-medium"
                         )}
                       >
-                        {cell.stressDays}
+                        {shift.medianStressDays}
+                        <span className="block text-xs font-normal text-muted-foreground">
+                          {t("Median deficit {value1}", {
+                            value1: formatMm(shift.medianDeficitMm),
+                          })}
+                        </span>
                       </TableCell>
                     ))}
                   </TableRow>
-                ))}
-                <TableRow>
-                  <TableHead scope="row">Median</TableHead>
-                  {window.columns.map((column) => (
-                    <TableCell
-                      key={column.shift}
-                      className={cn(
-                        "text-right",
-                        column.medianStressDays === window.minimumMedian &&
-                          "bg-muted font-medium"
-                      )}
-                    >
-                      {column.medianStressDays}
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        Median deficit {column.medianDeficitMm.toFixed(1)} mm
-                      </span>
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow>
-                  <TableHead scope="row">Fewest stress days</TableHead>
-                  {window.columns.map((column) => (
-                    <TableCell
-                      key={column.shift}
-                      className={cn(
-                        "text-right",
-                        column.fewestCount === window.topCount &&
-                          "bg-muted font-medium"
-                      )}
-                    >
-                      {column.fewestCount} of {window.rows.length}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Card>
-        ))}
+                  <TableRow>
+                    <TableHead scope="row">{t("Fewest stress days")}</TableHead>
+                    {window.shifts.map((shift) => (
+                      <TableCell
+                        key={shift.shiftDays}
+                        className={cn(
+                          "text-right",
+                          shift.fewestCount === window.topFewestCount &&
+                            "bg-muted font-medium"
+                        )}
+                      >
+                        {t("{value1} of {value2}", {
+                          value1: shift.fewestCount,
+                          value2: window.campaigns.length,
+                        })}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Card>
+          )
+        })}
         <p className="text-xs text-muted-foreground">
-          One reference footprint ({water.field_id}) of {bundle.zone_name},{" "}
-          {water.default_depth_m} m of soil starting{" "}
-          {water.default_initial_water_fraction === 0.5
-            ? "half full"
-            : `${formatShare(water.default_initial_water_fraction)} full`}
-          , NASA POWER weather. Not a sowing recommendation: check soil
-          temperature, waterlogging and the cultivar on the lot.
+          {t(
+            "One reference footprint ({value1}) of {value2}, {value3} m of soil starting at {value4} of available water, NASA POWER weather. Not a sowing recommendation: check soil temperature, waterlogging and the cultivar on the lot.",
+            {
+              value1: water.field_id,
+              value2: bundle.zone_name,
+              value3: water.default_depth_m,
+              value4: formatShare(water.default_initial_water_fraction),
+            }
+          )}
         </p>
       </ComparisonRow>
     </div>

@@ -1,4 +1,10 @@
 export {
+  type SowingCampaign,
+  type SowingShift,
+  type SowingWindow,
+  sowingWindows,
+} from "./case-sowing"
+export {
   changeWaterStartingPoint,
   defaultWaterSettings,
   findWaterEpisode,
