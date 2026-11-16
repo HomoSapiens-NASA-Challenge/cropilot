@@ -20,6 +20,7 @@ import { PriorityTradeoffCard } from "@/features/planner/priority-tradeoff-card"
 import { ResultSection } from "@/features/planner/result-section"
 import { RunSummary } from "@/features/planner/training-console"
 import { VerdictBlock } from "@/features/planner/verdict-block"
+import { useI18n } from "@/lib/i18n"
 
 const TABS = [
   { id: "plan", label: "Plan" },
@@ -41,20 +42,30 @@ function LearningTab({
   run: RotationPlanRun
   result: RotationPlanResult
 }) {
+  const { t } = useI18n("app")
+
   const { verdict } = result
   return (
     <>
       <ResultSection
-        title="How this run computed"
-        lead="The six stages of the run, with the work each one did. Counts are real simulated units; times are measured on the server."
+        title={t("How this run computed")}
+        lead={t(
+          "The six stages of the run, with the work each one did. Counts are real simulated units; times are measured on the server."
+        )}
         sources={sourcesById(result.sources, ["nasa-power", "magyp"])}
       >
         <RunSummary run={run} />
         <PipelineStages stages={run.stages} />
       </ResultSection>
       <ResultSection
-        title="How the agent learned"
-        lead={`The agent picks the optimal action in ${formatShare(verdict.agent_agreement_share)} of the states, and its expected score differs from the exact optimum by ${formatScore(verdict.agent_minus_optimal_expected)} per campaign.`}
+        title={t("How the agent learned")}
+        lead={t(
+          "The agent picks the optimal action in {value1} of the states, and its expected score differs from the exact optimum by {value2} per campaign.",
+          {
+            value1: formatShare(verdict.agent_agreement_share),
+            value2: formatScore(verdict.agent_minus_optimal_expected),
+          }
+        )}
         sources={sourcesById(result.sources, ["nasa-power"])}
       >
         <ConvergenceChart
@@ -68,10 +79,7 @@ function LearningTab({
   )
 }
 
-/**
- * A finished run: the verdict above four tabs. The tab lives here, outside the element keyed
- * by the run, so a new run replays the entrance without sending the reader back to Plan.
- */
+/** The tab lives outside the element keyed by the run, so a new run replays the entrance without sending the reader back to Plan. */
 export function ResultsView({
   run,
   result,
@@ -85,6 +93,8 @@ export function ResultsView({
   situation: Situation
   onSituationChange: (situation: Situation) => void
 }) {
+  const { t } = useI18n("app")
+
   const [tab, setTab] = useState<TabId>("plan")
 
   return (
@@ -113,7 +123,7 @@ export function ResultsView({
               value={entry.id}
               className="h-9 flex-none px-3"
             >
-              {entry.label}
+              {t(entry.label)}
             </TabsTrigger>
           ))}
         </TabsList>

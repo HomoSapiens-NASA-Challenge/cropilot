@@ -1,9 +1,11 @@
 import { CtaLink } from "@/features/landing/cta-link"
 import { FieldsArt } from "@/features/landing/fields-art"
 import { Band, SplitHeading } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 import { REFERENCE_CASE_ZONE_ID } from "@/lib/reference-case"
 
 export function HeroSection() {
+  const { t } = useI18n("landing")
   return (
     <Band
       className="relative isolate overflow-hidden"
@@ -19,17 +21,19 @@ export function HeroSection() {
       </div>
       <div className="flex flex-col items-start gap-10 px-4 pt-24 pb-28 sm:px-6 lg:px-30 lg:pt-32 lg:pb-36">
         <p className="text-sm">
-          <span className="font-medium">Evidence for the agronomist,</span>{" "}
-          <span className="text-muted-foreground">not a forecast</span>
+          <span className="font-medium">
+            {t("Evidence for the agronomist,")}
+          </span>{" "}
+          <span className="text-muted-foreground">{t("not a forecast")}</span>
         </p>
         <SplitHeading
           as="h1"
-          lead="Plan rotations with the years that looked like this one."
+          lead={t("Plan rotations with the years that looked like this one.")}
           className="max-w-4xl text-3xl/9 sm:text-5xl/14"
         >
-          Cropilot finds the past campaigns that started like the current one,
-          by El Niño phase and soil moisture, and shows how each crop rotation
-          did in them.
+          {t(
+            "Cropilot finds the past campaigns that started like the current one, by El Niño phase and soil moisture, and shows how each crop rotation did in them."
+          )}
         </SplitHeading>
         <div className="flex flex-wrap items-center gap-2">
           <CtaLink
@@ -37,17 +41,16 @@ export function HeroSection() {
             params={{ zoneId: REFERENCE_CASE_ZONE_ID }}
             withChevron
           >
-            Open the 2026/27 case, no sign-in
+            {t("Open the 2026/27 case, no sign-in")}
           </CtaLink>
           <CtaLink to="/" hash="how-it-works" variant="outline">
-            See how it works
+            {t("See how it works")}
           </CtaLink>
         </div>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Public cases for Pergamino and Paraná, a live rotation planner, an
-          assistant you can ask by voice, public MCP tools and a mobile
-          companion. It supports the agronomist&apos;s judgment; it does not
-          replace it.
+          {t(
+            "Public cases for Pergamino and Paraná, a live rotation planner, an assistant you can ask by voice, public MCP tools and a mobile companion. It supports the agronomist's judgment; it does not replace it."
+          )}
         </p>
       </div>
     </Band>

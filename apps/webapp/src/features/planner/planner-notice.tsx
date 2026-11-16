@@ -1,7 +1,7 @@
 import { TriangleAlert } from "lucide-react"
 import type { ReactNode } from "react"
+import { useI18n } from "@/lib/i18n"
 
-/** A problem the reader can act on: what went wrong, and the action that retries. */
 export function Notice({
   children,
   action,
@@ -9,6 +9,7 @@ export function Notice({
   children: ReactNode
   action?: ReactNode
 }) {
+  const { t } = useI18n("app")
   return (
     <div
       role="alert"
@@ -19,7 +20,7 @@ export function Notice({
           aria-hidden
           className="mt-0.5 size-4 shrink-0 text-destructive"
         />
-        <span>{children}</span>
+        <span>{typeof children === "string" ? t(children) : children}</span>
       </p>
       {action}
     </div>

@@ -11,6 +11,7 @@ import { MethodBlock } from "@/features/case/method-block"
 import { NationalBlock } from "@/features/case/national-block"
 import { StartBlock } from "@/features/case/start-block"
 import { YearsBlock } from "@/features/case/years-block"
+import { useI18n } from "@/lib/i18n"
 import { REFERENCE_CASE_ZONE_ID } from "@/lib/reference-case"
 
 const SECTIONS: ReadonlyArray<CaseSection> = [
@@ -32,18 +33,23 @@ function firstStartYear(bundle: CaseBundle): number | undefined {
 
 /** A zone with no case yet: no numbers, and the way to one that has. */
 export function CaseNotFound({ zoneId }: { zoneId: string }) {
+  const { t } = useI18n("case")
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6">
       <NotAvailable
-        title="No case data for this region yet"
-        description={`There is no 2026/27 case for "${zoneId}". The reference case, Pergamino, has every block.`}
+        title={t("No case data for this region yet")}
+        description={t(
+          'There is no 2026/27 case for "{value1}". The reference case, Pergamino, has every block.',
+          { value1: zoneId }
+        )}
       >
         <Link
           to="/case/$zoneId"
           params={{ zoneId: REFERENCE_CASE_ZONE_ID }}
           className={buttonVariants({ variant: "outline" })}
         >
-          Open the Pergamino case
+          {t("Open the Pergamino case")}
           <ArrowRight data-icon="inline-end" />
         </Link>
       </NotAvailable>
@@ -51,10 +57,6 @@ export function CaseNotFound({ zoneId }: { zoneId: string }) {
   )
 }
 
-/**
- * The public case of one zone, no sign-in needed: the national campaign, how it starts
- * here, the years like this, the rotations compared, the field, and the method.
- */
 export function CasePage({
   index,
   bundle,
@@ -62,6 +64,8 @@ export function CasePage({
   index: CaseIndex
   bundle: CaseBundle
 }) {
+  const { t } = useI18n("case")
+
   return (
     <TooltipProvider>
       <CaseNav zoneId={bundle.zone_id} sections={SECTIONS} />
@@ -69,19 +73,24 @@ export function CasePage({
         <header className="flex max-w-3xl flex-col gap-4">
           <p className="text-sm">
             <span className="font-medium">
-              {index.campaign} case, {bundle.zone_name}
+              {t("{value1} case, {value2}", {
+                value1: index.campaign,
+                value2: bundle.zone_name,
+              })}
             </span>{" "}
             <span className="text-muted-foreground">
-              · public, read-only, no sign-in
+              {t("· public, read-only, no sign-in")}
             </span>
           </p>
           <h1 className="text-3xl/9 font-light tracking-tight text-balance sm:text-5xl/14">
-            Real campaigns that started like {index.campaign}, not a forecast.
+            {t("Real campaigns that started like {value1}, not a forecast.", {
+              value1: index.campaign,
+            })}
           </h1>
           <p className="text-xl/8 font-light text-muted-foreground">
-            Cropilot supports the agronomist and the producer. It shows what
-            happened to each rotation in the past campaigns that began like this
-            one, and it names the source of every number.
+            {t(
+              "Cropilot supports the agronomist and the producer. It shows what happened to each rotation in the past campaigns that began like this one, and it names the source of every number."
+            )}
           </p>
         </header>
         <NationalBlock

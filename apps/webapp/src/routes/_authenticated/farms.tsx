@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { FarmForm } from "@/features/farms/farm-form"
 import { FarmList } from "@/features/farms/farm-list"
 import { appSections } from "@/features/shell/sections"
+import { useI18n } from "@/lib/i18n"
 
 export const Route = createFileRoute("/_authenticated/farms")({
   staticData: { title: appSections.farms.title },
@@ -14,11 +15,13 @@ export const Route = createFileRoute("/_authenticated/farms")({
 })
 
 function FarmsPage() {
+  const { t } = useI18n("app")
+
   return (
     <>
       <PageHeader
-        title={appSections.farms.title}
-        description={appSections.farms.description}
+        title={t(appSections.farms.title)}
+        description={t(appSections.farms.description)}
       />
       <Card>
         <CardContent className="flex flex-col gap-6">

@@ -2,11 +2,13 @@ import { matchesWaterSettings, type WaterSettings } from "@cropilot/api"
 import { App } from "@modelcontextprotocol/ext-apps"
 import { useEffect, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
+import { LanguageSelector } from "@/components/language-selector"
 import { RotationCard } from "@/features/case/mcp-rotation-card"
 import {
   type CardComparison,
   readComparison,
 } from "@/features/case/mcp-rotation-schema"
+import { LanguageProvider, useI18n } from "@/lib/i18n"
 import "@/index.css"
 
 const app = new App(
@@ -16,6 +18,8 @@ const app = new App(
 )
 
 function RotationApp() {
+  const { t } = useI18n("case")
+
   const [data, setData] = useState<CardComparison | null>(null)
   const [pending, setPending] = useState(false)
   const [interactive, setInteractive] = useState(false)
@@ -124,17 +128,20 @@ function RotationApp() {
 
   return (
     <>
+      <div className="mx-auto flex max-w-3xl justify-end px-4 pt-3 sm:px-6">
+        <LanguageSelector />
+      </div>
       {pending && (
         <p
           role="status"
           className="mx-auto max-w-3xl border-b bg-muted p-4 text-sm"
         >
-          Loading the selected scenario… Previous results remain visible.
+          {t("Loading the selected scenario… Previous results remain visible.")}
         </p>
       )}
       {error && (
         <div role="alert" className="mx-auto max-w-3xl border-b p-4 text-sm">
-          <p>{error}</p>
+          <p>{t(error)}</p>
           {retry && interactive && (
             <button
               type="button"
@@ -142,7 +149,7 @@ function RotationApp() {
               onClick={() => void changeSettings(retry)}
               className="mt-2 min-h-11 rounded-lg border px-4 text-primary"
             >
-              Retry scenario
+              {t("Retry scenario")}
             </button>
           )}
         </div>
@@ -159,7 +166,7 @@ function RotationApp() {
       ) : (
         !error && (
           <p role="status" className="p-6 text-sm text-muted-foreground">
-            Waiting for Cropilot evidence from the host…
+            {t("Waiting for Cropilot evidence from the host…")}
           </p>
         )
       )}
@@ -169,4 +176,8 @@ function RotationApp() {
 
 const root = document.getElementById("root")
 if (!root) throw new Error("Missing MCP App root")
-createRoot(root).render(<RotationApp />)
+createRoot(root).render(
+  <LanguageProvider>
+    <RotationApp />
+  </LanguageProvider>
+)

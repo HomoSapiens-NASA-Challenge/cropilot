@@ -3,6 +3,7 @@ import { cn } from "cn"
 import { ChevronRight } from "lucide-react"
 import type { ComponentProps } from "react"
 import { buttonVariants } from "@/components/ui/button"
+import { useI18n } from "@/lib/i18n"
 
 const CTA_SIZES = {
   default: "h-12 px-6 text-base",
@@ -56,7 +57,6 @@ function CtaAnchor({
   )
 }
 
-/** Square-cornered call to action of the public site. */
 export const CtaLink = createLink(CtaAnchor)
 
 function ArrowAnchor({ className, children, ...props }: ComponentProps<"a">) {
@@ -74,7 +74,6 @@ function ArrowAnchor({ className, children, ...props }: ComponentProps<"a">) {
   )
 }
 
-/** Inline accent link with a chevron, for "read more" actions. */
 export const ArrowLink = createLink(ArrowAnchor)
 
 /** Opens the app, or the sign-in page when signed out. */
@@ -89,6 +88,7 @@ export function AppEntryLink({
   size?: keyof typeof CTA_SIZES
   className?: string
 }) {
+  const { t } = useI18n("landing")
   return (
     <CtaLink
       to={isSignedIn ? "/overview" : "/login"}
@@ -96,7 +96,7 @@ export function AppEntryLink({
       withChevron
       className={className}
     >
-      {isSignedIn ? "Open app" : signedOutLabel}
+      {t(isSignedIn ? "Open app" : signedOutLabel)}
     </CtaLink>
   )
 }

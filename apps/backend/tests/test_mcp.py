@@ -95,7 +95,7 @@ def test_missing_card_does_not_break_voice_tools(
 @pytest.fixture
 def client() -> Iterator[TestClient]:
     # The context manager starts the parent lifespan and the mounted MCP session manager.
-    with TestClient(create_app(), base_url="http://auth.test") as client:
+    with TestClient(create_app(), base_url="http://app.test") as client:
         yield client
 
 
@@ -169,7 +169,7 @@ async def test_modern_official_client_over_streamable_http() -> None:
         app.router.lifespan_context(app),
         httpx2.AsyncClient(transport=httpx2.ASGITransport(app=app)) as http_client,
     ):
-        transport = streamable_http_client("http://auth.test/api/mcp", http_client=http_client)
+        transport = streamable_http_client("http://app.test/api/mcp", http_client=http_client)
         async with Client(transport) as client:
             tools = await client.list_tools()
             assert len(tools.tools) == 4
@@ -353,7 +353,7 @@ def test_mcp_rejects_untrusted_host_origin_and_oversized_requests(client: TestCl
     )
     assert bad_origin.status_code == 403
     allowed_origin = client.post(
-        "/api/mcp", headers={**HEADERS, "Origin": "http://auth.test"}, json=payload
+        "/api/mcp", headers={**HEADERS, "Origin": "http://app.test"}, json=payload
     )
     assert allowed_origin.status_code == 200
     oversized = client.post(

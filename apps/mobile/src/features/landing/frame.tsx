@@ -9,11 +9,7 @@ const BAND_TONES = {
   inverse: "bg-inverse",
 } as const
 
-/**
- * A full-width band of the page with the frame inside. Stacked bands line up
- * their side borders into the two guides that run down the whole page, as on
- * the web at phone width.
- */
+// Stacked bands line up their side borders into two guides that run down the whole page.
 export function Band({
   tone = "plain",
   className,
@@ -48,10 +44,7 @@ const HEADING_TONES = {
   },
 } as const
 
-/**
- * Heading whose first sentence is ink and whose continuation is muted. The
- * lead is a plain React Native Text so it inherits the heading's size and font.
- */
+// The lead is a plain React Native Text so it inherits the heading's size and font.
 export function SplitHeading({
   tone = "plain",
   lead,

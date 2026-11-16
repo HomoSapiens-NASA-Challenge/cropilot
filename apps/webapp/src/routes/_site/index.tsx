@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { publicSessionOptions } from "@/features/auth/session"
+import { sessionOptions } from "@/features/auth/session"
 import { AgronomistSection } from "@/features/landing/agronomist-section"
 import { CampaignSection } from "@/features/landing/campaign-section"
 import { ClosingSection } from "@/features/landing/closing-section"
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_site/")({
 
 function LandingPage() {
   // Already loaded by the `_site` layout.
-  const { data: session } = useSuspenseQuery(publicSessionOptions)
+  const { data: session } = useSuspenseQuery(sessionOptions)
   const isSignedIn = session !== null
 
   return (

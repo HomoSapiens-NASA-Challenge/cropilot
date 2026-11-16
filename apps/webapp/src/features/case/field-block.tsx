@@ -15,12 +15,9 @@ import {
   ReferencePanel,
 } from "@/features/case/field-panels"
 import { ringCenter } from "@/lib/geo"
+import { useI18n } from "@/lib/i18n"
 import { powerDailySeriesUrl } from "@/lib/nasa-power-grid"
 
-/**
- * B4. The field: satellite-estimated lots on a map, one lot at a time in a panel,
- * and the reference footprint the water runs were made for.
- */
 export function FieldMapBlock({
   bundle,
   id,
@@ -28,14 +25,18 @@ export function FieldMapBlock({
   bundle: CaseBundle
   id?: string
 }) {
+  const { t } = useI18n("case")
+
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null)
   const [isCellView, setCellView] = useState(false)
   const field = bundle.field
 
   if (bundle.modules.field === "not_available" || field === null) {
     return (
-      <BlockSection id={id} title="The field">
-        <NotAvailable description="Lots are mapped for Pergamino and Paraná only." />
+      <BlockSection id={id} title={t("The field")}>
+        <NotAvailable
+          description={t("Lots are mapped for Pergamino and Paraná only.")}
+        />
       </BlockSection>
     )
   }
@@ -47,36 +48,59 @@ export function FieldMapBlock({
   const contextOnly = field.lots.length - lotsWithData.length
   const lead =
     lotsWithData.length === 0
-      ? `${pluralize(contextOnly, "outline")} of ${bundle.zone_name} ${contextOnly === 1 ? "is" : "are"} on the map for context, with no crop, status or NDVI. They come from satellite imagery.`
+      ? t(
+          "{outlines} of {zone} are on the map for context, with no crop, status or NDVI. They come from satellite imagery.",
+          {
+            outlines: pluralize(contextOnly, "outline"),
+            zone: bundle.zone_name,
+          }
+        )
       : [
-          farmLots > 0 && `${pluralize(farmLots, "lot")} of ${field.farm_name}`,
+          farmLots > 0 &&
+            t("{lots} of {farm}", {
+              lots: pluralize(farmLots, "lot"),
+              farm: field.farm_name,
+            }),
           zoneLots > 0 &&
             (farmLots > 0
-              ? `and ${pluralize(zoneLots, "more field")} of ${bundle.zone_name}`
-              : `${pluralize(zoneLots, "field")} of ${bundle.zone_name}`),
-          farmLots + zoneLots === 1 ? "carries" : "carry",
-          "a crop, a status and an NDVI curve.",
+              ? t("and {fields} of {zone}", {
+                  fields: pluralize(zoneLots, "more field"),
+                  zone: bundle.zone_name,
+                })
+              : t("{fields} of {zone}", {
+                  fields: pluralize(zoneLots, "field"),
+                  zone: bundle.zone_name,
+                })),
+          t(farmLots + zoneLots === 1 ? "carries" : "carry"),
+          t("a crop, a status and an NDVI curve."),
           contextOnly > 0 &&
-            `${pluralize(contextOnly, "more outline")} ${contextOnly === 1 ? "gives" : "give"} context.`,
-          "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model.",
+            t("{outlines} give context.", {
+              outlines: pluralize(contextOnly, "more outline"),
+            }),
+          t(
+            "All come from satellite imagery. Every crop says whether it comes from an INTA map or from the team's model."
+          ),
         ]
           .filter(Boolean)
           .join(" ")
 
   return (
     <CaseReferencesProvider sources={bundle.sources} glossary={bundle.glossary}>
-      <BlockSection id={id} title="The field" lead={lead}>
+      <BlockSection id={id} title={t("The field")} lead={lead}>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">
-            Farm: <span className="font-medium">{field.farm_name}</span>
+            {t("Farm: ")}
+            <span className="font-medium">{field.farm_name}</span>
           </span>
           {field.farm_name_is_made_up && (
-            <Badge variant="outline">Made-up name</Badge>
+            <Badge variant="outline">{t("Made-up name")}</Badge>
           )}
           <span className="text-sm text-muted-foreground">
             {field.farm_name_is_made_up
-              ? "The name is invented. The outlines, crops and NDVI are satellite estimates."
-              : "Outlines, crops and NDVI are satellite estimates."}
+              ? t(
+                  "The name is invented. The outlines, crops and NDVI are satellite estimates."
+                )
+              : t("Outlines, crops and NDVI are satellite estimates.")}
           </span>
         </div>
 
@@ -111,8 +135,9 @@ export function FieldMapBlock({
         <div className="flex flex-wrap items-center gap-2">
           <EvidenceChip meta={field.lots_meta} />
           <span className="text-xs text-muted-foreground">
-            The dashed rectangle is the NASA POWER cell: one climate value for
-            all the lots inside it.
+            {t(
+              "The dashed rectangle is the NASA POWER cell: one climate value for all the lots inside it."
+            )}
           </span>
           <a
             href={powerDailySeriesUrl(
@@ -125,7 +150,7 @@ export function FieldMapBlock({
             rel="noreferrer"
             className="inline-flex items-center gap-1 rounded-lg text-xs font-medium text-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            Open the raw daily series of the cell
+            {t("Open the raw daily series of the cell")}
             <ExternalLink className="size-3" />
           </a>
         </div>
@@ -140,11 +165,11 @@ export function FieldMapBlock({
         {field.limitations.length > 0 && (
           <details className="text-sm">
             <summary className="w-fit cursor-pointer rounded-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
-              Limits of the field view
+              {t("Limits of the field view")}
             </summary>
             <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground">
               {field.limitations.map((limitation) => (
-                <li key={limitation}>{limitation}</li>
+                <li key={limitation}>{t(limitation)}</li>
               ))}
             </ul>
           </details>

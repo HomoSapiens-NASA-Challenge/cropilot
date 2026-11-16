@@ -11,6 +11,7 @@ import {
   formatShare,
 } from "@/features/case/case-format"
 import type { CardComparison } from "@/features/case/mcp-rotation-schema"
+import { useI18n } from "@/lib/i18n"
 
 const controlClass =
   "min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
@@ -28,6 +29,8 @@ export function RotationCard({
   onSettings: (selection: WaterSettings) => void
   onSource: (url: string) => void
 }) {
+  const { t } = useI18n("case")
+
   const [campaignId, setCampaignId] = useState(
     data.analog_campaigns[0]?.scenario_id ?? null
   )
@@ -65,29 +68,36 @@ export function RotationCard({
     >
       <header className="flex flex-col gap-2">
         <p className="text-xs font-medium text-primary">
-          CROPILOT · HISTORICAL EVIDENCE
+          {t("CROPILOT · HISTORICAL EVIDENCE")}
         </p>
         <h1 className="text-2xl font-light tracking-tight">
-          Water across rotations
+          {t("Water across rotations")}
         </h1>
         <p className="text-sm text-muted-foreground">
           {data.context.zone_name} ·{" "}
-          {water ? `Footprint ${water.field_id}` : "Regional case"}
+          {water
+            ? t("Footprint {value1}", { value1: water.field_id })
+            : t("Regional case")}
         </p>
         <p className="text-xs text-muted-foreground">
-          Fixed decision date: {formatDate(data.context.decision.decision_date)}
+          {t("Fixed decision date: {value1}", {
+            value1: formatDate(data.context.decision.decision_date),
+          })}
         </p>
         <p className="text-sm text-muted-foreground">
-          Three continuous historical campaigns. Modeled scenarios, not a
-          forecast or measured field water.
+          {t(
+            "Three continuous historical campaigns. Modeled scenarios, not a forecast or measured field water."
+          )}
         </p>
       </header>
       {!water ? (
         <div className="rounded-xl border border-dashed p-4">
-          <h2 className="font-medium">Water comparison unavailable</h2>
+          <h2 className="font-medium">{t("Water comparison unavailable")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            No released water scenarios for {data.context.zone_name}. Another
-            region's results have not been substituted.
+            {t(
+              "No released water scenarios for {value1}. Another region's results have not been substituted.",
+              { value1: data.context.zone_name }
+            )}
           </p>
         </div>
       ) : (
@@ -97,10 +107,10 @@ export function RotationCard({
             className="grid grid-cols-2 gap-3 rounded-xl border bg-muted/30 p-3 sm:grid-cols-3"
           >
             <legend className="px-1 text-sm font-medium">
-              Scenario assumptions
+              {t("Scenario assumptions")}
             </legend>
             <label className="flex flex-col gap-2 text-xs">
-              Profile depth
+              {t("Profile depth")}
               <select
                 className={controlClass}
                 value={settings.depth_m}
@@ -111,14 +121,14 @@ export function RotationCard({
                 {[...new Set(options.map((item) => item.depth_m))].map(
                   (depth) => (
                     <option key={depth} value={depth}>
-                      {depth} m
+                      {t("{value1} m", { value1: depth })}
                     </option>
                   )
                 )}
               </select>
             </label>
             <label className="flex flex-col gap-2 text-xs">
-              Initial water
+              {t("Initial water")}
               <select
                 className={controlClass}
                 value={settings.initial_water_fraction}
@@ -140,7 +150,7 @@ export function RotationCard({
               </select>
             </label>
             <label className="col-span-2 flex flex-col gap-2 text-xs sm:col-span-1">
-              Summer sowing date
+              {t("Summer sowing date")}
               <select
                 className={controlClass}
                 value={settings.summer_shift_days}
@@ -163,8 +173,11 @@ export function RotationCard({
                       }
                     >
                       {shift === 0
-                        ? "Default date"
-                        : `${shift > 0 ? "+" : ""}${shift} days`}
+                        ? t("Default date")
+                        : t("{value1}{value2} days", {
+                            value1: shift > 0 ? "+" : "",
+                            value2: shift,
+                          })}
                     </option>
                   ))}
               </select>
@@ -172,17 +185,18 @@ export function RotationCard({
           </fieldset>
           {notice && (
             <p role="status" className="text-sm text-muted-foreground">
-              {notice}
+              {t(notice)}
             </p>
           )}
           {!interactive && (
             <p className="text-sm text-muted-foreground">
-              This host does not support interactive tool calls. Ask the
-              assistant to change the scenario.
+              {t(
+                "This host does not support interactive tool calls. Ask the assistant to change the scenario."
+              )}
             </p>
           )}
           <label className="flex flex-col gap-2 text-xs">
-            Historical start campaign
+            {t("Historical start campaign")}
             <select
               className={controlClass}
               disabled={pending}
@@ -196,20 +210,25 @@ export function RotationCard({
                     (episode) => episode.scenario_id === point.scenario_id
                   )
                     ? ""
-                    : " · no water run"}
+                    : t(" · no water run")}
                 </option>
               ))}
             </select>
           </label>
           <p className="text-xs text-muted-foreground">
-            {campaign
-              ? `Three campaigns from June ${campaign.start_year}. `
-              : ""}
-            Bars show the fraction of crop water demand unmet. Lower means less
-            modeled deficit, not a crop recommendation.
+            {t(
+              "{value1}Bars show the fraction of crop water demand unmet. Lower means less modeled deficit, not a crop recommendation.",
+              {
+                value1: campaign
+                  ? t("Three campaigns from June {value1}. ", {
+                      value1: campaign.start_year,
+                    })
+                  : "",
+              }
+            )}
           </p>
           <section
-            aria-label="Rotation water comparison"
+            aria-label={t("Rotation water comparison")}
             className="flex flex-col gap-3"
           >
             {data.strategies.map((strategy) => {
@@ -225,17 +244,18 @@ export function RotationCard({
                   className="rounded-xl border p-4"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-sm font-medium">{strategy.label}</h2>
+                    <h2 className="text-sm font-medium">{t(strategy.label)}</h2>
                     {strategy.is_current && (
                       <span className="text-xs text-muted-foreground">
-                        Reference · unconfirmed
+                        {t("Reference · unconfirmed")}
                       </span>
                     )}
                   </div>
                   {strategy.water_match === "closest" && (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Closest water match: same crops, a different phase of the
-                      cycle.
+                      {t(
+                        "Closest water match: same crops, a different phase of the cycle."
+                      )}
                     </p>
                   )}
                   {episode ? (
@@ -244,19 +264,27 @@ export function RotationCard({
                         <p className="text-2xl font-light tracking-tight">
                           {formatShare(episode.crop_demand_unmet_fraction)}{" "}
                           <span className="text-xs font-normal text-muted-foreground">
-                            unmet
+                            {t("unmet")}
                           </span>
                         </p>
                         <p className="text-sm">
-                          {formatMm(episode.crop_et_deficit_mm)} deficit
+                          {t("{value1} deficit", {
+                            value1: formatMm(episode.crop_et_deficit_mm),
+                          })}
                         </p>
                       </div>
                       <meter
-                        aria-label={`${strategy.label}: unmet crop water`}
+                        aria-label={t("{value1}: unmet crop water", {
+                          value1: t(strategy.label),
+                        })}
                         min={0}
                         max={100}
                         value={episode.crop_demand_unmet_fraction * 100}
-                        aria-valuetext={`${formatShare(episode.crop_demand_unmet_fraction)} unmet crop water`}
+                        aria-valuetext={t("{value1} unmet crop water", {
+                          value1: formatShare(
+                            episode.crop_demand_unmet_fraction
+                          ),
+                        })}
                         className="sr-only"
                       />
                       <div
@@ -271,12 +299,14 @@ export function RotationCard({
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Demand {formatMm(episode.crop_et_potential_mm)} · water
-                        at episode end {formatMm(episode.water_end_mm)}
+                        {t("Demand {value1} · water at episode end {value2}", {
+                          value1: formatMm(episode.crop_et_potential_mm),
+                          value2: formatMm(episode.water_end_mm),
+                        })}
                       </p>
                       <details className="mt-3 text-xs">
                         <summary className="min-h-8 cursor-pointer font-medium">
-                          Crops and sowing dates
+                          {t("Crops and sowing dates")}
                         </summary>
                         <div className="flex flex-col gap-3">
                           {episode.crops.map((crop) => (
@@ -285,30 +315,43 @@ export function RotationCard({
                               className="border-t pt-3"
                             >
                               <p className="font-medium">
-                                {crop.crop} · {campaignName(crop.campaign_year)}
+                                {t(crop.crop)} ·{" "}
+                                {campaignName(crop.campaign_year)}
                               </p>
                               <p className="mt-1">
-                                Sown {formatDate(crop.sowing_date)}
+                                {t("Sown {value1}", {
+                                  value1: formatDate(crop.sowing_date),
+                                })}
                               </p>
                               <p>
-                                Water at sowing{" "}
-                                {formatMm(crop.water_at_sowing_mm)} · deficit{" "}
-                                {formatMm(crop.crop_et_deficit_mm)}
+                                {t(
+                                  "Water at sowing {value1} · deficit {value2}",
+                                  {
+                                    value1: formatMm(crop.water_at_sowing_mm),
+                                    value2: formatMm(crop.crop_et_deficit_mm),
+                                  }
+                                )}
                               </p>
                               <p>
-                                Mid-season stress {crop.mid_season_stress_days}{" "}
-                                days · coincident heat above 35°C{" "}
-                                {crop.coincident_stress_heat_days} days
+                                {t(
+                                  "Mid-season stress {value1} days · coincident heat above 35°C {value2} days",
+                                  {
+                                    value1: crop.mid_season_stress_days,
+                                    value2: crop.coincident_stress_heat_days,
+                                  }
+                                )}
                               </p>
                             </div>
                           ))}
                           <p className="text-muted-foreground">
-                            Generic crop stages and the 35°C heat screen are
-                            research assumptions, not observed flowering or
-                            validated crop damage.
+                            {t(
+                              "Generic crop stages and the 35°C heat screen are research assumptions, not observed flowering or validated crop damage."
+                            )}
                           </p>
                           <p className="break-all text-muted-foreground">
-                            Released run: {episode.run_id}
+                            {t("Released run: {value1}", {
+                              value1: episode.run_id,
+                            })}
                           </p>
                         </div>
                       </details>
@@ -316,8 +359,12 @@ export function RotationCard({
                   ) : (
                     <p className="mt-3 text-sm text-muted-foreground">
                       {strategy.water_strategy_id === null
-                        ? "Not computed: no water simulation for this rotation."
-                        : "No released water run for this campaign and settings."}
+                        ? t(
+                            "Not computed: no water simulation for this rotation."
+                          )
+                        : t(
+                            "No released water run for this campaign and settings."
+                          )}
                     </p>
                   )}
                 </article>
@@ -328,20 +375,20 @@ export function RotationCard({
       )}
       <details className="rounded-xl border p-4 text-sm">
         <summary className="min-h-8 cursor-pointer font-medium">
-          Sources and limits
+          {t("Sources and limits")}
         </summary>
         <div className="flex flex-col gap-4 text-xs text-muted-foreground">
-          {water && <p>{water.meta.note}</p>}
+          {water?.meta.note && <p>{t(water.meta.note)}</p>}
           {(water ? sources : data.context.sources).map((source) => (
             <div key={source.id} className="border-t pt-3">
               <p className="font-medium text-foreground">{source.dataset}</p>
               <p>
-                {source.provider} · {source.nature.replaceAll("_", " ")}
+                {source.provider} · {t(source.nature.replaceAll("_", " "))}
               </p>
               <p>
-                {source.period} · {source.location}
+                {t(source.period)} · {t(source.location)}
               </p>
-              {source.license && <p>{source.license}</p>}
+              {source.license && <p>{t(source.license)}</p>}
               {source.url && (
                 <button
                   type="button"
@@ -350,26 +397,27 @@ export function RotationCard({
                     if (source.url) onSource(source.url)
                   }}
                 >
-                  Open source: {source.provider}
+                  {t("Open source: {value1}", { value1: source.provider })}
                 </button>
               )}
             </div>
           ))}
           {water?.limitations.map((limit) => (
-            <p key={limit}>{limit}</p>
+            <p key={limit}>{t(limit)}</p>
           ))}
-          <p>{data.selection_note}</p>
+          <p>{t(data.selection_note)}</p>
           {data.context.limits.map((limit) => (
             <p key={limit.title}>
-              <span className="font-medium">{limit.title}: </span>
-              {limit.text}
+              <span className="font-medium">{t(limit.title)}: </span>
+              {t(limit.text)}
             </p>
           ))}
         </div>
       </details>
       <p className="text-xs text-muted-foreground">
-        Cropilot supports the agronomist and producer. Confirm soil water, water
-        table, sowing date and crop cycle locally before deciding.
+        {t(
+          "Cropilot supports the agronomist and producer. Confirm soil water, water table, sowing date and crop cycle locally before deciding."
+        )}
       </p>
     </main>
   )

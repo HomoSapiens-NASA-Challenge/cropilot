@@ -19,6 +19,7 @@ import {
 import { Panel } from "@/features/case/block-frame"
 import {
   ENSO_PHASE_LABEL,
+  formatDecimal,
   formatShare,
   formatUsdPerHa,
   formatWhole,
@@ -32,6 +33,7 @@ import {
 } from "@/features/case/compare-layout"
 import { DotStrip, type StripDot, stripDomain } from "@/features/case/dot-strip"
 import { EvidenceChip } from "@/features/case/evidence-chip"
+import { translate, useI18n } from "@/lib/i18n"
 
 export type MarginKind = "gross" | "after_rent"
 
@@ -79,10 +81,6 @@ function leadersOf(analog: AnalogMargins, kind: MarginKind): string[] {
   return values.filter((entry) => entry.value === best).map((entry) => entry.id)
 }
 
-/**
- * Margin rows: a dot strip per strategy, who leads in each analog campaign, and the
- * worst analog campaign. One toggle switches all of them between gross and after rent.
- */
 export function MarginRows({
   compare,
   kind,
@@ -92,6 +90,8 @@ export function MarginRows({
   kind: MarginKind
   onKindChange: (kind: MarginKind) => void
 }) {
+  const { t } = useI18n("case")
+
   const { strategies, analog_margins: analogs, margins_meta: meta } = compare
   const ranked = [...analogs].sort((a, b) => a.analog_rank - b.analog_rank)
   const domain = stripDomain(
@@ -109,21 +109,26 @@ export function MarginRows({
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium">Margin shown</span>
+        <span className="text-sm font-medium">{t("Margin shown")}</span>
         <SegmentedControl
-          label="Margin shown"
+          label={t("Margin shown")}
           value={kind}
           options={MARGIN_KIND_OPTIONS}
           onChange={onKindChange}
         />
         <span className="text-sm text-muted-foreground">
-          One toggle for the three rows below.
+          {t("One toggle for the three rows below.")}
         </span>
       </div>
 
       <ComparisonRow
-        title={`Margin in each analog campaign (${MARGIN_KIND_NAME[kind]})`}
-        description={`One dot per analog campaign, ${ranked.length} per strategy, on the same axis. Hover or focus a dot for its campaign.`}
+        title={t("Margin in each analog campaign ({value1})", {
+          value1: t(MARGIN_KIND_NAME[kind]),
+        })}
+        description={t(
+          "One dot per analog campaign, {value1} per strategy, on the same axis. Hover or focus a dot for its campaign.",
+          { value1: ranked.length }
+        )}
         evidence={<EvidenceChip meta={meta} horizon={MARGIN_HORIZON} />}
       >
         <StrategyGrid>
@@ -133,7 +138,12 @@ export function MarginRows({
               return {
                 key: analog.scenario_id,
                 value,
-                description: `${analog.campaign} (analog ${analog.analog_rank}): ${value === null ? "no margin" : formatUsdPerHa(value)}`,
+                description: t("{campaign} (analog {rank}): {margin}", {
+                  campaign: analog.campaign,
+                  rank: analog.analog_rank,
+                  margin:
+                    value === null ? t("no margin") : formatUsdPerHa(value),
+                }),
               }
             })
             return (
@@ -146,11 +156,11 @@ export function MarginRows({
         {compare.margin_assumptions.length > 0 && (
           <details className="group text-sm">
             <summary className="w-fit cursor-pointer rounded-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
-              Assumptions behind these margins
+              {t("Assumptions behind these margins")}
             </summary>
             <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-muted-foreground">
               {compare.margin_assumptions.map((assumption) => (
-                <li key={assumption}>{assumption}</li>
+                <li key={assumption}>{t(assumption)}</li>
               ))}
             </ul>
           </details>
@@ -158,21 +168,23 @@ export function MarginRows({
       </ComparisonRow>
 
       <ComparisonRow
-        title="Who leads in each analog campaign"
-        description="No strategy wins everywhere. The dot marks the highest margin of that campaign."
+        title={t("Who leads in each analog campaign")}
+        description={t(
+          "No strategy wins everywhere. The dot marks the highest margin of that campaign."
+        )}
         evidence={<EvidenceChip meta={meta} horizon={MARGIN_HORIZON} />}
       >
         <div className="rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Campaign</TableHead>
+                <TableHead>{t("Campaign")}</TableHead>
                 {strategies.map((strategy) => (
                   <TableHead
                     key={strategy.strategy_id}
                     className="min-w-28 text-right text-xs whitespace-normal"
                   >
-                    {strategy.label}
+                    {t(strategy.label)}
                   </TableHead>
                 ))}
               </TableRow>
@@ -185,7 +197,7 @@ export function MarginRows({
                     <TableCell className="font-medium whitespace-nowrap">
                       {analog.campaign}
                       <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-                        analog {analog.analog_rank}
+                        {t("analog {value1}", { value1: analog.analog_rank })}
                       </span>
                     </TableCell>
                     {strategies.map((strategy) => {
@@ -210,11 +222,11 @@ export function MarginRows({
                                 className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle"
                               />
                               <span className="sr-only">
-                                Leads this campaign:{" "}
+                                {t("Leads this campaign: ")}
                               </span>
                             </>
                           )}
-                          {value === null ? "Missing" : formatWhole(value)}
+                          {value === null ? t("Missing") : formatWhole(value)}
                         </TableCell>
                       )
                     })}
@@ -225,22 +237,27 @@ export function MarginRows({
           </Table>
         </div>
         <p className="text-xs text-muted-foreground">
-          USD per hectare, {MARGIN_KIND_NAME[kind]}.
+          {t("USD per hectare, ")}
+          {t(MARGIN_KIND_NAME[kind])}.
         </p>
         <div className="flex flex-col gap-2">
           <p className="text-sm">
             <span className="font-medium">
-              Order flips in {flipped.length} of {pairs.length} pairs.
+              {t("Order flips in {value1} of {value2} pairs.", {
+                value1: flipped.length,
+                value2: pairs.length,
+              })}
             </span>{" "}
             <span className="text-muted-foreground">
-              In a flipped pair, each strategy leads the other in some of the
-              analog campaigns.
+              {t(
+                "In a flipped pair, each strategy leads the other in some of the analog campaigns."
+              )}
             </span>
           </p>
           {flipped.length > 0 && (
             <details className="text-sm">
               <summary className="w-fit cursor-pointer rounded-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50">
-                See the flipped pairs
+                {t("See the flipped pairs")}
               </summary>
               <ul className="mt-2 flex flex-col gap-2">
                 {flipped.map((pair) => (
@@ -249,12 +266,16 @@ export function MarginRows({
                     className="rounded-lg border px-3 py-2"
                   >
                     <p className="font-medium">
-                      {strategyLabel(strategies, pair.strategy_a)} vs{" "}
-                      {strategyLabel(strategies, pair.strategy_b)}
+                      {t("{value1} vs {value2}", {
+                        value1: strategyLabel(strategies, pair.strategy_a),
+                        value2: strategyLabel(strategies, pair.strategy_b),
+                      })}
                     </p>
                     <p className="text-muted-foreground">
-                      First ahead in {pair.a_ahead_in.join(", ")}. Second ahead
-                      in {pair.b_ahead_in.join(", ")}.
+                      {t("First ahead in ")}
+                      {pair.a_ahead_in.join(", ")}
+                      {t(". Second ahead in ")}
+                      {pair.b_ahead_in.join(", ")}.
                     </p>
                   </li>
                 ))}
@@ -265,8 +286,11 @@ export function MarginRows({
       </ComparisonRow>
 
       <ComparisonRow
-        title="Worst analog campaign"
-        description={`The lowest ${MARGIN_KIND_NAME[kind]} of the ${ranked.length} analog campaigns, for each strategy.`}
+        title={t("Worst analog campaign")}
+        description={t(
+          "The lowest {value1} of the {value2} analog campaigns, for each strategy.",
+          { value1: t(MARGIN_KIND_NAME[kind]), value2: ranked.length }
+        )}
         evidence={<EvidenceChip meta={meta} horizon={MARGIN_HORIZON} />}
       >
         <StrategyGrid>
@@ -290,13 +314,15 @@ export function MarginRows({
                       {formatUsdPerHa(worst.value)}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      in {worst.campaign}, lowest of{" "}
-                      {pluralize(entries.length, "campaign")}
+                      {t("in {value1}, lowest of {value2}", {
+                        value1: worst.campaign,
+                        value2: pluralize(entries.length, "campaign"),
+                      })}
                     </span>
                   </>
                 ) : (
                   <span className="text-sm text-muted-foreground">
-                    No margin in any analog campaign.
+                    {t("No margin in any analog campaign.")}
                   </span>
                 )}
               </StrategyCell>
@@ -310,46 +336,59 @@ export function MarginRows({
 
 /** Planted but not harvested area, by crop and by the July-to-September ENSO phase. */
 export function UnharvestedRow({ compare }: { compare: Compare }) {
+  const { t } = useI18n("case")
+
   const { unharvested, unharvested_meta: meta } = compare
   return (
     <ComparisonRow
-      title="Planted but not harvested"
-      description="Share of the planted area that was never harvested, by the El Niño phase of July to September. It is an area loss, not a yield."
+      title={t("Planted but not harvested")}
+      description={t(
+        "Share of the planted area that was never harvested, by the El Niño phase of July to September. It is an area loss, not a yield."
+      )}
       evidence={
-        <EvidenceChip meta={meta} horizon="Each campaign of the phase" />
+        <EvidenceChip meta={meta} horizon={t("Each campaign of the phase")} />
       }
     >
       {unharvested.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No rows for this zone.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("No rows for this zone.")}
+        </p>
       ) : (
         <div className="rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Crop</TableHead>
-                <TableHead>Phase</TableHead>
-                <TableHead className="text-right">Campaigns</TableHead>
-                <TableHead className="text-right">Mean</TableHead>
-                <TableHead className="text-right">Worst</TableHead>
+                <TableHead>{t("Crop")}</TableHead>
+                <TableHead>{t("Phase")}</TableHead>
+                <TableHead className="text-right">{t("Campaigns")}</TableHead>
+                <TableHead className="text-right">{t("Mean")}</TableHead>
+                <TableHead className="text-right">{t("Worst")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {unharvested.map((row) => (
                 <TableRow key={`${row.crop}-${row.enso_phase}`}>
-                  <TableCell className="font-medium">{row.crop}</TableCell>
-                  <TableCell>{ENSO_PHASE_LABEL[row.enso_phase]}</TableCell>
+                  <TableCell className="font-medium">{t(row.crop)}</TableCell>
+                  <TableCell>{t(ENSO_PHASE_LABEL[row.enso_phase])}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {row.campaigns}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {row.mean_pct === null
-                      ? "Missing"
-                      : `${row.mean_pct.toFixed(1)}%`}
+                      ? t("Missing")
+                      : t("{value1}%", {
+                          value1: formatDecimal(row.mean_pct, 1),
+                        })}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {row.max_pct === null
-                      ? "Missing"
-                      : `${row.max_pct.toFixed(1)}%${row.max_campaign ? ` in ${row.max_campaign}` : ""}`}
+                      ? t("Missing")
+                      : t("{value1}%{value2}", {
+                          value1: formatDecimal(row.max_pct, 1),
+                          value2: row.max_campaign
+                            ? t(" in {value1}", { value1: row.max_campaign })
+                            : "",
+                        })}
                   </TableCell>
                 </TableRow>
               ))}
@@ -362,15 +401,17 @@ export function UnharvestedRow({ compare }: { compare: Compare }) {
 }
 
 function usd(value: number | null): string {
-  return value === null ? "Missing" : formatUsdPerHa(value)
+  return value === null ? translate("Missing") : formatUsdPerHa(value)
 }
 
 function share(value: number | null): string {
-  return value === null ? "Missing" : formatShare(value)
+  return value === null ? translate("Missing") : formatShare(value)
 }
 
 /** Secondary ensemble statistics. Collapsed: the samples are small and none is a headline. */
 export function RiskSummary({ compare }: { compare: Compare }) {
+  const { t } = useI18n("case")
+
   const { risk_summary: rows, strategies, margins_meta: meta } = compare
   if (rows.length === 0) return null
 
@@ -379,29 +420,37 @@ export function RiskSummary({ compare }: { compare: Compare }) {
       <Panel className="flex flex-col gap-3">
         <CollapsibleTrigger className="group/risk flex w-full items-center justify-between gap-3 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
           <span className="flex flex-col gap-0.5">
-            <span className="font-medium">Secondary: risk summary</span>
+            <span className="font-medium">{t("Secondary: risk summary")}</span>
             <span className="text-sm text-muted-foreground">
-              Small samples, never the headline. Open it to see n and the note.
+              {t(
+                "Small samples, never the headline. Open it to see n and the note."
+              )}
             </span>
           </span>
           <ChevronDown className="size-4 shrink-0 transition-transform group-data-panel-open/risk:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent className="flex flex-col gap-3">
           <p className="max-w-3xl text-sm text-muted-foreground">
-            {compare.risk_note}
+            {t(compare.risk_note)}
           </p>
           <div className="rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Strategy</TableHead>
-                  <TableHead className="text-right">n</TableHead>
-                  <TableHead className="text-right">p10</TableHead>
-                  <TableHead className="text-right">Median</TableHead>
-                  <TableHead className="text-right">p90</TableHead>
-                  <TableHead className="text-right">Worst 10% mean</TableHead>
-                  <TableHead className="text-right">Below rent</TableHead>
-                  <TableHead className="text-right">Below zero</TableHead>
+                  <TableHead>{t("Strategy")}</TableHead>
+                  <TableHead className="text-right">{t("n")}</TableHead>
+                  <TableHead className="text-right">{t("p10")}</TableHead>
+                  <TableHead className="text-right">{t("Median")}</TableHead>
+                  <TableHead className="text-right">{t("p90")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("Worst 10% mean")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {t("Below rent")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {t("Below zero")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -411,11 +460,14 @@ export function RiskSummary({ compare }: { compare: Compare }) {
                       {strategyLabel(strategies, row.strategy_id)}
                     </TableCell>
                     <TableCell className="text-right text-xs tabular-nums whitespace-normal">
-                      {row.n_scenarios} scenarios
+                      {row.n_scenarios}
+                      {t(" scenarios")}
                       <br />
                       <span className="text-muted-foreground">
-                        {row.n_yield_campaigns} yield, {row.n_price_campaigns}{" "}
-                        price campaigns
+                        {t("{value1} yield, {value2} price campaigns", {
+                          value1: row.n_yield_campaigns,
+                          value2: row.n_price_campaigns,
+                        })}
                       </span>
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
@@ -444,9 +496,9 @@ export function RiskSummary({ compare }: { compare: Compare }) {
           <div className="flex flex-wrap items-center gap-2">
             <EvidenceChip
               meta={meta}
-              horizon="Ensemble of yield and price campaigns"
+              horizon={t("Ensemble of yield and price campaigns")}
             />
-            <Badge variant="outline">Secondary statistic</Badge>
+            <Badge variant="outline">{t("Secondary statistic")}</Badge>
           </div>
         </CollapsibleContent>
       </Panel>

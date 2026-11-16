@@ -1,5 +1,6 @@
 import { getWorkspaceOptions, listRegionsOptions } from "@cropilot/api"
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { LanguageSelector } from "@/components/language-selector"
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -8,13 +9,11 @@ import {
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { requireSession, signOut } from "@/features/auth/session"
+import { AppAssistant } from "@/features/shell/app-assistant"
 import { AppBreadcrumb } from "@/features/shell/app-breadcrumb"
 import { AppSidebar } from "@/features/shell/app-sidebar"
 
-/**
- * Layout of every signed-in page. Routes under `_authenticated/` require a session
- * and a workspace region; without a region the reader goes through onboarding first.
- */
+/** Without a workspace region the reader goes through onboarding first. */
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context }) => {
     const session = await requireSession(context.queryClient)
@@ -47,9 +46,14 @@ function AuthenticatedLayout() {
               className="mr-2 data-vertical:h-4 data-vertical:self-center"
             />
             <AppBreadcrumb />
+            <div className="ml-auto">
+              <LanguageSelector />
+            </div>
           </header>
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-6 md:p-10">
-            <Outlet />
+            <AppAssistant region={region}>
+              <Outlet />
+            </AppAssistant>
           </div>
         </SidebarInset>
       </SidebarProvider>

@@ -5,6 +5,7 @@ import { zoneCaseOptions } from "@/features/case/case-queries"
 import { RegionCaseScreen } from "@/features/case/region-case-screen"
 import { YearsBlock } from "@/features/case/years-block"
 import { appSections } from "@/features/shell/sections"
+import { useI18n } from "@/lib/i18n"
 
 const section = appSections.analogYears
 
@@ -16,12 +17,17 @@ export const Route = createFileRoute("/_authenticated/analog-years")({
 })
 
 function AnalogYearsPage() {
+  const { t } = useI18n("app")
+
   const { region } = Route.useRouteContext()
   const { data: bundle } = useSuspenseQuery(zoneCaseOptions(region.id))
 
   return (
     <>
-      <PageHeader title={section.title} description={section.description} />
+      <PageHeader
+        title={t(section.title)}
+        description={t(section.description)}
+      />
       <RegionCaseScreen bundle={bundle} region={region}>
         {(regionCase) => <YearsBlock bundle={regionCase} />}
       </RegionCaseScreen>

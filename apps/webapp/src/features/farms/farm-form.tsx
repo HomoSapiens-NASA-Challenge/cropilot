@@ -8,8 +8,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useI18n } from "@/lib/i18n"
 
 export function FarmForm() {
+  const { t } = useI18n("app")
+
   const queryClient = useQueryClient()
   const createFarm = useMutation({
     ...createFarmMutation(),
@@ -41,7 +44,7 @@ export function FarmForm() {
             field.state.meta.isTouched && !field.state.meta.isValid
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Farm name</FieldLabel>
+              <FieldLabel htmlFor={field.name}>{t("Farm name")}</FieldLabel>
               <Input
                 id={field.name}
                 name={field.name}
@@ -53,7 +56,9 @@ export function FarmForm() {
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
               {createFarm.isError && (
-                <FieldError>Could not save the farm. Try again.</FieldError>
+                <FieldError>
+                  {t("Could not save the farm. Try again.")}
+                </FieldError>
               )}
             </Field>
           )
@@ -62,7 +67,7 @@ export function FarmForm() {
       <form.Subscribe selector={(state) => state.isSubmitting}>
         {(isSubmitting) => (
           <Button type="submit" disabled={isSubmitting}>
-            Add farm
+            {t("Add farm")}
           </Button>
         )}
       </form.Subscribe>

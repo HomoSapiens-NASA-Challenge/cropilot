@@ -24,9 +24,7 @@ def test_missing_assets_fail_without_disclosing_server_paths(
         raise ArtifactError("private/path/to/data")
 
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="test", name="Test", email="test@example.test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="test")
     monkeypatch.setattr(service, "get_water_strategies", unavailable)
     response = TestClient(app).get("/api/water/strategies")
     assert response.status_code == 503
@@ -35,9 +33,7 @@ def test_missing_assets_fail_without_disclosing_server_paths(
 
 def test_invalid_run_is_not_a_filesystem_path() -> None:
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="test", name="Test", email="test@example.test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="test")
     assert TestClient(app).get("/api/water/strategies/runs/not-a-run").status_code == 404
 
 
@@ -97,9 +93,7 @@ def test_installed_release_serves_real_run_and_preserves_continuity() -> None:
     for earlier, later in zip(detail.rows, detail.rows[1:], strict=False):
         assert later.available_water_start_mm == earlier.available_water_end_mm
     app = create_app()
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id="test", name="Test", email="test@example.test"
-    )
+    app.dependency_overrides[get_current_user] = lambda: User(id="test")
     response = TestClient(app).get(f"/api/water/strategies/runs/{run.run_id}")
     assert response.status_code == 200
     assert response.json()["provenance"] == "modeled"

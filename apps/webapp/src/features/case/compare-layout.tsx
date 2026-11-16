@@ -2,6 +2,7 @@ import type { Strategy } from "@cropilot/api"
 import { cn } from "cn"
 import type { ReactNode } from "react"
 import { Panel } from "@/features/case/block-frame"
+import { translate, useI18n } from "@/lib/i18n"
 
 /** One column per strategy from the wide breakpoint; stacked cells on a phone. */
 export function StrategyGrid({
@@ -18,10 +19,7 @@ export function StrategyGrid({
   )
 }
 
-/**
- * The cell of one strategy inside a row. The strategy name repeats here and is hidden
- * where the header cards line up above it, so a stacked cell still says whose it is.
- */
+/** The strategy name repeats in each cell and is hidden where the header cards line up above it. */
 export function StrategyCell({
   strategy,
   children,
@@ -31,15 +29,16 @@ export function StrategyCell({
   children: ReactNode
   className?: string
 }) {
+  const { t } = useI18n("case")
+
   return (
     <div className={cn("flex min-w-0 flex-col gap-2", className)}>
-      <p className="text-xs font-medium xl:hidden">{strategy.label}</p>
+      <p className="text-xs font-medium xl:hidden">{t(strategy.label)}</p>
       {children}
     </div>
   )
 }
 
-/** A row of the comparison: what it measures, the evidence chips, then its cells. */
 export function ComparisonRow({
   title,
   description,
@@ -78,5 +77,5 @@ export function strategyLabel(
   if (!strategy) {
     throw new Error(`Unknown strategy id: ${strategyId}`)
   }
-  return strategy.label
+  return translate(strategy.label)
 }

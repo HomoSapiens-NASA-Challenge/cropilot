@@ -43,7 +43,7 @@ The result lists policies in this order; clients find one by `policy_id` or `kin
 
 The training campaigns of each June phase followed by each August phase are reported as `enso_transitions`, all nine pairs with zeros included, so a client can say how often each August phase followed a given June phase.
 
-Protocol credit: the held-out split, the paired block resample and the greedy baseline come from the team's RL research: Martín B.'s rotation lab (`research/rl/design.md`, hub branch `docs/rl-research`) and Joaquín C.'s national resilience lab (hub branch `docs/rl-resilience-national`), which enumerates the same 4^4 block resamples and also reports a lower-tail measure and the effect of changing the objective. This planner reimplements them on the live simulator; none of their numbers are shown. See `../submission.md`.
+The held-out split, the paired block resample and the greedy baseline follow the protocol of the team's earlier RL research. The planner reimplements them on the live simulator and shows none of that research's numbers.
 
 ## Region setup
 

@@ -1,6 +1,7 @@
 import { Database, type LucideIcon, Tractor } from "lucide-react"
 import { AppEntryLink, ArrowLink, CtaLink } from "@/features/landing/cta-link"
 import { Band } from "@/features/landing/frame"
+import { useI18n } from "@/lib/i18n"
 
 const NEXT_STEPS: ReadonlyArray<{
   icon: LucideIcon
@@ -31,21 +32,26 @@ const NEXT_STEPS: ReadonlyArray<{
 ]
 
 export function ClosingSection({ isSignedIn }: { isSignedIn: boolean }) {
+  const { t } = useI18n("landing")
   return (
     <Band tone="tinted" frameClassName="border-t">
       <div className="grid gap-14 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-24 lg:py-24">
         <div className="flex flex-col items-start gap-5">
           <h2 className="text-3xl font-light tracking-tight">
-            Ready to get started?
+            {t("Ready to get started?")}
           </h2>
           <p className="max-w-md text-xl font-light text-muted-foreground">
-            Open the public case with no sign-in, or sign in with Google to add
-            your farm and run the rotation planner.
+            {t(
+              "Open the public case right away, or type your name to add your farm and run the rotation planner."
+            )}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <AppEntryLink isSignedIn={isSignedIn} signedOutLabel="Start now" />
+            <AppEntryLink
+              isSignedIn={isSignedIn}
+              signedOutLabel={t("Start now")}
+            />
             <CtaLink to="/" hash="how-it-works" variant="outline">
-              See how it works
+              {t("See how it works")}
             </CtaLink>
           </div>
         </div>
@@ -55,8 +61,8 @@ export function ClosingSection({ isSignedIn }: { isSignedIn: boolean }) {
               <span className="flex size-10 items-center justify-center rounded-lg border bg-background text-primary">
                 <step.icon className="size-5" />
               </span>
-              <h3 className="mt-2 font-medium">{step.title}</h3>
-              <p className="text-muted-foreground">{step.description}</p>
+              <h3 className="mt-2 font-medium">{t(step.title)}</h3>
+              <p className="text-muted-foreground">{t(step.description)}</p>
               <ArrowLink
                 to="/$sectionSlug/$pageSlug"
                 params={{
@@ -64,7 +70,7 @@ export function ClosingSection({ isSignedIn }: { isSignedIn: boolean }) {
                   pageSlug: step.pageSlug,
                 }}
               >
-                {step.linkLabel}
+                {t(step.linkLabel)}
               </ArrowLink>
             </li>
           ))}

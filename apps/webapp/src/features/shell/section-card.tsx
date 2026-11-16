@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import type { AppSection } from "@/features/shell/sections"
+import { useI18n } from "@/lib/i18n"
 
 export function SectionCard({
   section,
@@ -19,6 +20,8 @@ export function SectionCard({
   section: AppSection
   children?: ReactNode
 }) {
+  const { t } = useI18n("app")
+
   return (
     <Link to={section.to} className="group/section rounded-xl outline-none">
       <Card className="h-full transition-shadow group-hover/section:shadow-sm group-focus-visible/section:ring-2 group-focus-visible/section:ring-ring">
@@ -27,13 +30,13 @@ export function SectionCard({
             <section.icon className="size-5" />
           </div>
           <CardTitle className="flex items-center gap-1">
-            {section.title}
+            {t(section.title)}
             <ArrowRight className="size-4 text-primary opacity-0 transition-all group-hover/section:translate-x-0.5 group-hover/section:opacity-100" />
           </CardTitle>
-          <CardDescription>{section.description}</CardDescription>
+          <CardDescription>{t(section.description)}</CardDescription>
           {!section.isAvailable && (
             <CardAction>
-              <Badge variant="outline">Soon</Badge>
+              <Badge variant="outline">{t("Soon")}</Badge>
             </CardAction>
           )}
         </CardHeader>

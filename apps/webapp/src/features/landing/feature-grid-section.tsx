@@ -9,6 +9,7 @@ import { LimitsPreview } from "@/features/landing/previews/limits-preview"
 import { RotationComparisonPreview } from "@/features/landing/previews/rotation-comparison-preview"
 import { SourceTrailPreview } from "@/features/landing/previews/source-trail-preview"
 import { StrandsArt } from "@/features/landing/strands-art"
+import { useI18n } from "@/lib/i18n"
 
 function FeatureCard({
   title,
@@ -22,6 +23,7 @@ function FeatureCard({
   className?: string
   children: ReactNode
 }) {
+  const { t } = useI18n("landing")
   return (
     <article
       className={cn(
@@ -31,12 +33,12 @@ function FeatureCard({
     >
       <div className="flex items-start justify-between gap-4 p-6">
         <h3 className="max-w-xs text-2xl/7 font-light tracking-tight text-balance">
-          {title}
+          {t(title)}
         </h3>
         <Link
           to="/$sectionSlug/$pageSlug"
           params={{ sectionSlug: "features", pageSlug }}
-          aria-label={`Open ${title}`}
+          aria-label={t("Open {title}", { title: t(title) })}
           className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-primary outline-none transition-colors after:absolute after:inset-0 after:z-10 focus-visible:ring-3 focus-visible:ring-ring/50 group-hover/card:bg-primary group-hover/card:text-primary-foreground"
         >
           <Maximize2 className="size-4" />
@@ -48,19 +50,21 @@ function FeatureCard({
 }
 
 export function FeatureGridSection() {
+  const { t } = useI18n("landing")
   return (
     <Band id="features" tone="tinted" className="scroll-mt-18">
       <div className="flex flex-col gap-14 px-4 py-20 sm:px-6 lg:py-24">
         <SplitHeading
-          lead="One view for the whole decision."
+          lead={t("One view for the whole decision.")}
           className="max-w-3xl"
         >
-          From the field on the map to the rotations compared, with every number
-          traced back to its source.
+          {t(
+            "From the field on the map to the rotations compared, with every number traced back to its source."
+          )}
         </SplitHeading>
         <div className="grid gap-4 lg:grid-cols-3">
           <FeatureCard
-            title="Find the campaigns that started like this one"
+            title={t("Find the campaigns that started like this one")}
             pageSlug="years-like-this"
             className="lg:col-span-2"
           >
@@ -68,25 +72,25 @@ export function FeatureGridSection() {
             <AnalogYearsPreview className="mx-auto max-w-xl" />
           </FeatureCard>
           <FeatureCard
-            title="Compare three or more rotations"
+            title={t("Compare three or more rotations")}
             pageSlug="rotation-strategies"
           >
             <RotationComparisonPreview />
           </FeatureCard>
           <FeatureCard
-            title="Every number names its source"
+            title={t("Every number names its source")}
             pageSlug="evidence-trail"
           >
             <SourceTrailPreview />
           </FeatureCard>
           <FeatureCard
-            title="See the crop-map lots of Pergamino and Paraná"
+            title={t("See the crop-map lots of Pergamino and Paraná")}
             pageSlug="farm-map"
           >
             <FarmMapPreview />
           </FeatureCard>
           <FeatureCard
-            title="Measured limits, stated up front"
+            title={t("Measured limits, stated up front")}
             pageSlug="rotation-planner"
           >
             <LimitsPreview />

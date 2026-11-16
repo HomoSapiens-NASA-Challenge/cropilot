@@ -17,7 +17,6 @@ from app.modules.rotation_planner.router import router as rotation_planner_route
 from app.modules.water.router import router as water_router
 from app.modules.workspaces.router import router as workspaces_router
 
-# Every module router is registered here, under the `/api` prefix.
 ROUTERS: list[APIRouter] = [
     assistant_router,
     health_router,
@@ -42,7 +41,7 @@ def create_app() -> FastAPI:
         json_response=True,
         stateless_http=True,
         max_request_body_size=64 * 1024,
-        transport_security=transport_security(get_settings().better_auth_url),
+        transport_security=transport_security(get_settings().public_url),
     )
 
     @asynccontextmanager

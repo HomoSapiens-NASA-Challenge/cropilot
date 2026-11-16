@@ -5,6 +5,7 @@ import {
   getRotationPlanSetupQueryKey,
 } from "@cropilot/api"
 import { queryOptions } from "@tanstack/react-query"
+import { translate } from "@/lib/i18n"
 
 const RUN_NOT_FOUND_STATUS = 404
 
@@ -17,9 +18,8 @@ export class RunGoneError extends Error {
 }
 
 /**
- * The latest snapshot of one run. It shares the generated query key, so the snapshot returned
- * when a run starts seeds this query. A 404 is an expected state, not a broken request: it
- * becomes `RunGoneError`, which the screen answers with an offer to run again.
+ * Shares the generated query key, so the snapshot returned when a run starts seeds this query.
+ * A 404 is an expected state: it becomes `RunGoneError`.
  */
 export function rotationPlanOptions(runId: string) {
   return queryOptions({
@@ -32,7 +32,9 @@ export function rotationPlanOptions(runId: string) {
       if (data) return data
       if (response?.status === RUN_NOT_FOUND_STATUS) throw new RunGoneError()
       throw new Error(
-        `Could not read the planner run (${response?.status ?? "no response"})`
+        translate("Could not read the planner run ({value1})", {
+          value1: response?.status ?? "no response",
+        })
       )
     },
   })
@@ -52,9 +54,8 @@ function errorDetail(error: unknown): string | null {
 }
 
 /**
- * The region as the simulator sees it. The endpoint reads the region from the workspace, so
- * the region id only goes into the key: switching region must not reuse the old region's setup.
- * A failure carries the server's reason (no simulator field, no data) for the route's error view.
+ * The endpoint reads the region from the workspace, so the id only goes into the key:
+ * switching region must not reuse the old region's setup.
  */
 export function rotationPlanSetupOptions(regionId: string) {
   return queryOptions({
@@ -64,7 +65,9 @@ export function rotationPlanSetupOptions(regionId: string) {
       if (data) return data
       throw new Error(
         errorDetail(error) ??
-          `Could not load the planner setup (${response?.status ?? "no response"})`
+          translate("Could not load the planner setup ({value1})", {
+            value1: response?.status ?? "no response",
+          })
       )
     },
   })

@@ -2,12 +2,15 @@ import { Link } from "@tanstack/react-router"
 import { cn } from "cn"
 import { useRef, useState } from "react"
 import { BrandMark } from "@/components/brand-mark"
+import { LanguageSelector } from "@/components/language-selector"
 import { AppEntryLink, CtaLink } from "@/features/landing/cta-link"
+import { RepositoryLink } from "@/features/landing/repository-link"
 import { SiteMobileNav } from "@/features/landing/site-mobile-nav"
 import { SiteNavMenu } from "@/features/landing/site-nav-menu"
+import { useI18n } from "@/lib/i18n"
 
-/** Sticky glass header of the public site. */
 export function SiteHeader({ isSignedIn }: { isSignedIn: boolean }) {
+  const { t } = useI18n("landing")
   const frameRef = useRef<HTMLDivElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -29,6 +32,8 @@ export function SiteHeader({ isSignedIn }: { isSignedIn: boolean }) {
           className="hidden lg:block"
         />
         <div className="ml-auto flex items-center gap-2">
+          <RepositoryLink />
+          <LanguageSelector />
           {!isSignedIn && (
             <CtaLink
               to="/login"
@@ -36,13 +41,14 @@ export function SiteHeader({ isSignedIn }: { isSignedIn: boolean }) {
               size="compact"
               className="hidden sm:inline-flex"
             >
-              Sign in
+              {t("Sign in")}
             </CtaLink>
           )}
           <AppEntryLink
             isSignedIn={isSignedIn}
-            signedOutLabel="Get started"
+            signedOutLabel={t("Get started")}
             size="compact"
+            className="hidden sm:inline-flex"
           />
           <SiteMobileNav isSignedIn={isSignedIn} className="lg:hidden" />
         </div>

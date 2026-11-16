@@ -11,9 +11,6 @@ import {
 } from "@/features/landing/site-scroll"
 import { useReduceMotion } from "@/lib/use-reduce-motion"
 
-/**
- * Pushed screen of the public site under a native header.
- */
 export function SiteScreen({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets()
   const reduceMotion = useReduceMotion()

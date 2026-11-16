@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import {
   ENSO_PHASE_LABEL,
+  formatDecimal,
   formatPercentSigned,
   formatSigned,
   formatWetness,
@@ -12,6 +13,7 @@ import {
 } from "@/features/case/case-format"
 import { useElementWidth } from "@/hooks/use-element-width"
 import { anomalyColor } from "@/lib/data-colors"
+import { useI18n } from "@/lib/i18n"
 
 export type YieldCrop = "maize" | "soybean"
 
@@ -120,55 +122,62 @@ function CampaignTooltip({
   campaign: CampaignPoint
   crop: YieldCrop
 }) {
+  const { t } = useI18n("case")
+
   const yieldValue = yieldOf(campaign, crop)
   return (
     <div className="flex flex-col gap-1.5 text-xs">
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-sm font-medium">{campaign.campaign}</span>
         {campaign.is_analog && campaign.analog_rank !== null && (
-          <Badge variant="outline">Analog {campaign.analog_rank}</Badge>
+          <Badge variant="outline">
+            {t("Analog {value1}", { value1: campaign.analog_rank })}
+          </Badge>
         )}
       </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
-        <dt className="text-muted-foreground">Phase (July to September)</dt>
-        <dd className="text-right">{ENSO_PHASE_LABEL[campaign.enso_phase]}</dd>
-        <dt className="text-muted-foreground">ONI</dt>
+        <dt className="text-muted-foreground">
+          {t("Phase (July to September)")}
+        </dt>
+        <dd className="text-right">
+          {t(ENSO_PHASE_LABEL[campaign.enso_phase])}
+        </dd>
+        <dt className="text-muted-foreground">{t("ONI")}</dt>
         <dd className="text-right tabular-nums">
           {formatSigned(campaign.oni_jas)}
         </dd>
-        <dt className="text-muted-foreground">Soil wetness, end of August</dt>
+        <dt className="text-muted-foreground">
+          {t("Soil wetness, end of August")}
+        </dt>
         <dd className="text-right tabular-nums">
           {campaign.soil_wetness_end_aug === null
-            ? "Missing"
+            ? t("Missing")
             : formatWetness(campaign.soil_wetness_end_aug)}
         </dd>
         <dt className="text-muted-foreground">
-          {YIELD_CROP_LABEL[crop]} yield vs trend
+          {t(YIELD_CROP_LABEL[crop])}
+          {t(" yield vs trend")}
         </dt>
         <dd className="text-right tabular-nums">
           {yieldValue.anomalyPct === null
-            ? "Missing"
+            ? t("Missing")
             : formatPercentSigned(yieldValue.anomalyPct)}
         </dd>
-        <dt className="text-muted-foreground">Yield provenance</dt>
+        <dt className="text-muted-foreground">{t("Yield provenance")}</dt>
         <dd className="text-right">
-          {PROVENANCE[yieldValue.provenance].label}
+          {t(PROVENANCE[yieldValue.provenance].label)}
         </dd>
       </dl>
       {campaign.notes.map((note) => (
         <p key={note.kind} className="border-t pt-1.5 text-muted-foreground">
-          {note.text}
+          {t(note.text)}
         </p>
       ))}
     </div>
   )
 }
 
-/**
- * One dot per past campaign: ONI July to September across, soil wetness at the end of
- * August up. The analogs carry their rank and name, and 2026/27 is drawn even when it
- * falls outside the cloud.
- */
+/** ONI July to September across, soil wetness at the end of August up; 2026/27 is drawn even outside the cloud. */
 export function YearsScatter({
   campaigns,
   current,
@@ -181,6 +190,8 @@ export function YearsScatter({
   /** Anomaly at which the color scale saturates. */
   yieldLimitPct: number
 }) {
+  const { t } = useI18n("case")
+
   const [containerRef, measuredWidth] = useElementWidth<HTMLDivElement>()
   const [hoveredCampaign, setHoveredCampaign] = useState<string | null>(null)
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null)
@@ -223,7 +234,7 @@ export function YearsScatter({
   }
   const currentX = xOf(current.oni_jas)
   const currentY = yOf(current.soil_wetness_end_aug)
-  const currentLabel = `${current.campaign} now`
+  const currentLabel = t("{campaign} now", { campaign: current.campaign })
   const currentLabelWidth = currentLabel.length * CHAR_WIDTH_PX
   const placed: Box[] = [
     placeLabel({ x: currentX, y: currentY }, currentLabelWidth, [], bounds),
@@ -268,7 +279,12 @@ export function YearsScatter({
         height={height}
         className="block max-w-full select-none"
       >
-        <title>{`Scatter of ${campaigns.length} past campaigns by ONI and soil wetness, with ${current.campaign} marked`}</title>
+        <title>
+          {t(
+            "Scatter of {value1} past campaigns by ONI and soil wetness, with {value2} marked",
+            { value1: campaigns.length, value2: current.campaign }
+          )}
+        </title>
         {current.outside_historical_range && (
           <g>
             <rect
@@ -285,7 +301,7 @@ export function YearsScatter({
               className="fill-muted-foreground"
               fontSize={LABEL_FONT_PX}
             >
-              Above every past campaign
+              {t("Above every past campaign")}
             </text>
           </g>
         )}
@@ -305,7 +321,7 @@ export function YearsScatter({
               className="fill-muted-foreground"
               fontSize={LABEL_FONT_PX}
             >
-              {value.toFixed(1)}
+              {formatDecimal(value, 1)}
             </text>
           </g>
         ))}
@@ -343,7 +359,7 @@ export function YearsScatter({
           className="fill-foreground"
           fontSize={LABEL_FONT_PX + 1}
         >
-          ONI, July to September (NOAA)
+          {t("ONI, July to September (NOAA)")}
         </text>
         <text
           transform={`translate(12 ${MARGIN.top + innerHeight / 2}) rotate(-90)`}
@@ -351,7 +367,7 @@ export function YearsScatter({
           className="fill-foreground"
           fontSize={LABEL_FONT_PX + 1}
         >
-          Soil wetness, end of August (NASA POWER, 0 to 1)
+          {t("Soil wetness, end of August (NASA POWER, 0 to 1)")}
         </text>
 
         {plotted.map((campaign) => {
@@ -432,7 +448,7 @@ export function YearsScatter({
             strokeWidth={3}
             paintOrder="stroke"
           >
-            {label.text}
+            {t(label.text)}
           </text>
         ))}
 
@@ -466,7 +482,10 @@ export function YearsScatter({
           <button
             key={campaign.campaign}
             type="button"
-            aria-label={`${campaign.campaign}, ONI ${formatSigned(campaign.oni_jas)}`}
+            aria-label={t("{value1}, ONI {value2}", {
+              value1: campaign.campaign,
+              value2: formatSigned(campaign.oni_jas),
+            })}
             aria-pressed={campaign.campaign === selectedCampaign}
             className="absolute cursor-pointer rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             style={{

@@ -26,7 +26,6 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       // Same routing as Traefik in production, so the app is same-origin everywhere.
       proxy: {
-        "/api/auth": `http://localhost:${env.AUTH_PORT}`,
         "/api": `http://localhost:${env.UVICORN_PORT}`,
       },
     },

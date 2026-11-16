@@ -10,6 +10,7 @@ import {
   type SitePage,
 } from "@/features/landing/site-content"
 import { StrandsArt } from "@/features/landing/strands-art"
+import { useI18n } from "@/lib/i18n"
 
 const TOP_LEVEL_CLASS =
   "flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm text-foreground/70 outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:text-foreground"
@@ -23,6 +24,7 @@ function MenuPageLink({
   page: SitePage
   showSummary: boolean
 }) {
+  const { t } = useI18n("landing")
   return (
     <NavigationMenu.Link
       closeOnClick
@@ -35,16 +37,16 @@ function MenuPageLink({
       className="group/page block rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       <span className="flex items-baseline gap-2 text-sm font-medium text-primary transition-colors group-hover/page:text-foreground">
-        {page.title}
+        {t(page.title)}
         {(page.isInDevelopment || page.isRoadmap) && (
           <span className="text-xs font-normal text-muted-foreground">
-            {page.isRoadmap ? "Roadmap" : "Soon"}
+            {t(page.isRoadmap ? "Roadmap" : "Soon")}
           </span>
         )}
       </span>
       {showSummary && (
         <span className="mt-0.5 block text-sm text-muted-foreground">
-          {page.summary}
+          {t(page.summary)}
         </span>
       )}
     </NavigationMenu.Link>
@@ -53,6 +55,7 @@ function MenuPageLink({
 
 /** Features menu: summaries under each link, a tinted aside and a footer row. */
 function DetailedPanel({ menu }: { menu: SiteMenu }) {
+  const { t } = useI18n("landing")
   const mainColumns = menu.columns.filter((column) => !column.isAside)
   const asideColumns = menu.columns.filter((column) => column.isAside)
 
@@ -62,7 +65,7 @@ function DetailedPanel({ menu }: { menu: SiteMenu }) {
         <div className="grid flex-1 auto-cols-fr grid-flow-col gap-8 p-8">
           {mainColumns.map((column) => (
             <div key={column.heading}>
-              <h3 className="border-b pb-3 text-sm">{column.heading}</h3>
+              <h3 className="border-b pb-3 text-sm">{t(column.heading)}</h3>
               <ul className="mt-5 flex flex-col gap-4">
                 {column.pages.map((page) => (
                   <li key={page.pageSlug}>
@@ -83,14 +86,14 @@ function DetailedPanel({ menu }: { menu: SiteMenu }) {
             render={<Link to="/" hash="features" />}
             className="rounded-lg text-sm font-medium text-primary outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            See all features
+            {t("See all features")}
           </NavigationMenu.Link>
         </div>
       </div>
       <aside className="flex flex-col gap-8 border-l bg-secondary p-8">
         {asideColumns.map((column) => (
           <div key={column.heading}>
-            <h3 className="text-sm">{column.heading}</h3>
+            <h3 className="text-sm">{t(column.heading)}</h3>
             <ul className="mt-5 flex flex-col gap-4">
               {column.pages.map((page) => (
                 <li key={page.pageSlug}>
@@ -109,9 +112,9 @@ function DetailedPanel({ menu }: { menu: SiteMenu }) {
             <StrandsArt tone="inverse" className="absolute inset-0 size-full" />
           </div>
           <div className="flex flex-col gap-1 p-4 text-sm">
-            <p className="font-medium">Campaign 2026/27</p>
+            <p className="font-medium">{t("Campaign 2026/27")}</p>
             <p className="text-muted-foreground">
-              Plan it with the years that started like it.
+              {t("Plan it with the years that started like it.")}
             </p>
             <NavigationMenu.Link
               closeOnClick
@@ -126,7 +129,7 @@ function DetailedPanel({ menu }: { menu: SiteMenu }) {
               }
               className="mt-2"
             >
-              See how
+              {t("See how")}
             </NavigationMenu.Link>
           </div>
         </div>
@@ -137,6 +140,7 @@ function DetailedPanel({ menu }: { menu: SiteMenu }) {
 
 /** Titles only, one bordered column per group, the aside tinted. */
 function CompactPanel({ menu }: { menu: SiteMenu }) {
+  const { t } = useI18n("landing")
   return (
     <div className="grid auto-cols-fr grid-flow-col divide-x">
       {menu.columns.map((column) => (
@@ -144,7 +148,7 @@ function CompactPanel({ menu }: { menu: SiteMenu }) {
           key={column.heading}
           className={cn("p-8 pb-12", column.isAside && "bg-secondary")}
         >
-          <h3 className="text-sm">{column.heading}</h3>
+          <h3 className="text-sm">{t(column.heading)}</h3>
           <ul className="mt-5 flex flex-col gap-3.5">
             {column.pages.map((page) => (
               <li key={page.pageSlug}>
@@ -162,10 +166,7 @@ function CompactPanel({ menu }: { menu: SiteMenu }) {
   )
 }
 
-/**
- * Desktop navigation. Every menu opens one shared panel as wide as the header
- * frame, so the open header and the panel read as a single sheet.
- */
+/** Every menu opens one shared panel as wide as the header frame. */
 export function SiteNavMenu({
   frameRef,
   onOpenChange,
@@ -176,6 +177,7 @@ export function SiteNavMenu({
   onOpenChange: (isOpen: boolean) => void
   className?: string
 }) {
+  const { t } = useI18n("landing")
   return (
     <NavigationMenu.Root
       className={className}
@@ -185,7 +187,7 @@ export function SiteNavMenu({
         {SITE_MENUS.map((menu) => (
           <NavigationMenu.Item key={menu.sectionSlug} value={menu.sectionSlug}>
             <NavigationMenu.Trigger className={cn(TOP_LEVEL_CLASS, "group")}>
-              {menu.label}
+              {t(menu.label)}
               <NavigationMenu.Icon>
                 <ChevronDown className="size-3.5 transition-transform duration-200 group-data-popup-open:rotate-180" />
               </NavigationMenu.Icon>
@@ -204,7 +206,7 @@ export function SiteNavMenu({
             render={<Link to="/" hash="how-it-works" />}
             className={TOP_LEVEL_CLASS}
           >
-            How it works
+            {t("How it works")}
           </NavigationMenu.Link>
         </NavigationMenu.Item>
       </NavigationMenu.List>

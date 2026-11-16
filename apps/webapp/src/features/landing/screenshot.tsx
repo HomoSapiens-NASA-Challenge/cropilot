@@ -1,5 +1,6 @@
 import { cn } from "cn"
 import { PreviewWindow } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 export type ScreenshotId =
   | "case-hero"
@@ -21,7 +22,7 @@ export type ScreenshotId =
   | "method-sources"
   | "method-glossary"
 
-// Captures of the running public case, taken on 2026-11-15.
+// Captures of the running public case.
 const SCREENSHOTS: Record<
   ScreenshotId,
   { windowTitle: string; caption: string }
@@ -109,7 +110,6 @@ const SCREENSHOTS: Record<
   },
 }
 
-/** A still capture of the running app, framed like the product previews. */
 export function Screenshot({
   id,
   className,
@@ -117,17 +117,18 @@ export function Screenshot({
   id: ScreenshotId
   className?: string
 }) {
+  const { locale, t } = useI18n("landing")
   const { windowTitle, caption } = SCREENSHOTS[id]
   return (
     <figure className={cn("flex flex-col gap-3", className)}>
       <PreviewWindow
-        title={windowTitle}
-        badge="Screenshot"
+        title={t(windowTitle)}
+        badge={t("Screenshot")}
         bodyClassName="bg-secondary"
       >
         <img
           src={`/screenshots/${id}.webp`}
-          alt={`Screenshot of Cropilot: ${caption}`}
+          alt={t("Screenshot of Cropilot: {caption}", { caption: t(caption) })}
           width={1160}
           height={662}
           loading="lazy"
@@ -135,7 +136,8 @@ export function Screenshot({
         />
       </PreviewWindow>
       <figcaption className="text-sm text-muted-foreground">
-        {caption}
+        {t(caption)}
+        {locale === "es" && <> {t("Capture recorded in English")}</>}
       </figcaption>
     </figure>
   )

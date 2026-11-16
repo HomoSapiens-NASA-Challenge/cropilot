@@ -1,4 +1,5 @@
 import { PreviewWindow } from "@/features/landing/previews/preview-window"
+import { useI18n } from "@/lib/i18n"
 
 // The four tools the public MCP server lists, with their inputs (docs/mcp.md).
 const TOOLS = [
@@ -12,15 +13,16 @@ const TOOLS = [
 ] as const
 
 export function McpToolsPreview({ className }: { className?: string }) {
+  const { t } = useI18n("landing")
   return (
     <PreviewWindow
       title="cropilot · /api/mcp"
-      badge="Tool list"
+      badge={t("Tool list")}
       className={className}
     >
       <div className="flex flex-col gap-4">
         <p className="font-mono text-xs text-muted-foreground">
-          tools/list · Streamable HTTP · read-only, no key
+          {t("tools/list · Streamable HTTP · read-only, no key")}
         </p>
         <ul className="flex flex-col divide-y rounded-lg border bg-background/70">
           {TOOLS.map((tool) => (
@@ -36,8 +38,9 @@ export function McpToolsPreview({ className }: { className?: string }) {
           ))}
         </ul>
         <p className="text-xs text-muted-foreground">
-          compare_rotations also returns an interactive card for clients that
-          support MCP Apps.
+          {t(
+            "compare_rotations also returns an interactive card for clients that support MCP Apps."
+          )}
         </p>
       </div>
     </PreviewWindow>
