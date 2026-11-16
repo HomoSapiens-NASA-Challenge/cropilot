@@ -12,6 +12,10 @@ export function campaignFromSlug(slug: string) {
 export function caseHref(zoneId: string) {
   return { pathname: "/case/[zoneId]", params: { zoneId } } as const
 }
+/** Builds the public case assistant route. */
+export function askHref(zoneId: string) {
+  return { pathname: "/case/[zoneId]/ask", params: { zoneId } } as const
+}
 /** Builds a campaign detail route. */
 export function campaignHref(zoneId: string, campaign: string) {
   return {
