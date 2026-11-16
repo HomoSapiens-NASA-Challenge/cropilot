@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from app.core.auth import CurrentUser
@@ -15,6 +17,7 @@ from app.modules.cases.service import CaseDataError, CaseNotFoundError
 from app.modules.rotation_planner.service import RunNotFoundError
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
+logger = logging.getLogger(__name__)
 
 
 def _answer(
@@ -27,10 +30,13 @@ def _answer(
     except service.AssistantBusyError as error:
         raise HTTPException(429, str(error), headers={"Retry-After": "60"}) from error
     except service.AssistantUnavailableError as error:
+        logger.warning("Assistant unavailable: %s", error)
         raise HTTPException(503, str(error)) from error
     except CaseDataError as error:
         raise HTTPException(503, "Published evidence is unavailable") from error
     except EvidenceError as error:
+        # Messages are fixed server strings, never user text or provider bodies.
+        logger.warning("Assistant answer rejected: %s", error)
         raise HTTPException(422, str(error)) from error
 
 
@@ -52,8 +58,10 @@ def _transcribe(data: TranscriptionRequest, owner_id: str | None = None) -> Tran
     except service.AssistantBusyError as error:
         raise HTTPException(429, str(error), headers={"Retry-After": "60"}) from error
     except service.AssistantUnavailableError as error:
+        logger.warning("Transcription unavailable: %s", error)
         raise HTTPException(503, str(error)) from error
     except VoiceError as error:
+        logger.warning("Transcription rejected: %s", error)
         raise HTTPException(422, str(error)) from error
 
 
