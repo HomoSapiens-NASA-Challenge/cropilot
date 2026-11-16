@@ -22,6 +22,7 @@ import {
   RiskSummary,
   UnharvestedRow,
 } from "@/features/case/compare-margins"
+import { SowingWindowRow } from "@/features/case/compare-sowing"
 import { WaterRow } from "@/features/case/compare-water"
 import { EvidenceChip } from "@/features/case/evidence-chip"
 import { useI18n } from "@/lib/i18n"
@@ -185,6 +186,8 @@ export function CompareBlock({
             />
           </ComparisonRow>
         )}
+
+        {modules.water === "available" && <SowingWindowRow bundle={bundle} />}
 
         <ComparisonRow
           title={t("The five answers, for every strategy")}
